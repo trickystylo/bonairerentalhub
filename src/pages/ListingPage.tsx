@@ -1,14 +1,60 @@
-import { useParams } from "react-router-dom";
-import { MapPin, Phone, Star, Globe, MessageSquare } from "lucide-react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { MapPin, Phone, Star, Globe, MessageSquare, Home, ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+
+interface Business {
+  id: string;
+  name: string;
+  category: string;
+  displayCategory: string;
+  rating: number;
+  priceLevel: number;
+  languages: string[];
+  phone?: string;
+  website?: string;
+  address: string;
+  description?: string;
+  amenities?: string[];
+  images?: string[];
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+}
 
 const ListingPage = () => {
   const { id } = useParams();
-  // In a real app, you would fetch the listing data based on the ID
-  // For now, we'll use window.history.state to get the data passed from BusinessCard
-  const listing = window.history.state?.usr || null;
+  const navigate = useNavigate();
+  const [listing, setListing] = useState<Business | null>(null);
+
+  useEffect(() => {
+    // Try to get listing from history state
+    const historyListing = window.history.state?.usr;
+    
+    if (historyListing) {
+      setListing(historyListing);
+      // Store in sessionStorage for persistence
+      sessionStorage.setItem(`listing-${id}`, JSON.stringify(historyListing));
+    } else {
+      // Try to get from sessionStorage if page is refreshed
+      const storedListing = sessionStorage.getItem(`listing-${id}`);
+      if (storedListing) {
+        setListing(JSON.parse(storedListing));
+      }
+    }
+  }, [id]);
 
   if (!listing) {
-    return <div>Listing not found</div>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-xl text-gray-600">Listing not found</p>
+          <Link to="/" className="text-primary hover:underline mt-4 inline-block">
+            Return to Home
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const handleWhatsApp = () => {
@@ -27,7 +73,28 @@ const ListingPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>Back</span>
+            </button>
+            <Link
+              to="/"
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+            >
+              <Home className="w-5 h-5" />
+              <span>Home</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 pt-24 pb-12">
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           {listing.images && listing.images.length > 0 && (
             <div className="h-[400px] w-full bg-gray-200">
@@ -60,9 +127,9 @@ const ListingPage = () => {
               <div className="mb-6">
                 <h2 className="text-xl font-semibold mb-3">Amenities</h2>
                 <div className="flex flex-wrap gap-2">
-                  {listing.amenities.map((amenity: string) => (
+                  {listing.amenities.map((amenity: string, index: number) => (
                     <span
-                      key={amenity}
+                      key={index}
                       className="px-3 py-1 bg-gray-100 rounded-full text-sm"
                     >
                       {amenity}
