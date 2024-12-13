@@ -89,6 +89,7 @@ interface BusinessGridProps {
 }
 
 export const BusinessGrid = ({ selectedCategory }: BusinessGridProps) => {
+  // If no category is selected or "all" is selected, show all businesses
   const filteredBusinesses = selectedCategory
     ? businesses.filter((business) => business.category === selectedCategory)
     : businesses;
