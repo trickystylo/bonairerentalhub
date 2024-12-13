@@ -55,64 +55,61 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
 
   return (
     <div 
-      className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-6 cursor-pointer transform hover:-translate-y-1"
+      className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1"
       onClick={handleCardClick}
     >
-      {business.images && business.images.length > 0 && (
-        <div className="h-48 w-full mb-4 rounded-lg overflow-hidden">
+      {business.images && business.images.length > 0 ? (
+        <div className="h-48 w-full relative">
           <img
             src={business.images[0]}
             alt={business.name}
             className="w-full h-full object-cover"
           />
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-caribbean text-white p-2">
+            <h3 className="font-semibold text-xl">{business.name}</h3>
+          </div>
+        </div>
+      ) : (
+        <div className="h-48 w-full bg-gradient-caribbean flex items-center justify-center p-6">
+          <h3 className="font-semibold text-xl text-white text-center">{business.name}</h3>
         </div>
       )}
       
-      <h3 className="font-semibold text-xl mb-2">{business.name}</h3>
-      <p className="text-sm text-gray-500 mb-3">{t(business.category as TranslationKey)}</p>
-      
-      <div className="flex items-center mb-4">
-        <Star className="w-4 h-4 text-secondary mr-1" />
-        <span className="text-sm font-medium">{business.rating}</span>
-        <span className="mx-2 text-gray-300">•</span>
-        <span className="text-sm text-gray-600">
-          {"€".repeat(business.priceLevel)}
-        </span>
-      </div>
-
-      <div className="flex flex-wrap gap-1 mb-4">
-        {business.languages.map((lang) => (
-          <span
-            key={lang}
-            className="text-xs px-2 py-1 bg-gray-100 rounded-full"
-          >
-            {lang}
+      <div className="p-6">
+        <p className="text-sm text-gray-500 mb-3">{t(business.category as TranslationKey)}</p>
+        
+        <div className="flex items-center mb-4">
+          <Star className="w-4 h-4 text-secondary mr-1" />
+          <span className="text-sm font-medium">{business.rating}</span>
+          <span className="mx-2 text-gray-300">•</span>
+          <span className="text-sm text-gray-600">
+            {"€".repeat(business.priceLevel)}
           </span>
-        ))}
-      </div>
+        </div>
 
-      <div className="flex space-x-2">
-        <button 
-          onClick={handleWhatsApp}
-          className="flex-1 flex items-center justify-center space-x-1 bg-[#25D366] text-white rounded-lg py-2 hover:bg-opacity-90 transition-colors"
-        >
-          <MessageSquare className="w-4 h-4" />
-          <span className="text-sm">WhatsApp</span>
-        </button>
-        <button 
-          onClick={handleCall}
-          className="flex-1 flex items-center justify-center space-x-1 bg-primary text-white rounded-lg py-2 hover:bg-opacity-90 transition-colors"
-        >
-          <Phone className="w-4 h-4" />
-          <span className="text-sm">{t("call")}</span>
-        </button>
-        <button 
-          onClick={handleMap}
-          className="flex-1 flex items-center justify-center space-x-1 bg-gray-100 text-gray-700 rounded-lg py-2 hover:bg-gray-200 transition-colors"
-        >
-          <MapPin className="w-4 h-4" />
-          <span className="text-sm">{t("map")}</span>
-        </button>
+        <div className="flex space-x-2">
+          <button 
+            onClick={handleWhatsApp}
+            className="flex-1 flex items-center justify-center space-x-1 bg-[#25D366] text-white rounded-lg py-2 hover:bg-opacity-90 transition-colors"
+          >
+            <MessageSquare className="w-4 h-4" />
+            <span className="text-sm">WhatsApp</span>
+          </button>
+          <button 
+            onClick={handleCall}
+            className="flex-1 flex items-center justify-center space-x-1 bg-primary text-white rounded-lg py-2 hover:bg-opacity-90 transition-colors"
+          >
+            <Phone className="w-4 h-4" />
+            <span className="text-sm">{t("call")}</span>
+          </button>
+          <button 
+            onClick={handleMap}
+            className="flex-1 flex items-center justify-center space-x-1 bg-gray-100 text-gray-700 rounded-lg py-2 hover:bg-gray-200 transition-colors"
+          >
+            <MapPin className="w-4 h-4" />
+            <span className="text-sm">{t("map")}</span>
+          </button>
+        </div>
       </div>
     </div>
   );

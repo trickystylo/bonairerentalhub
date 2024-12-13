@@ -24,7 +24,11 @@ export const translations = {
     equipment: "Equipment verhuur",
     hotel: "Hotel",
     resort: "Resort",
-    appartementen: "Appartementen"
+    appartementen: "Appartementen",
+    siteDescription: "Ontdek het beste van Bonaire's verhuurservices",
+    welcomeMessage: "Welkom bij HureninBonaire",
+    searchPlaceholder: "Zoek naar verhuurbedrijven...",
+    exploreCategories: "Verken categorieën"
   },
   EN: {
     allCategories: "All categories",
@@ -51,7 +55,11 @@ export const translations = {
     equipment: "Equipment rental",
     hotel: "Hotel",
     resort: "Resort",
-    appartementen: "Apartments"
+    appartementen: "Apartments",
+    siteDescription: "Discover the best rental services in Bonaire",
+    welcomeMessage: "Welcome to RentinBonaire",
+    searchPlaceholder: "Search for rental businesses...",
+    exploreCategories: "Explore categories"
   },
   PAP: {
     allCategories: "Tur kategoria",
@@ -78,7 +86,11 @@ export const translations = {
     equipment: "Hür di ekipo",
     hotel: "Hotèl",
     resort: "Resort",
-    appartementen: "Apartamentunan"
+    appartementen: "Apartamentunan",
+    siteDescription: "Deskubrí e mihó servisionan di hür na Bonaire",
+    welcomeMessage: "Bon biní na HürNaBonaire",
+    searchPlaceholder: "Buska negoshinan di hür...",
+    exploreCategories: "Eksplorá kategorianan"
   },
   ES: {
     allCategories: "Todas las categorías",
@@ -105,7 +117,11 @@ export const translations = {
     equipment: "Alquiler de equipos",
     hotel: "Hotel",
     resort: "Resort",
-    appartementen: "Apartamentos"
+    appartementen: "Apartamentos",
+    siteDescription: "Descubre los mejores servicios de alquiler en Bonaire",
+    welcomeMessage: "Bienvenido a AlquilerenBonaire",
+    searchPlaceholder: "Buscar empresas de alquiler...",
+    exploreCategories: "Explorar categorías"
   }
 };
 
@@ -113,5 +129,5 @@ export type Language = keyof typeof translations;
 export type TranslationKey = keyof typeof translations.EN;
 
 export const useTranslation = (lang: Language) => {
-  return (key: TranslationKey) => translations[lang][key];
+  return (key: TranslationKey) => translations[lang][key] || key;
 };
