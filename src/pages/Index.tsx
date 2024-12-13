@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { SearchBar } from "@/components/SearchBar";
-import { CategoryFilters } from "@/components/CategoryFilters";
 import { BusinessGrid } from "@/components/BusinessGrid";
 import { CsvUploader } from "@/components/CsvUploader";
+import { Navigation } from "@/components/Navigation";
 import { useLanguage } from "../context/LanguageContext";
 import { useTranslation } from "../translations";
 
@@ -32,6 +32,11 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <Navigation 
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+        additionalCategories={additionalCategories}
+      />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto text-center mb-12">
           <h1 className="text-4xl font-bold mb-4 bg-gradient-caribbean bg-clip-text text-transparent">
@@ -46,11 +51,6 @@ const Index = () => {
         <CsvUploader 
           onUpload={handleCsvUpload}
           onNewCategories={handleNewCategories}
-        />
-        <CategoryFilters
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-          additionalCategories={additionalCategories}
         />
         <BusinessGrid 
           selectedCategory={selectedCategory}

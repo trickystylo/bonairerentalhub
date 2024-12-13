@@ -2,7 +2,8 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { MapPin, Phone, Star, Globe, MessageSquare, Home, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../context/LanguageContext";
-import { useTranslation, TranslationKey } from "../translations";
+import { useTranslation } from "../translations";
+import { Navigation } from "@/components/Navigation";
 
 interface Business {
   id: string;
@@ -58,22 +59,10 @@ const ListingPage = () => {
     );
   }
 
-  const handleWhatsApp = () => {
-    const phoneNumber = listing.phone?.replace(/[^0-9]/g, '') || '';
-    window.open(`https://wa.me/${phoneNumber}`, '_blank');
-  };
-
-  const handleCall = () => {
-    window.location.href = `tel:${listing.phone}`;
-  };
-
-  const handleMap = () => {
-    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(listing.name)}&query_place_id=${listing.id}`;
-    window.open(mapsUrl, '_blank');
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
+      <Header />
+      <Navigation selectedCategory={null} />
       <div className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -109,7 +98,7 @@ const ListingPage = () => {
           
           <div className="p-8">
             <h1 className="text-3xl font-bold mb-2">{listing.name}</h1>
-            <p className="text-lg text-gray-600 mb-4">{t(listing.category as TranslationKey)}</p>
+            <p className="text-lg text-gray-600 mb-4">{t(listing.category)}</p>
             
             <div className="flex items-center mb-6">
               <Star className="w-5 h-5 text-secondary mr-1" />
