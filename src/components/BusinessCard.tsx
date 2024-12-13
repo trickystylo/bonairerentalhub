@@ -1,15 +1,20 @@
 import { MapPin, Phone, Star, MessageSquare } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Business {
   id: string;
   name: string;
   category: string;
+  displayCategory: string;
   rating: number;
   priceLevel: number;
   languages: string[];
   phone?: string;
   website?: string;
   address: string;
+  description?: string;
+  amenities?: string[];
+  images?: string[];
   location: {
     latitude: number;
     longitude: number;
@@ -21,28 +26,50 @@ interface BusinessCardProps {
 }
 
 export const BusinessCard = ({ business }: BusinessCardProps) => {
-  const handleWhatsApp = () => {
+  const navigate = useNavigate();
+
+  const handleWhatsApp = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const phoneNumber = business.phone?.replace(/[^0-9]/g, '') || '';
     window.open(`https://wa.me/${phoneNumber}`, '_blank');
   };
 
-  const handleCall = () => {
+  const handleCall = (e: React.MouseEvent) => {
+    e.stopPropagation();
     window.location.href = `tel:${business.phone}`;
   };
 
-  const handleMap = () => {
+  const handleMap = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.name)}&query_place_id=${business.id}`;
     window.open(mapsUrl, '_blank');
   };
 
+  const handleCardClick = () => {
+    navigate(`/listing/${business.id}`, { state: business });
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-4">
-      <h3 className="font-semibold text-lg mb-2">{business.name}</h3>
-      <p className="text-sm text-gray-500 mb-2">{business.category}</p>
+    <div 
+      className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-6 cursor-pointer transform hover:-translate-y-1"
+      onClick={handleCardClick}
+    >
+      {business.images && business.images.length > 0 && (
+        <div className="h-48 w-full mb-4 rounded-lg overflow-hidden">
+          <img
+            src={business.images[0]}
+            alt={business.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
       
-      <div className="flex items-center mb-2">
+      <h3 className="font-semibold text-xl mb-2">{business.name}</h3>
+      <p className="text-sm text-gray-500 mb-3">{business.displayCategory}</p>
+      
+      <div className="flex items-center mb-4">
         <Star className="w-4 h-4 text-secondary mr-1" />
-        <span className="text-sm">{business.rating}</span>
+        <span className="text-sm font-medium">{business.rating}</span>
         <span className="mx-2 text-gray-300">•</span>
         <span className="text-sm text-gray-600">
           {"€".repeat(business.priceLevel)}
@@ -63,21 +90,21 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
       <div className="flex space-x-2">
         <button 
           onClick={handleWhatsApp}
-          className="flex-1 flex items-center justify-center space-x-1 bg-[#25D366] text-white rounded-md py-2 hover:bg-opacity-90 transition-colors"
+          className="flex-1 flex items-center justify-center space-x-1 bg-[#25D366] text-white rounded-lg py-2 hover:bg-opacity-90 transition-colors"
         >
           <MessageSquare className="w-4 h-4" />
           <span className="text-sm">WhatsApp</span>
         </button>
         <button 
           onClick={handleCall}
-          className="flex-1 flex items-center justify-center space-x-1 bg-primary text-white rounded-md py-2 hover:bg-opacity-90 transition-colors"
+          className="flex-1 flex items-center justify-center space-x-1 bg-primary text-white rounded-lg py-2 hover:bg-opacity-90 transition-colors"
         >
           <Phone className="w-4 h-4" />
           <span className="text-sm">Call</span>
         </button>
         <button 
           onClick={handleMap}
-          className="flex-1 flex items-center justify-center space-x-1 bg-gray-100 text-gray-700 rounded-md py-2 hover:bg-gray-200 transition-colors"
+          className="flex-1 flex items-center justify-center space-x-1 bg-gray-100 text-gray-700 rounded-lg py-2 hover:bg-gray-200 transition-colors"
         >
           <MapPin className="w-4 h-4" />
           <span className="text-sm">Map</span>

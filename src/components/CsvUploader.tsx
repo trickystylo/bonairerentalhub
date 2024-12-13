@@ -12,6 +12,15 @@ interface CsvUploaderProps {
 export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
+  const formatCategoryName = (category: string) => {
+    return category
+      .replace(/^-+/, '') // Remove leading hyphens
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+      .trim();
+  };
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -30,7 +39,6 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
             const type = row.type?.toLowerCase() || '';
             let category = type.replace(/\s+/g, '-').toLowerCase();
             
-            // Check if this is a new category
             if (!['auto', 'boot', 'vakantiehuizen', 'watersport', 'equipment'].includes(category)) {
               newCategories.add(category);
             }
@@ -39,13 +47,16 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
               id: `temp-${Math.random()}`,
               name: row.name,
               category: category,
-              displayCategory: row.type,
+              displayCategory: formatCategoryName(category),
               rating: parseFloat(row.rating) || 0,
               priceLevel: 2,
-              languages: ["NL", "EN"],
+              languages: ["NL", "EN", "PAP", "ES"],
               phone: row.phone,
               website: row.website,
               address: `${row.address}, ${row.city}`,
+              description: row.description || '',
+              amenities: row.amenities ? row.amenities.split('|') : [],
+              images: row.images ? [row.images] : [],
               location: {
                 latitude: parseFloat(row.latitude) || 0,
                 longitude: parseFloat(row.longitude) || 0
@@ -56,11 +67,10 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
           console.log("Formatted data:", formattedData);
           onUpload(formattedData);
           
-          // If we have new categories, format and send them
           if (newCategories.size > 0) {
             const categoryObjects = Array.from(newCategories).map(cat => ({
               id: cat,
-              name: cat.charAt(0).toUpperCase() + cat.slice(1).replace(/-/g, ' ')
+              name: formatCategoryName(cat)
             }));
             console.log("New categories:", categoryObjects);
             onNewCategories?.(categoryObjects);
