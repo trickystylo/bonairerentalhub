@@ -1,6 +1,11 @@
 import { useRef } from "react";
 
-const categories = [
+interface Category {
+  id: string;
+  name: string;
+}
+
+const defaultCategories: Category[] = [
   { id: "all", name: "Alle categorieën" },
   { id: "auto", name: "Auto verhuur" },
   { id: "boot", name: "Boot verhuur" },
@@ -12,10 +17,16 @@ const categories = [
 interface CategoryFiltersProps {
   selectedCategory: string | null;
   onCategoryChange: (category: string | null) => void;
+  additionalCategories?: Category[];
 }
 
-export const CategoryFilters = ({ selectedCategory, onCategoryChange }: CategoryFiltersProps) => {
+export const CategoryFilters = ({ 
+  selectedCategory, 
+  onCategoryChange,
+  additionalCategories = []
+}: CategoryFiltersProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const allCategories = [...defaultCategories, ...additionalCategories];
 
   const handleCategoryClick = (categoryId: string) => {
     if (categoryId === "all") {
@@ -33,7 +44,7 @@ export const CategoryFilters = ({ selectedCategory, onCategoryChange }: Category
         ref={scrollRef}
         className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide"
       >
-        {categories.map((category) => (
+        {allCategories.map((category) => (
           <button
             key={category.id}
             onClick={() => handleCategoryClick(category.id)}

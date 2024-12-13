@@ -6,9 +6,10 @@ import Papa from "papaparse";
 
 interface CsvUploaderProps {
   onUpload: (data: any[]) => void;
+  onNewCategories?: (categories: { id: string; name: string }[]) => void;
 }
 
-export const CsvUploader = ({ onUpload }: CsvUploaderProps) => {
+export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,19 +24,16 @@ export const CsvUploader = ({ onUpload }: CsvUploaderProps) => {
         console.log("Raw CSV data:", results.data);
         
         try {
+          const newCategories = new Set<string>();
+          
           const formattedData = results.data.map((row: any) => {
-            // Determine category based on type
-            let category = 'other';
             const type = row.type?.toLowerCase() || '';
-            if (type.includes('car')) category = 'auto';
-            else if (type.includes('boat')) category = 'boot';
-            else if (type.includes('vacation')) category = 'vakantiehuizen';
-            else if (type.includes('water')) category = 'watersport';
-            else if (type.includes('equipment')) category = 'equipment';
-
-            // Split amenities into array if present
-            const languages = ["NL", "EN"]; // Default languages
-            const amenities = row.amenities ? row.amenities.split('|') : [];
+            let category = type.replace(/\s+/g, '-').toLowerCase();
+            
+            // Check if this is a new category
+            if (!['auto', 'boot', 'vakantiehuizen', 'watersport', 'equipment'].includes(category)) {
+              newCategories.add(category);
+            }
 
             return {
               id: `temp-${Math.random()}`,
@@ -43,8 +41,8 @@ export const CsvUploader = ({ onUpload }: CsvUploaderProps) => {
               category: category,
               displayCategory: row.type,
               rating: parseFloat(row.rating) || 0,
-              priceLevel: 2, // Default price level
-              languages: languages,
+              priceLevel: 2,
+              languages: ["NL", "EN"],
               phone: row.phone,
               website: row.website,
               address: `${row.address}, ${row.city}`,
@@ -57,6 +55,16 @@ export const CsvUploader = ({ onUpload }: CsvUploaderProps) => {
 
           console.log("Formatted data:", formattedData);
           onUpload(formattedData);
+          
+          // If we have new categories, format and send them
+          if (newCategories.size > 0) {
+            const categoryObjects = Array.from(newCategories).map(cat => ({
+              id: cat,
+              name: row.type || cat.charAt(0).toUpperCase() + cat.slice(1).replace(/-/g, ' ')
+            }));
+            console.log("New categories:", categoryObjects);
+            onNewCategories?.(categoryObjects);
+          }
           
           toast({
             title: "Success",
