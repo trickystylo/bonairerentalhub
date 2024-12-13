@@ -80,8 +80,55 @@ const businesses = [
       latitude: 12.1842353,
       longitude: -68.2781092
     }
+  },
+  {
+    id: "ChIJu3p772AZg44RuXGQnnUMzjA",
+    name: "Huisje Huren Bonaire",
+    category: "vakantiehuizen",
+    displayCategory: "Verhuurbedrijf voor vakantiehuizen",
+    rating: 5.0,
+    priceLevel: 2,
+    languages: ["NL", "EN"],
+    phone: "+31641744614",
+    website: "https://www.huisjehurenbonaire.nl/",
+    address: "Bona Bista Estate, A-46, Kralendijk",
+    location: {
+      latitude: 12.1835098,
+      longitude: -68.2643084
+    }
+  },
+  {
+    id: "ChIJy9MLaBkbg44RfRaqthKD5x4",
+    name: "Sunwise Bonaire",
+    category: "vakantiehuizen",
+    displayCategory: "Verhuurbedrijf voor vakantiehuizen",
+    rating: 4.9,
+    priceLevel: 3,
+    languages: ["NL", "EN"],
+    phone: "+5997827100",
+    website: "https://sunwisebonaire.com/",
+    address: "83 Sabal Palm, Kralendijk",
+    location: {
+      latitude: 12.1216808,
+      longitude: -68.2786293
+    }
+  },
+  {
+    id: "ChIJ4Sx66Nwbg44RUxvBdQ71eUk",
+    name: "Aqua Fun Bonaire",
+    category: "watersport",
+    displayCategory: "Watersport verhuur",
+    rating: 5.0,
+    priceLevel: 2,
+    languages: ["NL", "EN"],
+    phone: "+5997858385",
+    website: "https://www.aquafunbonaire.com/",
+    address: "Harbour Village Bonaire, Kaya Gobernador Nicolas Debrot 71",
+    location: {
+      latitude: 12.1645154,
+      longitude: -68.284359
+    }
   }
-  // ... Add more businesses with their categories
 ];
 
 interface BusinessGridProps {
