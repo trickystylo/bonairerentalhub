@@ -20,25 +20,40 @@ export const CsvUploader = ({ onUpload }: CsvUploaderProps) => {
     Papa.parse(file, {
       header: true,
       complete: (results) => {
-        console.log("Parsed CSV:", results.data);
+        console.log("Raw CSV data:", results.data);
         
         try {
-          const formattedData = results.data.map((row: any) => ({
-            id: row.id || `temp-${Math.random()}`,
-            name: row.name,
-            category: row.category?.toLowerCase() || 'other',
-            displayCategory: row.displayCategory,
-            rating: parseFloat(row.rating) || 0,
-            priceLevel: parseInt(row.priceLevel) || 1,
-            languages: row.languages?.split(",") || ["NL", "EN"],
-            phone: row.phone,
-            website: row.website,
-            address: row.address,
-            location: {
-              latitude: parseFloat(row.latitude) || 0,
-              longitude: parseFloat(row.longitude) || 0
-            }
-          }));
+          const formattedData = results.data.map((row: any) => {
+            // Determine category based on type
+            let category = 'other';
+            const type = row.type?.toLowerCase() || '';
+            if (type.includes('car')) category = 'auto';
+            else if (type.includes('boat')) category = 'boot';
+            else if (type.includes('vacation')) category = 'vakantiehuizen';
+            else if (type.includes('water')) category = 'watersport';
+            else if (type.includes('equipment')) category = 'equipment';
+
+            // Split amenities into array if present
+            const languages = ["NL", "EN"]; // Default languages
+            const amenities = row.amenities ? row.amenities.split('|') : [];
+
+            return {
+              id: `temp-${Math.random()}`,
+              name: row.name,
+              category: category,
+              displayCategory: row.type,
+              rating: parseFloat(row.rating) || 0,
+              priceLevel: 2, // Default price level
+              languages: languages,
+              phone: row.phone,
+              website: row.website,
+              address: `${row.address}, ${row.city}`,
+              location: {
+                latitude: parseFloat(row.latitude) || 0,
+                longitude: parseFloat(row.longitude) || 0
+              }
+            };
+          });
 
           console.log("Formatted data:", formattedData);
           onUpload(formattedData);
