@@ -1,5 +1,7 @@
 import { MapPin, Phone, Star, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
+import { useTranslation, TranslationKey } from "../translations";
 
 interface Business {
   id: string;
@@ -27,6 +29,8 @@ interface BusinessCardProps {
 
 export const BusinessCard = ({ business }: BusinessCardProps) => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const t = useTranslation(language);
 
   const handleWhatsApp = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -65,7 +69,7 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
       )}
       
       <h3 className="font-semibold text-xl mb-2">{business.name}</h3>
-      <p className="text-sm text-gray-500 mb-3">{business.displayCategory}</p>
+      <p className="text-sm text-gray-500 mb-3">{t(business.category as TranslationKey)}</p>
       
       <div className="flex items-center mb-4">
         <Star className="w-4 h-4 text-secondary mr-1" />
@@ -100,14 +104,14 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
           className="flex-1 flex items-center justify-center space-x-1 bg-primary text-white rounded-lg py-2 hover:bg-opacity-90 transition-colors"
         >
           <Phone className="w-4 h-4" />
-          <span className="text-sm">Call</span>
+          <span className="text-sm">{t("call")}</span>
         </button>
         <button 
           onClick={handleMap}
           className="flex-1 flex items-center justify-center space-x-1 bg-gray-100 text-gray-700 rounded-lg py-2 hover:bg-gray-200 transition-colors"
         >
           <MapPin className="w-4 h-4" />
-          <span className="text-sm">Map</span>
+          <span className="text-sm">{t("map")}</span>
         </button>
       </div>
     </div>
