@@ -145,6 +145,9 @@ export const BusinessGrid = ({ selectedCategory, additionalListings = [] }: Busi
     ? allBusinesses.filter((business) => business.category === selectedCategory)
     : allBusinesses;
 
+  console.log("All businesses:", allBusinesses);
+  console.log("Filtered businesses:", filteredBusinesses);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mt-8">
       {filteredBusinesses.map((business) => (

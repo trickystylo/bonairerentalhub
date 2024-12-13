@@ -10,6 +10,7 @@ const Index = () => {
   const [additionalListings, setAdditionalListings] = useState<any[]>([]);
 
   const handleCsvUpload = (data: any[]) => {
+    console.log("Received CSV data in Index:", data);
     setAdditionalListings(data);
   };
 

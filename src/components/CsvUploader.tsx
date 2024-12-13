@@ -26,7 +26,7 @@ export const CsvUploader = ({ onUpload }: CsvUploaderProps) => {
           const formattedData = results.data.map((row: any) => ({
             id: row.id || `temp-${Math.random()}`,
             name: row.name,
-            category: row.category,
+            category: row.category?.toLowerCase() || 'other',
             displayCategory: row.displayCategory,
             rating: parseFloat(row.rating) || 0,
             priceLevel: parseInt(row.priceLevel) || 1,
@@ -40,7 +40,9 @@ export const CsvUploader = ({ onUpload }: CsvUploaderProps) => {
             }
           }));
 
+          console.log("Formatted data:", formattedData);
           onUpload(formattedData);
+          
           toast({
             title: "Success",
             description: `Uploaded ${formattedData.length} listings successfully`,
