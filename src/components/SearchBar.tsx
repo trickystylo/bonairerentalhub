@@ -7,21 +7,21 @@ export const SearchBar = () => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     console.log("Searching for:", e.target.value);
-    // In a real implementation, this would trigger a search through the businesses
   };
 
   return (
-    <div className="relative max-w-2xl mx-auto">
+    <div className="relative max-w-2xl mx-auto mb-12">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-primary w-5 h-5" />
         <input
           type="text"
           value={searchTerm}
           onChange={handleSearch}
-          placeholder="Search rentals..."
-          className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          placeholder="Search rentals in Bonaire..."
+          className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-lg bg-white/90 backdrop-blur-sm transition-all duration-300 hover:shadow-xl"
         />
       </div>
+      <div className="absolute inset-0 bg-gradient-caribbean opacity-5 blur-lg -z-10"></div>
     </div>
   );
 };

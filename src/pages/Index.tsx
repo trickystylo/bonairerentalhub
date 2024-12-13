@@ -38,16 +38,23 @@ const Index = () => {
         additionalCategories={additionalCategories}
       />
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-caribbean bg-clip-text text-transparent">
+        <div className="max-w-4xl mx-auto text-center mb-12 space-y-6">
+          <h1 className="text-5xl font-bold bg-gradient-caribbean bg-clip-text text-transparent animate-fade-in">
             {t("welcomeMessage")}
           </h1>
-          <p className="text-lg text-gray-600 mb-8">
+          <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
             {t("siteDescription")}
+          </p>
+          <p className="text-lg text-gray-500 italic">
+            Discover paradise at your fingertips - Your trusted guide to Bonaire's finest rentals
           </p>
         </div>
         
-        <SearchBar />
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-caribbean opacity-5 blur-xl"></div>
+          <SearchBar />
+        </div>
+
         <CsvUploader 
           onUpload={handleCsvUpload}
           onNewCategories={handleNewCategories}
