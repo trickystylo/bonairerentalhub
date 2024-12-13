@@ -2,7 +2,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { MapPin, Phone, Star, Globe, MessageSquare, Home, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../context/LanguageContext";
-import { useTranslation } from "../translations";
+import { useTranslation, TranslationKey } from "../translations";
 
 interface Business {
   id: string;
