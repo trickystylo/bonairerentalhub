@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 const categories = [
   { id: "auto", name: "Auto verhuur" },
@@ -8,8 +8,21 @@ const categories = [
   { id: "equipment", name: "Equipment verhuur" },
 ];
 
-export const CategoryFilters = () => {
+interface CategoryFiltersProps {
+  selectedCategory: string | null;
+  onCategoryChange: (category: string | null) => void;
+}
+
+export const CategoryFilters = ({ selectedCategory, onCategoryChange }: CategoryFiltersProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handleCategoryClick = (categoryId: string) => {
+    if (selectedCategory === categoryId) {
+      onCategoryChange(null); // Deselect if already selected
+    } else {
+      onCategoryChange(categoryId);
+    }
+  };
 
   return (
     <div className="relative max-w-6xl mx-auto mt-4">
@@ -20,7 +33,12 @@ export const CategoryFilters = () => {
         {categories.map((category) => (
           <button
             key={category.id}
-            className="flex-shrink-0 px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm whitespace-nowrap"
+            onClick={() => handleCategoryClick(category.id)}
+            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
+              selectedCategory === category.id
+                ? "bg-primary text-white"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+            }`}
           >
             {category.name}
           </button>
