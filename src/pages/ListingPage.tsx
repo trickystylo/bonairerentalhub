@@ -1,9 +1,11 @@
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { MapPin, Phone, Star, Globe, MessageSquare, Home, ArrowLeft } from "lucide-react";
+import { MapPin, Phone, Star, Globe } from "lucide-react";
+import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { useTranslation } from "../translations";
 import { Navigation } from "@/components/Navigation";
+import { ListingHeader } from "@/components/listing/ListingHeader";
+import { ListingActions } from "@/components/listing/ListingActions";
 
 interface Business {
   id: string;
@@ -27,7 +29,6 @@ interface Business {
 
 const ListingPage = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [listing, setListing] = useState<Business | null>(null);
   const { language } = useLanguage();
   const t = useTranslation(language);
@@ -61,29 +62,9 @@ const ListingPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <ListingHeader />
       <Navigation selectedCategory={null} />
-      <div className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span>{t("back")}</span>
-            </button>
-            <Link
-              to="/"
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-            >
-              <Home className="w-5 h-5" />
-              <span>{t("home")}</span>
-            </Link>
-          </div>
-        </div>
-      </div>
-
+      
       <div className="max-w-6xl mx-auto px-4 pt-24 pb-12">
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           {listing.images && listing.images.length > 0 && (
@@ -98,7 +79,7 @@ const ListingPage = () => {
           
           <div className="p-8">
             <h1 className="text-3xl font-bold mb-2">{listing.name}</h1>
-            <p className="text-lg text-gray-600 mb-4">{t(listing.category)}</p>
+            <p className="text-lg text-gray-600 mb-4">{listing.displayCategory}</p>
             
             <div className="flex items-center mb-6">
               <Star className="w-5 h-5 text-secondary mr-1" />
@@ -134,7 +115,7 @@ const ListingPage = () => {
               <div className="mb-6">
                 <h2 className="text-lg font-semibold mb-2">{t("amenities")}</h2>
                 <div className="flex flex-wrap gap-2">
-                  {listing.amenities.map((amenity: string, index: number) => (
+                  {listing.amenities.map((amenity, index) => (
                     <span
                       key={index}
                       className="px-3 py-1 bg-gray-100 rounded-full text-sm"
@@ -181,31 +162,11 @@ const ListingPage = () => {
               )}
             </div>
 
-            <div className="flex space-x-4">
-              <button
-                onClick={handleWhatsApp}
-                className="flex-1 flex items-center justify-center space-x-2 bg-[#25D366] text-white rounded-lg py-3 hover:bg-opacity-90 transition-colors"
-              >
-                <MessageSquare className="w-5 h-5" />
-                <span>WhatsApp</span>
-              </button>
-              
-              <button
-                onClick={handleCall}
-                className="flex-1 flex items-center justify-center space-x-2 bg-primary text-white rounded-lg py-3 hover:bg-opacity-90 transition-colors"
-              >
-                <Phone className="w-5 h-5" />
-                <span>{t("call")}</span>
-              </button>
-              
-              <button
-                onClick={handleMap}
-                className="flex-1 flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 rounded-lg py-3 hover:bg-gray-200 transition-colors"
-              >
-                <MapPin className="w-5 h-5" />
-                <span>{t("map")}</span>
-              </button>
-            </div>
+            <ListingActions 
+              phone={listing.phone}
+              name={listing.name}
+              id={listing.id}
+            />
           </div>
         </div>
       </div>
