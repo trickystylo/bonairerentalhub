@@ -60,7 +60,7 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
           if (newCategories.size > 0) {
             const categoryObjects = Array.from(newCategories).map(cat => ({
               id: cat,
-              name: row.type || cat.charAt(0).toUpperCase() + cat.slice(1).replace(/-/g, ' ')
+              name: cat.charAt(0).toUpperCase() + cat.slice(1).replace(/-/g, ' ')
             }));
             console.log("New categories:", categoryObjects);
             onNewCategories?.(categoryObjects);
