@@ -1,6 +1,6 @@
 import { BusinessCard } from "./BusinessCard";
 
-const businesses = [
+const defaultBusinesses = [
   {
     id: "ChIJK-Gnjhsbg44RJEekxaPHWZQ",
     name: "Pickup Huren Bonaire",
@@ -133,13 +133,17 @@ const businesses = [
 
 interface BusinessGridProps {
   selectedCategory: string | null;
+  additionalListings?: any[];
 }
 
-export const BusinessGrid = ({ selectedCategory }: BusinessGridProps) => {
-  // If no category is selected or "all" is selected, show all businesses
+export const BusinessGrid = ({ selectedCategory, additionalListings = [] }: BusinessGridProps) => {
+  // Combine default businesses with additional listings
+  const allBusinesses = [...defaultBusinesses, ...additionalListings];
+  
+  // Filter businesses based on selected category
   const filteredBusinesses = selectedCategory
-    ? businesses.filter((business) => business.category === selectedCategory)
-    : businesses;
+    ? allBusinesses.filter((business) => business.category === selectedCategory)
+    : allBusinesses;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mt-8">
