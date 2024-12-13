@@ -1,16 +1,40 @@
 import { MapPin, Phone, Star, MessageSquare } from "lucide-react";
 
-interface BusinessCardProps {
-  business: {
-    name: string;
-    category: string;
-    rating: number;
-    priceLevel: number;
-    languages: string[];
+interface Business {
+  id: string;
+  name: string;
+  category: string;
+  rating: number;
+  priceLevel: number;
+  languages: string[];
+  phone?: string;
+  website?: string;
+  address: string;
+  location: {
+    latitude: number;
+    longitude: number;
   };
 }
 
+interface BusinessCardProps {
+  business: Business;
+}
+
 export const BusinessCard = ({ business }: BusinessCardProps) => {
+  const handleWhatsApp = () => {
+    const phoneNumber = business.phone?.replace(/[^0-9]/g, '') || '';
+    window.open(`https://wa.me/${phoneNumber}`, '_blank');
+  };
+
+  const handleCall = () => {
+    window.location.href = `tel:${business.phone}`;
+  };
+
+  const handleMap = () => {
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.name)}&query_place_id=${business.id}`;
+    window.open(mapsUrl, '_blank');
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-4">
       <h3 className="font-semibold text-lg mb-2">{business.name}</h3>
@@ -37,15 +61,24 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
       </div>
 
       <div className="flex space-x-2">
-        <button className="flex-1 flex items-center justify-center space-x-1 bg-[#25D366] text-white rounded-md py-2">
+        <button 
+          onClick={handleWhatsApp}
+          className="flex-1 flex items-center justify-center space-x-1 bg-[#25D366] text-white rounded-md py-2 hover:bg-opacity-90 transition-colors"
+        >
           <MessageSquare className="w-4 h-4" />
           <span className="text-sm">WhatsApp</span>
         </button>
-        <button className="flex-1 flex items-center justify-center space-x-1 bg-primary text-white rounded-md py-2">
+        <button 
+          onClick={handleCall}
+          className="flex-1 flex items-center justify-center space-x-1 bg-primary text-white rounded-md py-2 hover:bg-opacity-90 transition-colors"
+        >
           <Phone className="w-4 h-4" />
           <span className="text-sm">Call</span>
         </button>
-        <button className="flex-1 flex items-center justify-center space-x-1 bg-gray-100 text-gray-700 rounded-md py-2">
+        <button 
+          onClick={handleMap}
+          className="flex-1 flex items-center justify-center space-x-1 bg-gray-100 text-gray-700 rounded-md py-2 hover:bg-gray-200 transition-colors"
+        >
           <MapPin className="w-4 h-4" />
           <span className="text-sm">Map</span>
         </button>
