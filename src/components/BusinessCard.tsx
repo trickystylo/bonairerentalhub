@@ -1,4 +1,4 @@
-import { MapPin, Phone, Star, WhatsApp } from "lucide-react";
+import { MapPin, Phone, Star, MessageSquare } from "lucide-react";
 
 interface BusinessCardProps {
   business: {
@@ -38,7 +38,7 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
 
       <div className="flex space-x-2">
         <button className="flex-1 flex items-center justify-center space-x-1 bg-[#25D366] text-white rounded-md py-2">
-          <WhatsApp className="w-4 h-4" />
+          <MessageSquare className="w-4 h-4" />
           <span className="text-sm">WhatsApp</span>
         </button>
         <button className="flex-1 flex items-center justify-center space-x-1 bg-primary text-white rounded-md py-2">
