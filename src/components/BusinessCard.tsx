@@ -1,7 +1,7 @@
-import { MapPin, Phone, Star, MessageSquare } from "lucide-react";
+import { MapPin, Phone, Star, MessageSquare, Link } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
-import { useTranslation, TranslationKey } from "../translations";
+import { useTranslation } from "../translations";
 
 interface Business {
   id: string;
@@ -49,6 +49,13 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
     window.open(mapsUrl, '_blank');
   };
 
+  const handleWebsite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (business.website) {
+      window.open(business.website, '_blank');
+    }
+  };
+
   const handleCardClick = () => {
     navigate(`/listing/${business.id}`, { state: business });
   };
@@ -59,56 +66,73 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
       onClick={handleCardClick}
     >
       {business.images && business.images.length > 0 ? (
-        <div className="h-48 w-full relative">
+        <div className="relative h-48">
           <img
             src={business.images[0]}
             alt={business.name}
             className="w-full h-full object-cover"
           />
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-caribbean text-white p-2">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
             <h3 className="font-semibold text-xl">{business.name}</h3>
+            <p className="text-sm opacity-90">{t(business.category)}</p>
           </div>
         </div>
       ) : (
-        <div className="h-48 w-full bg-gradient-caribbean flex items-center justify-center p-6">
+        <div className="h-48 bg-gradient-caribbean flex items-center justify-center p-6">
           <h3 className="font-semibold text-xl text-white text-center">{business.name}</h3>
         </div>
       )}
       
-      <div className="p-6">
-        <p className="text-sm text-gray-500 mb-3">{t(business.category as TranslationKey)}</p>
-        
-        <div className="flex items-center mb-4">
-          <Star className="w-4 h-4 text-secondary mr-1" />
-          <span className="text-sm font-medium">{business.rating}</span>
-          <span className="mx-2 text-gray-300">•</span>
-          <span className="text-sm text-gray-600">
+      <div className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Star className="w-5 h-5 text-yellow-400" />
+          <span className="font-medium">{business.rating}</span>
+          <span className="text-gray-400">•</span>
+          <span className="text-gray-600">
             {"€".repeat(business.priceLevel)}
           </span>
         </div>
 
-        <div className="flex space-x-2">
+        <div className="flex items-start gap-2 mb-2">
+          <MapPin className="w-4 h-4 text-gray-400 mt-1 shrink-0" />
+          <p className="text-sm text-gray-600 line-clamp-2">{business.address}</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 mt-4">
           <button 
             onClick={handleWhatsApp}
-            className="flex-1 flex items-center justify-center space-x-1 bg-[#25D366] text-white rounded-lg py-2 hover:bg-opacity-90 transition-colors"
+            className="flex items-center justify-center gap-1 bg-[#25D366] text-white rounded-lg py-2 px-3 hover:bg-opacity-90 transition-colors text-sm"
           >
             <MessageSquare className="w-4 h-4" />
-            <span className="text-sm">WhatsApp</span>
+            <span>WhatsApp</span>
           </button>
           <button 
             onClick={handleCall}
-            className="flex-1 flex items-center justify-center space-x-1 bg-primary text-white rounded-lg py-2 hover:bg-opacity-90 transition-colors"
+            className="flex items-center justify-center gap-1 bg-primary text-white rounded-lg py-2 px-3 hover:bg-opacity-90 transition-colors text-sm"
           >
             <Phone className="w-4 h-4" />
-            <span className="text-sm">{t("call")}</span>
+            <span>{t("call")}</span>
           </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 mt-2">
           <button 
             onClick={handleMap}
-            className="flex-1 flex items-center justify-center space-x-1 bg-gray-100 text-gray-700 rounded-lg py-2 hover:bg-gray-200 transition-colors"
+            className="flex items-center justify-center gap-1 bg-gray-100 text-gray-700 rounded-lg py-2 px-3 hover:bg-gray-200 transition-colors text-sm"
           >
             <MapPin className="w-4 h-4" />
-            <span className="text-sm">{t("map")}</span>
+            <span>{t("map")}</span>
           </button>
+          {business.website && (
+            <button 
+              onClick={handleWebsite}
+              className="flex items-center justify-center gap-1 bg-secondary text-white rounded-lg py-2 px-3 hover:bg-opacity-90 transition-colors text-sm"
+            >
+              <Link className="w-4 h-4" />
+              <span>{t("website")}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>
