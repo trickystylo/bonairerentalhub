@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ListingsTable } from "./ListingsTable";
 import { ListingsFilter } from "./ListingsFilter";
@@ -30,6 +30,10 @@ export const ListingsSection = ({
   const [filteredListings, setFilteredListings] = useState(initialListings);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    setFilteredListings(initialListings);
+  }, [initialListings]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);

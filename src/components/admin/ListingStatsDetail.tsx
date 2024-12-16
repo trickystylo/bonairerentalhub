@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,13 +14,26 @@ interface ListingStatsDetailProps {
 export const ListingStatsDetail = ({ listing, onClose, onReset }: ListingStatsDetailProps) => {
   const [clickData, setClickData] = useState<any[]>([]);
 
+  useEffect(() => {
+    processClickData();
+  }, [listing]);
+
+  const processClickData = () => {
+    const clickTypes = ['website', 'phone', 'whatsapp', 'map'];
+    const processedData = clickTypes.map(type => ({
+      click_type: type,
+      count: listing.listing_clicks?.filter((click: any) => click.click_type === type).length || 0
+    }));
+    setClickData(processedData);
+  };
+
   const handleExportCSV = () => {
     const csvContent = [
       ["Click Type", "Count", "Date"],
-      ...clickData.map(item => [
-        item.click_type,
-        item.count,
-        new Date(item.created_at).toLocaleDateString()
+      ...listing.listing_clicks.map((click: any) => [
+        click.click_type,
+        1,
+        new Date(click.created_at).toLocaleDateString()
       ])
     ].map(row => row.join(",")).join("\n");
 
@@ -93,12 +106,13 @@ export const ListingStatsDetail = ({ listing, onClose, onReset }: ListingStatsDe
           </div>
           <div>
             <h3 className="text-lg font-medium mb-2">Click Details</h3>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="p-4 bg-muted rounded-lg">
-                <p className="text-sm text-muted-foreground">Total Clicks</p>
-                <p className="text-2xl font-bold">{listing.total_clicks || 0}</p>
-              </div>
-              {/* Add more statistics cards as needed */}
+            <div className="grid grid-cols-4 gap-4">
+              {clickData.map((item) => (
+                <div key={item.click_type} className="p-4 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground capitalize">{item.click_type} Clicks</p>
+                  <p className="text-2xl font-bold">{item.count}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
