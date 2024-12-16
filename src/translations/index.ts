@@ -39,7 +39,12 @@ export const translations = {
     noResults: "Geen resultaten gevonden",
     showMore: "Toon meer",
     showLess: "Toon minder",
-    featuredListings: "Uitgelichte advertenties"
+    featuredListings: "Uitgelichte advertenties",
+    categories: "Categorieën",
+    featured: "Uitgelicht",
+    about: "Over ons",
+    discoverTitle: "Ontdek de Beste Lokale Bedrijven op Bonaire",
+    discoverDescription: "Verken de beste restaurants, winkels, activiteiten en diensten op Bonaire. Onze uitgebreide gids helpt u bij het vinden van betrouwbare lokale bedrijven met geverifieerde beoordelingen en essentiële informatie.",
   },
   EN: {
     allCategories: "All categories",
@@ -77,7 +82,12 @@ export const translations = {
     noResults: "No results found",
     showMore: "Show more",
     showLess: "Show less",
-    featuredListings: "Featured Listings"
+    featuredListings: "Featured Listings",
+    categories: "Categories",
+    featured: "Featured",
+    about: "About",
+    discoverTitle: "Discover Bonaire's Best Local Businesses",
+    discoverDescription: "Explore the finest restaurants, shops, activities, and services in Bonaire. Our comprehensive directory helps you find trusted local businesses with verified reviews and essential information.",
   },
   PAP: {
     allCategories: "Tur kategoria",
@@ -115,7 +125,12 @@ export const translations = {
     noResults: "No a haña resultado",
     showMore: "Mustra mas",
     showLess: "Mustra menos",
-    featuredListings: "Listanan Destakado"
+    featuredListings: "Listanan Destakado",
+    categories: "Kategorianan",
+    featured: "Destakado",
+    about: "Tokante",
+    discoverTitle: "Deskubrí e Mihó Negoshinan Lokal na Bonaire",
+    discoverDescription: "Eksplotá e mihó restorantnan, tiendanan, aktividatnan i servisionan na Bonaire. Nos guia kompleto ta yuda bo haña negoshinan lokal konfiabel ku reseñanan verifiká i informashon esensial.",
   },
   ES: {
     allCategories: "Todas las categorías",
@@ -153,7 +168,12 @@ export const translations = {
     noResults: "No se encontraron resultados",
     showMore: "Mostrar más",
     showLess: "Mostrar menos",
-    featuredListings: "Listados Destacados"
+    featuredListings: "Listados Destacados",
+    categories: "Categorías",
+    featured: "Destacados",
+    about: "Acerca de",
+    discoverTitle: "Descubre los Mejores Negocios Locales en Bonaire",
+    discoverDescription: "Explora los mejores restaurantes, tiendas, actividades y servicios en Bonaire. Nuestra guía completa te ayuda a encontrar negocios locales confiables con reseñas verificadas e información esencial.",
   }
 };
 
