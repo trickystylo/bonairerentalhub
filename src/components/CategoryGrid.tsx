@@ -34,14 +34,21 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
         .order('name');
 
       if (categories) {
+        const allCategory = {
+          id: 'all',
+          name: 'All categories',
+          icon: '🏠',
+          listingCount: listings?.length || 0
+        };
+
         const categoriesWithCount = categories.map(cat => ({
           ...cat,
           listingCount: categoryCount?.[cat.id] || 0
         }));
 
-        const nonEmptyCategories = categoriesWithCount
+        const nonEmptyCategories = [allCategory, ...categoriesWithCount
           .filter(cat => cat.listingCount > 0)
-          .sort((a, b) => (b.listingCount || 0) - (a.listingCount || 0));
+          .sort((a, b) => (b.listingCount || 0) - (a.listingCount || 0))];
 
         setCategories(nonEmptyCategories);
       }
@@ -49,6 +56,15 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
 
     fetchCategoriesWithCount();
   }, []);
+
+  const handleCategoryClick = (categoryId: string) => {
+    onCategorySelect(categoryId === selectedCategory ? null : categoryId);
+    // Scroll to search results
+    const resultsElement = document.getElementById('search-results');
+    if (resultsElement) {
+      resultsElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   const visibleCategories = showAll ? categories : categories.slice(0, 6);
 
@@ -58,7 +74,7 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
         {visibleCategories.map((category) => (
           <button
             key={category.id}
-            onClick={() => onCategorySelect(category.id === selectedCategory ? null : category.id)}
+            onClick={() => handleCategoryClick(category.id)}
             className={`group relative overflow-hidden rounded-lg bg-gradient-to-br from-white to-gray-100 border border-gray-200 transition-all duration-300 ${
               selectedCategory === category.id
                 ? "ring-2 ring-primary shadow-lg transform scale-105"
