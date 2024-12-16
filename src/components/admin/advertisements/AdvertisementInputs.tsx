@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Link, Upload } from "lucide-react";
 import { useState } from "react";
+import { toast } from "@/components/ui/use-toast";
 
 interface AdvertisementInputsProps {
   newAd: {
@@ -21,8 +22,23 @@ export const AdvertisementInputs = ({ newAd, setNewAd, onImageUpload }: Advertis
   const handleImageUrlSubmit = () => {
     if (imageUrl) {
       setNewAd({ ...newAd, image_url: imageUrl });
+      toast({
+        title: "Success",
+        description: "Image URL added successfully",
+      });
       setShowUrlDialog(false);
       setImageUrl("");
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await onImageUpload(file);
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
     }
   };
 
@@ -51,7 +67,7 @@ export const AdvertisementInputs = ({ newAd, setNewAd, onImageUpload }: Advertis
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 md:col-span-2">
         <label className="text-sm font-medium">Image</label>
         <div className="flex gap-2">
           <Button
@@ -61,7 +77,7 @@ export const AdvertisementInputs = ({ newAd, setNewAd, onImageUpload }: Advertis
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => e.target.files?.[0] && onImageUpload(e.target.files[0])}
+              onChange={handleFileUpload}
               className="absolute inset-0 opacity-0 cursor-pointer"
             />
             <Upload className="w-4 h-4 mr-2" />
@@ -90,6 +106,19 @@ export const AdvertisementInputs = ({ newAd, setNewAd, onImageUpload }: Advertis
             </DialogContent>
           </Dialog>
         </div>
+
+        {newAd.image_url && (
+          <div className="mt-4">
+            <p className="text-sm font-medium mb-2">Preview:</p>
+            <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
+              <img
+                src={newAd.image_url}
+                alt="Advertisement preview"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

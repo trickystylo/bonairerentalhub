@@ -1,11 +1,23 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, Upload } from "lucide-react";
+import { Trash2, Upload, Link, Pencil } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Advertisement {
+  id: string;
+  position: string;
+  link: string;
+  image_url: string | null;
+  is_active: boolean;
+}
 
 interface AdvertisementGridProps {
-  ads: any[];
+  ads: Advertisement[];
   onImageUpload: (file: File, adId: string) => Promise<void>;
   onDelete: (id: string) => void;
 }
@@ -13,6 +25,10 @@ interface AdvertisementGridProps {
 export const AdvertisementGrid = ({ ads, onImageUpload, onDelete }: AdvertisementGridProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [adToDelete, setAdToDelete] = useState<string | null>(null);
+  const [editingAd, setEditingAd] = useState<Advertisement | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editImageUrl, setEditImageUrl] = useState("");
+  const [editLink, setEditLink] = useState("");
 
   const handleDeleteClick = (id: string) => {
     setAdToDelete(id);
@@ -25,6 +41,49 @@ export const AdvertisementGrid = ({ ads, onImageUpload, onDelete }: Advertisemen
       setShowDeleteDialog(false);
       setAdToDelete(null);
     }
+  };
+
+  const handleEditClick = (ad: Advertisement) => {
+    setEditingAd(ad);
+    setEditImageUrl(ad.image_url || "");
+    setEditLink(ad.link);
+    setShowEditDialog(true);
+  };
+
+  const handleEditSave = async () => {
+    if (!editingAd) return;
+
+    const updates = {
+      ...(editImageUrl !== editingAd.image_url && { image_url: editImageUrl }),
+      ...(editLink !== editingAd.link && { link: editLink }),
+    };
+
+    if (Object.keys(updates).length === 0) {
+      setShowEditDialog(false);
+      return;
+    }
+
+    const { error } = await supabase
+      .from('advertisements')
+      .update(updates)
+      .eq('id', editingAd.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update advertisement",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Advertisement updated successfully",
+    });
+
+    setShowEditDialog(false);
+    window.location.reload(); // Refresh to show updated data
   };
 
   return (
@@ -70,6 +129,13 @@ export const AdvertisementGrid = ({ ads, onImageUpload, onDelete }: Advertisemen
                     />
                   </Button>
                   <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEditClick(ad)}
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button
                     variant="destructive"
                     size="sm"
                     onClick={() => handleDeleteClick(ad.id)}
@@ -97,6 +163,52 @@ export const AdvertisementGrid = ({ ads, onImageUpload, onDelete }: Advertisemen
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Advertisement</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Image URL</label>
+              <Input
+                value={editImageUrl}
+                onChange={(e) => setEditImageUrl(e.target.value)}
+                placeholder="Enter image URL"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Redirect Link</label>
+              <Input
+                value={editLink}
+                onChange={(e) => setEditLink(e.target.value)}
+                placeholder="Enter redirect link"
+              />
+            </div>
+            {editImageUrl && (
+              <div>
+                <p className="text-sm font-medium mb-2">Preview:</p>
+                <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
+                  <img
+                    src={editImageUrl}
+                    alt="Advertisement preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleEditSave}>
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
