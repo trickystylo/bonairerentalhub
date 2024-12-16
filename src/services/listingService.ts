@@ -113,7 +113,9 @@ export const getFeaturedListings = async () => {
   }
 };
 
-export const trackListingClick = async (listingId: string, clickType: string) => {
+export type ClickType = 'website' | 'phone' | 'whatsapp' | 'map';
+
+export const trackListingClick = async (listingId: string, clickType: ClickType) => {
   try {
     // Record the click
     await supabase

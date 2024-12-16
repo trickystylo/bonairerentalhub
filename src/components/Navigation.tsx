@@ -3,13 +3,16 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "../context/LanguageContext";
 import { useTranslation } from "../translations";
+import { Json } from "@/integrations/supabase/types";
 
 interface Category {
   id: string;
   name: string;
   icon: string;
   listingCount?: number;
-  translations?: Record<string, string>;
+  translations?: Json;
+  created_at?: string | null;
+  display_order?: number | null;
 }
 
 interface NavigationProps {
