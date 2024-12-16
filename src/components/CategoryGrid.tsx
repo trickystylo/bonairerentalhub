@@ -51,37 +51,26 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
     fetchCategoriesWithCount();
   }, []);
 
-  const getRandomPlaceholderImage = () => {
-    const randomIndex = Math.floor(Math.random() * placeholderImages.length);
-    return `https://images.unsplash.com/${placeholderImages[randomIndex]}?auto=format&fit=crop&w=300&h=200`;
-  };
-
   const visibleCategories = showAll ? categories : categories.slice(0, 6);
 
   return (
     <div className="max-w-6xl mx-auto px-4 mb-8">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {visibleCategories.map((category, index) => (
+        {visibleCategories.map((category) => (
           <button
             key={category.id}
             onClick={() => onCategorySelect(category.id === selectedCategory ? null : category.id)}
-            className={`group relative overflow-hidden rounded-xl transition-all duration-300 ${
+            className={`group relative overflow-hidden rounded-xl bg-gradient-to-br from-white to-gray-100 border border-gray-200 transition-all duration-300 ${
               selectedCategory === category.id
                 ? "ring-2 ring-primary shadow-lg transform scale-105"
                 : "hover:shadow-lg hover:scale-[1.02]"
             }`}
           >
-            <div className="aspect-[4/3] relative">
-              <img
-                src={getRandomPlaceholderImage()}
-                alt={category.name}
-                className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                <div className="text-3xl mb-2">{category.icon}</div>
-                <h3 className="font-medium text-lg">{category.name}</h3>
-                <p className="text-sm text-gray-200">{category.listingCount} listings</p>
+            <div className="aspect-[4/3] relative p-6 flex flex-col justify-between">
+              <div className="text-4xl mb-2">{category.icon}</div>
+              <div>
+                <h3 className="font-medium text-lg text-gray-900">{category.name}</h3>
+                <p className="text-sm text-gray-600">{category.listingCount} listings</p>
               </div>
             </div>
           </button>
