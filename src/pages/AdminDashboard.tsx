@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CsvUploader } from "@/components/CsvUploader";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import { BackNavigation } from "@/components/BackNavigation";
 import {
   Table,
   TableBody,
@@ -91,47 +92,57 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
-      
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Upload Listings</h2>
-        <CsvUploader onUpload={fetchListings} />
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+      <BackNavigation />
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-caribbean bg-clip-text text-transparent">
+            Admin Dashboard
+          </h1>
+        </div>
+        
+        <div className="grid gap-8">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-muted animate-fade-in">
+            <h2 className="text-xl font-semibold mb-4 text-primary">Upload Listings</h2>
+            <CsvUploader onUpload={fetchListings} />
+          </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">Manage Listings</h2>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Price Level</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {listings.map((listing) => (
-                <TableRow key={listing.id}>
-                  <TableCell>{listing.name}</TableCell>
-                  <TableCell>{listing.display_category}</TableCell>
-                  <TableCell>{listing.rating}</TableCell>
-                  <TableCell>{"€".repeat(listing.price_level)}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDelete(listing.id)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-muted animate-fade-in">
+            <h2 className="text-xl font-semibold mb-4 text-primary">Manage Listings</h2>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead>Name</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Rating</TableHead>
+                    <TableHead>Price Level</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {listings.map((listing) => (
+                    <TableRow key={listing.id} className="hover:bg-muted/30 transition-colors">
+                      <TableCell className="font-medium">{listing.name}</TableCell>
+                      <TableCell>{listing.display_category}</TableCell>
+                      <TableCell>{listing.rating}</TableCell>
+                      <TableCell>{"€".repeat(listing.price_level)}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDelete(listing.id)}
+                          className="hover:scale-105 transition-transform"
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
