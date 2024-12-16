@@ -65,7 +65,9 @@ export const SearchBar = ({ onSearch, onFilterChange }: SearchBarProps) => {
           />
           <Button 
             type="submit"
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2"
+            size="icon"
+            variant="ghost"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:bg-primary/10"
           >
             <Send className="w-5 h-5 text-primary" />
           </Button>

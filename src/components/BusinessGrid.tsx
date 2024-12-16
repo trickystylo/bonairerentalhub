@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { BusinessCard } from "./BusinessCard";
 import { supabase } from "@/integrations/supabase/client";
 import { SearchFilters } from "./SearchBar";
+import { Button } from "./ui/button";
+import { ChevronDown } from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
+import { useTranslation } from "../translations";
 
 interface BusinessGridProps {
   selectedCategory: string | null;
@@ -9,13 +13,19 @@ interface BusinessGridProps {
   searchFilters: SearchFilters;
 }
 
+const ITEMS_PER_PAGE = 15;
+
 export const BusinessGrid = ({ 
   selectedCategory, 
   searchQuery,
   searchFilters 
 }: BusinessGridProps) => {
   const [listings, setListings] = useState<any[]>([]);
+  const [displayedListings, setDisplayedListings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const { language } = useLanguage();
+  const t = useTranslation(language);
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -57,8 +67,9 @@ export const BusinessGrid = ({
           return;
         }
         
-        console.log("Fetched listings:", data);
         setListings(data || []);
+        setDisplayedListings((data || []).slice(0, ITEMS_PER_PAGE));
+        setPage(1);
       } catch (error) {
         console.error("Error in fetchListings:", error);
       } finally {
@@ -69,6 +80,14 @@ export const BusinessGrid = ({
     fetchListings();
   }, [selectedCategory, searchQuery, searchFilters]);
 
+  const loadMore = () => {
+    const nextPage = page + 1;
+    const start = (nextPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    setDisplayedListings(listings.slice(0, end));
+    setPage(nextPage);
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-40">
@@ -77,14 +96,33 @@ export const BusinessGrid = ({
     );
   }
 
+  const hasMore = displayedListings.length < listings.length;
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mt-8">
-      {listings.map((business) => (
-        <BusinessCard key={business.id} business={business} />
-      ))}
+    <div className="space-y-8 max-w-6xl mx-auto mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {displayedListings.map((business) => (
+          <BusinessCard key={business.id} business={business} />
+        ))}
+      </div>
+      
       {listings.length === 0 && (
-        <div className="col-span-full text-center py-12">
+        <div className="text-center py-12">
           <p className="text-lg text-gray-500">No listings found matching your criteria.</p>
+        </div>
+      )}
+
+      {hasMore && (
+        <div className="flex justify-center">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={loadMore}
+            className="group"
+          >
+            Show More
+            <ChevronDown className="ml-2 h-4 w-4 transition-transform group-hover:translate-y-1" />
+          </Button>
         </div>
       )}
     </div>
