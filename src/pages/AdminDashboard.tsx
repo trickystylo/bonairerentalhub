@@ -120,13 +120,33 @@ const AdminDashboard = () => {
     });
   };
 
-  const handleCsvUpload = async (data: any[]) => {
-    // Process the CSV data and save it
-    toast({
-      title: "Success",
-      description: "CSV data processed successfully",
-    });
-    fetchListings();
+  const handleCsvAction = async (action: "create" | "merge" | "ignore") => {
+    if (!pendingListingData) return;
+    
+    if (action === "create") {
+      // Process the CSV data and save it
+      const { error } = await supabase
+        .from('listings')
+        .insert(pendingListingData);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to create listings",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Listings created successfully",
+      });
+      fetchListings();
+    }
+    // Reset the pending data and close dialog
+    setPendingListingData(null);
+    setShowDuplicateDialog(false);
   };
 
   if (!isAdmin) {
@@ -157,7 +177,7 @@ const AdminDashboard = () => {
                 <CardDescription>Upload your CSV file with listing data</CardDescription>
               </CardHeader>
               <CardContent>
-                <CsvUploader onUpload={handleCsvUpload} />
+                <CsvUploader onUpload={handleCsvAction} />
               </CardContent>
             </Card>
 
@@ -198,7 +218,7 @@ const AdminDashboard = () => {
         <DuplicateListingDialog
           isOpen={showDuplicateDialog}
           onClose={() => setShowDuplicateDialog(false)}
-          onAction={handleCsvUpload}
+          onAction={handleCsvAction}
           duplicateName={duplicateListingName}
         />
       </div>
