@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ListingImageUploadProps {
   listingId: string;
@@ -89,8 +90,8 @@ export const ListingImageUpload = ({ listingId, onImageUploaded }: ListingImageU
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "All images cleared successfully",
+        title: "Images Cleared",
+        description: "All images have been removed from this listing",
       });
       
       onImageUploaded();
@@ -160,13 +161,23 @@ export const ListingImageUpload = ({ listingId, onImageUploaded }: ListingImageU
         </DialogContent>
       </Dialog>
 
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={handleClearImages}
-      >
-        <Trash className="h-5 w-5" />
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleClearImages}
+              className="text-red-500 hover:text-red-600 hover:bg-red-50"
+            >
+              <Trash className="h-5 w-5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Delete all images</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   );
 };

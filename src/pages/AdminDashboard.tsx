@@ -8,6 +8,7 @@ import { ListingsTable } from "@/components/admin/ListingsTable";
 import { AdvertisementForm } from "@/components/admin/AdvertisementForm";
 import { DuplicateListingDialog } from "@/components/admin/DuplicateListingDialog";
 import { CategoryManager } from "@/components/admin/CategoryManager";
+import { ListingStats } from "@/components/admin/ListingStats";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -70,9 +71,20 @@ const AdminDashboard = () => {
       return;
     }
 
-    setListings(data || []);
+    if (currentPage === 1) {
+      setListings(data || []);
+    } else {
+      setListings(prev => [...prev, ...(data || [])]);
+    }
+    
     setHasMore(count ? count > to + 1 : false);
   };
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchListings();
+    }
+  }, [currentPage, isAdmin]);
 
   const handleLoadMore = () => {
     setCurrentPage(prev => prev + 1);
@@ -97,6 +109,8 @@ const AdminDashboard = () => {
       title: "Success",
       description: `${ids.length} listing(s) deleted successfully`,
     });
+    
+    setCurrentPage(1);
     fetchListings();
   };
 
@@ -174,10 +188,11 @@ const AdminDashboard = () => {
         </div>
         
         <Tabs defaultValue="listings" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
+          <TabsList className="grid w-full grid-cols-4 lg:w-[500px]">
             <TabsTrigger value="listings">Listings</TabsTrigger>
             <TabsTrigger value="categories">Categories</TabsTrigger>
             <TabsTrigger value="advertisements">Advertisements</TabsTrigger>
+            <TabsTrigger value="stats">Statistics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="listings" className="space-y-8">
@@ -222,6 +237,10 @@ const AdminDashboard = () => {
                 <AdvertisementForm onSubmit={handleAdSubmit} />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="stats" className="space-y-8">
+            <ListingStats />
           </TabsContent>
         </Tabs>
 
