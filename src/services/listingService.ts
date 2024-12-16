@@ -19,9 +19,7 @@ export const saveCategory = async (category: { id: string; name: string; icon: s
     // If category doesn't exist, insert it
     const { error } = await supabase
       .from('categories')
-      .insert(category)
-      .select()
-      .single();
+      .insert(category);
     
     if (error) {
       console.error("Error saving category:", error);
@@ -39,7 +37,7 @@ export const saveCategories = async (categories: Set<string>) => {
   const categoryObjects = Array.from(categories)
     .filter(cat => cat)
     .map(cat => ({
-      id: cat,
+      id: cat.toLowerCase(),
       name: formatCategoryName(cat),
       icon: '🏠'
     }));
@@ -83,28 +81,34 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
       return null;
     }
 
-    // Create a clean listing object with only the fields that exist in the database
+    const isDuplicate = await checkDuplicateListing(listingData.name);
+    if (isDuplicate && action === 'create') {
+      console.log(`Skipping duplicate listing: ${listingData.name}`);
+      return null;
+    }
+
+    // Map CSV fields to database columns
     const cleanListingData = {
       name: listingData.name,
-      category: listingData.category,
-      display_category: listingData.display_category,
-      rating: listingData.rating,
-      total_reviews: listingData.total_reviews,
-      price_level: listingData.price_level,
-      languages: listingData.languages,
-      phone: listingData.phone,
-      website: listingData.website,
-      address: listingData.address,
-      country: listingData.country,
-      postal_code: listingData.postal_code,
-      area: listingData.area,
-      description: listingData.description,
-      amenities: listingData.amenities,
-      images: listingData.images,
-      latitude: listingData.latitude,
-      longitude: listingData.longitude,
-      opening_hours: listingData.opening_hours,
-      price_range: listingData.price_range,
+      category: listingData.type?.toLowerCase() || '',
+      display_category: formatCategoryName(listingData.type) || '',
+      rating: parseFloat(listingData.rating) || 0,
+      total_reviews: parseInt(listingData.total_reviews) || 0,
+      price_level: parseInt(listingData.price_level) || 2,
+      languages: ["NL", "EN", "PAP", "ES"],
+      phone: listingData.phone || null,
+      website: listingData.website || null,
+      address: listingData.address || null,
+      country: listingData.country || 'Bonaire',
+      postal_code: listingData.postal_code || null,
+      area: listingData.area || null,
+      description: listingData.description || null,
+      amenities: listingData.amenities ? listingData.amenities.split(',').map((a: string) => a.trim()) : null,
+      images: null,
+      latitude: parseFloat(listingData.latitude) || null,
+      longitude: parseFloat(listingData.longitude) || null,
+      opening_hours: listingData.opening_hours || null,
+      price_range: listingData.price_range || null,
       status: 'active'
     };
 
