@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { DuplicateListingDialog } from "./admin/DuplicateListingDialog";
 import { parseOpeningHours, parseCsvFile, formatCategoryName } from "@/utils/csvParser";
-import { saveCategories, checkDuplicateListing, saveListing } from "@/services/listingService";
+import { checkDuplicateListing, saveListing } from "@/services/listingService";
+import { saveCategories } from "@/services/categoryService";
 
 interface CsvUploaderProps {
   onUpload: (data: any[]) => void;
