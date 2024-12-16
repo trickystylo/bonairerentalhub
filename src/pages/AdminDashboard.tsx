@@ -1,25 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { CsvUploader } from "@/components/CsvUploader";
 import { BackNavigation } from "@/components/BackNavigation";
 import { toast } from "@/components/ui/use-toast";
-import { ListingsTable } from "@/components/admin/ListingsTable";
 import { AdvertisementForm } from "@/components/admin/AdvertisementForm";
-import { DuplicateListingDialog } from "@/components/admin/DuplicateListingDialog";
 import { CategoryManager } from "@/components/admin/CategoryManager";
 import { ListingStats } from "@/components/admin/ListingStats";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ListingsSection } from "@/components/admin/ListingsSection";
 
 const ITEMS_PER_PAGE = 15;
 
 const AdminDashboard = () => {
   const [listings, setListings] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
-  const [duplicateListingName, setDuplicateListingName] = useState("");
-  const [pendingListingData, setPendingListingData] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const navigate = useNavigate();
@@ -80,12 +74,6 @@ const AdminDashboard = () => {
     setHasMore(count ? count > to + 1 : false);
   };
 
-  useEffect(() => {
-    if (isAdmin) {
-      fetchListings();
-    }
-  }, [currentPage, isAdmin]);
-
   const handleLoadMore = () => {
     setCurrentPage(prev => prev + 1);
   };
@@ -134,45 +122,6 @@ const AdminDashboard = () => {
     });
   };
 
-  // New handler for CSV data upload
-  const handleCsvUpload = async (data: any[]) => {
-    if (data && data.length > 0) {
-      // Store the first listing data for potential duplicate handling
-      setPendingListingData(data[0]);
-      setDuplicateListingName(data[0].name || '');
-      setShowDuplicateDialog(true);
-    }
-  };
-
-  // Handler for duplicate dialog actions
-  const handleCsvAction = async (action: "create" | "merge" | "ignore") => {
-    if (!pendingListingData) return;
-    
-    if (action === "create") {
-      const { error } = await supabase
-        .from('listings')
-        .insert([pendingListingData]);
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to create listings",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "Success",
-        description: "Listings created successfully",
-      });
-      fetchListings();
-    }
-    
-    setPendingListingData(null);
-    setShowDuplicateDialog(false);
-  };
-
   if (!isAdmin) {
     return null;
   }
@@ -195,61 +144,31 @@ const AdminDashboard = () => {
             <TabsTrigger value="stats">Statistics</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="listings" className="space-y-8">
-            <Card className="bg-white/80 backdrop-blur-sm border border-muted animate-fade-in">
-              <CardHeader>
-                <CardTitle>Upload Listings</CardTitle>
-                <CardDescription>Upload your CSV file with listing data</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <CsvUploader onUpload={handleCsvUpload} />
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/80 backdrop-blur-sm border border-muted animate-fade-in">
-              <CardHeader>
-                <CardTitle>Manage Listings</CardTitle>
-                <CardDescription>View and manage all listings</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ListingsTable 
-                  listings={listings} 
-                  onDelete={handleDelete}
-                  currentPage={currentPage}
-                  onLoadMore={handleLoadMore}
-                  hasMore={hasMore}
-                />
-              </CardContent>
-            </Card>
+          <TabsContent value="listings">
+            <ListingsSection 
+              listings={listings}
+              onDelete={handleDelete}
+              currentPage={currentPage}
+              onLoadMore={handleLoadMore}
+              hasMore={hasMore}
+              onListingsUpdate={fetchListings}
+            />
           </TabsContent>
 
-          <TabsContent value="categories" className="space-y-8">
+          <TabsContent value="categories">
             <CategoryManager />
           </TabsContent>
 
-          <TabsContent value="advertisements" className="space-y-8">
-            <Card className="bg-white/80 backdrop-blur-sm border border-muted animate-fade-in">
-              <CardHeader>
-                <CardTitle>Create Advertisement</CardTitle>
-                <CardDescription>Add a new advertisement position</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <AdvertisementForm onSubmit={handleAdSubmit} />
-              </CardContent>
-            </Card>
+          <TabsContent value="advertisements">
+            <div className="space-y-8">
+              <AdvertisementForm onSubmit={handleAdSubmit} />
+            </div>
           </TabsContent>
 
-          <TabsContent value="stats" className="space-y-8">
+          <TabsContent value="stats">
             <ListingStats />
           </TabsContent>
         </Tabs>
-
-        <DuplicateListingDialog
-          isOpen={showDuplicateDialog}
-          onClose={() => setShowDuplicateDialog(false)}
-          onAction={handleCsvAction}
-          duplicateName={duplicateListingName}
-        />
       </div>
     </div>
   );
