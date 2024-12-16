@@ -52,18 +52,27 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: true,
-      skipEmptyLines: true,
+      skipEmptyLines: 'greedy',
+      transformHeader: (header) => {
+        // Transform header names to match database columns
+        return header.toLowerCase().trim();
+      },
       complete: (results) => {
         console.log("Raw CSV data:", results.data);
-        const cleanData = results.data.map((row: any) => {
-          // Remove any __parsed_extra fields and empty strings
-          const cleanRow = Object.fromEntries(
-            Object.entries(row).filter(([key, value]) => 
-              key !== '__parsed_extra' && value !== ''
-            )
-          );
-          return cleanRow;
-        });
+        const cleanData = results.data
+          .filter((row: any) => row && Object.keys(row).length > 0)
+          .map((row: any) => {
+            // Remove any empty strings and undefined values
+            const cleanRow = Object.fromEntries(
+              Object.entries(row)
+                .filter(([_, value]) => value !== '' && value !== undefined)
+                .map(([key, value]) => [
+                  key.replace(/\s+/g, '_').toLowerCase(),
+                  typeof value === 'string' ? value.trim() : value
+                ])
+            );
+            return cleanRow;
+          });
         resolve(cleanData);
       },
       error: (error) => {
