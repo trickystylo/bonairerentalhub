@@ -10,7 +10,6 @@ export const saveCategory = async (category: { id: string; name: string; icon: s
       .select()
       .single();
     
-    // Ignore duplicate key errors (code 23505)
     if (error && error.code !== '23505') {
       console.error("Error saving category:", error);
       return false;
@@ -50,18 +49,15 @@ export const checkDuplicateListing = async (name: string) => {
 
 export const saveListing = async (listingData: any, action: 'create' | 'merge' | 'ignore' = 'create') => {
   try {
-    if (action === 'ignore') {
+    const isDuplicate = await checkDuplicateListing(listingData.name);
+    
+    if (isDuplicate) {
+      console.log(`Skipping duplicate listing: ${listingData.name}`);
+      toast({
+        title: "Skipped Duplicate",
+        description: `Listing "${listingData.name}" already exists and was skipped.`,
+      });
       return null;
-    }
-
-    if (action === 'merge') {
-      const { error: mergeError } = await supabase
-        .from('listings')
-        .update(listingData)
-        .eq('name', listingData.name);
-      
-      if (mergeError) throw mergeError;
-      return listingData;
     }
 
     const { data, error } = await supabase

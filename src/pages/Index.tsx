@@ -24,7 +24,6 @@ const Index = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    // Scroll to results
     const resultsElement = document.getElementById('search-results');
     if (resultsElement) {
       resultsElement.scrollIntoView({ behavior: 'smooth' });
@@ -43,8 +42,8 @@ const Index = () => {
     <div className="min-h-screen bg-background relative">
       <div className="fixed inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b"
-          alt="Background"
+          src="https://images.unsplash.com/photo-1589519160732-57fc498494f8"
+          alt="Caribbean Background"
           className="w-full h-full object-cover opacity-5"
         />
       </div>
@@ -61,7 +60,7 @@ const Index = () => {
         <div className="container mx-auto px-4 pt-4">
           <AdSpace position="top" />
           
-          <div className="max-w-4xl mx-auto text-center mb-12 space-y-6">
+          <div className="max-w-4xl mx-auto text-center mb-8 space-y-6">
             <h1 className="text-5xl font-bold bg-gradient-caribbean bg-clip-text text-transparent animate-fade-in">
               {t("welcomeMessage")}
             </h1>
@@ -70,12 +69,14 @@ const Index = () => {
             </p>
           </div>
 
-          <CategoryGrid 
-            selectedCategory={selectedCategory}
-            onCategorySelect={handleCategoryChange}
-          />
+          <div className="max-w-4xl mx-auto">
+            <CategoryGrid 
+              selectedCategory={selectedCategory}
+              onCategorySelect={handleCategoryChange}
+            />
+          </div>
           
-          <div className="flex gap-8">
+          <div className="flex gap-8 mt-8">
             <div className="flex-1">
               <SearchBar onSearch={handleSearch} onFilterChange={handleFilterChange} />
               <div id="search-results">
@@ -87,7 +88,7 @@ const Index = () => {
               </div>
               <AdSpace position="bottom" />
             </div>
-            <div className="hidden lg:block">
+            <div className="hidden lg:block w-64">
               <AdSpace position="sidebar" className="sticky top-24" />
             </div>
           </div>

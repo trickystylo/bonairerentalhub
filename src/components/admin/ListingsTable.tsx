@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
+import { DeleteConfirmationDialog } from "./DeleteConfirmationDialog";
 
 interface ListingsTableProps {
   listings: any[];
@@ -17,6 +18,8 @@ interface ListingsTableProps {
 
 export const ListingsTable = ({ listings, onDelete }: ListingsTableProps) => {
   const [selectedListings, setSelectedListings] = useState<string[]>([]);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [pendingDeleteIds, setPendingDeleteIds] = useState<string[]>([]);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -34,11 +37,16 @@ export const ListingsTable = ({ listings, onDelete }: ListingsTableProps) => {
     }
   };
 
-  const handleDeleteSelected = () => {
-    if (selectedListings.length > 0) {
-      onDelete(selectedListings);
-      setSelectedListings([]);
-    }
+  const handleDeleteClick = (ids: string[]) => {
+    setPendingDeleteIds(ids);
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = () => {
+    onDelete(pendingDeleteIds);
+    setShowDeleteDialog(false);
+    setPendingDeleteIds([]);
+    setSelectedListings([]);
   };
 
   return (
@@ -57,7 +65,7 @@ export const ListingsTable = ({ listings, onDelete }: ListingsTableProps) => {
           <Button
             variant="destructive"
             size="sm"
-            onClick={handleDeleteSelected}
+            onClick={() => handleDeleteClick(selectedListings)}
             disabled={selectedListings.length === 0}
             className="hover:scale-105 transition-transform"
           >
@@ -66,7 +74,7 @@ export const ListingsTable = ({ listings, onDelete }: ListingsTableProps) => {
           <Button
             variant="destructive"
             size="sm"
-            onClick={() => onDelete(listings.map(listing => listing.id))}
+            onClick={() => handleDeleteClick(listings.map(listing => listing.id))}
             className="hover:scale-105 transition-transform"
           >
             Delete All
@@ -108,7 +116,7 @@ export const ListingsTable = ({ listings, onDelete }: ListingsTableProps) => {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => onDelete([listing.id])}
+                    onClick={() => handleDeleteClick([listing.id])}
                     className="hover:scale-105 transition-transform"
                   >
                     Delete
@@ -119,6 +127,13 @@ export const ListingsTable = ({ listings, onDelete }: ListingsTableProps) => {
           </TableBody>
         </Table>
       </div>
+
+      <DeleteConfirmationDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleConfirmDelete}
+        itemCount={pendingDeleteIds.length}
+      />
     </div>
   );
 };
