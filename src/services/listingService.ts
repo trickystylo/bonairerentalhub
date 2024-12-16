@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { formatCategoryName } from "@/utils/csvParser";
+import { formatCategoryName, parseAmenities } from "@/utils/csvParser";
 
 export const saveCategory = async (category: { id: string; name: string; icon: string }) => {
   try {
@@ -90,12 +90,12 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
     // Map CSV fields to database columns
     const cleanListingData = {
       name: listingData.name,
-      category: listingData.type?.toLowerCase() || '',
-      display_category: formatCategoryName(listingData.type) || '',
+      category: listingData.category?.toLowerCase() || '',
+      display_category: formatCategoryName(listingData.category) || '',
       rating: parseFloat(listingData.rating) || 0,
       total_reviews: parseInt(listingData.total_reviews) || 0,
       price_level: parseInt(listingData.price_level) || 2,
-      languages: ["NL", "EN", "PAP", "ES"],
+      languages: listingData.languages || ["NL", "EN", "PAP", "ES"],
       phone: listingData.phone || null,
       website: listingData.website || null,
       address: listingData.address || null,
@@ -103,14 +103,16 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
       postal_code: listingData.postal_code || null,
       area: listingData.area || null,
       description: listingData.description || null,
-      amenities: listingData.amenities ? listingData.amenities.split(',').map((a: string) => a.trim()) : null,
-      images: null,
+      amenities: parseAmenities(listingData.amenities),
+      images: listingData.images || null,
       latitude: parseFloat(listingData.latitude) || null,
       longitude: parseFloat(listingData.longitude) || null,
       opening_hours: listingData.opening_hours || null,
       price_range: listingData.price_range || null,
       status: 'active'
     };
+
+    console.log("Cleaned listing data:", cleanListingData);
 
     // Insert the listing and return all columns
     const { data, error } = await supabase

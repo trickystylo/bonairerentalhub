@@ -42,6 +42,12 @@ export const formatCategoryName = (category: string) => {
     .trim();
 };
 
+export const parseAmenities = (amenities: string | string[] | null): string[] => {
+  if (!amenities) return [];
+  if (Array.isArray(amenities)) return amenities;
+  return amenities.split(',').map(a => a.trim());
+};
+
 export const parseCsvFile = (file: File): Promise<any[]> => {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
