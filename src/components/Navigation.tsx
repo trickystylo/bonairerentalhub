@@ -9,6 +9,7 @@ interface Category {
   name: string;
   icon: string;
   listingCount?: number;
+  translations?: Record<string, string>;
 }
 
 interface NavigationProps {
