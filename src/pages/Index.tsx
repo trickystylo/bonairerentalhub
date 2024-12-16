@@ -64,10 +64,10 @@ const Index = () => {
           
           <div className="max-w-4xl mx-auto text-center mb-8 space-y-6">
             <h1 className="text-5xl font-bold bg-gradient-caribbean bg-clip-text text-transparent animate-fade-in">
-              {t("welcomeMessage")}
+              {t("Discover Bonaire's Best Local Businesses")}
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
-              {t("siteDescription")}
+              {t("Explore the finest restaurants, shops, activities, and services in Bonaire. Our comprehensive directory helps you find trusted local businesses with verified reviews and essential information.")}
             </p>
           </div>
 
@@ -105,3 +105,4 @@ const Index = () => {
 };
 
 export default Index;
+

@@ -14,7 +14,7 @@ export const ListingsPagination = ({
   if (!hasMore) return null;
 
   return (
-    <div className="flex justify-center mt-4">
+    <div className="flex justify-center mt-8">
       <Button 
         onClick={onLoadMore} 
         variant="outline"

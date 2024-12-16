@@ -49,7 +49,7 @@ export const AdSpace = ({ className, position }: AdSpaceProps) => {
   }, [position]);
 
   const positionStyles = {
-    top: "w-full h-32 mb-8",
+    top: "w-full h-32 mb-8 mt-16", // Added mt-16 for more spacing
     sidebar: "w-64 h-[600px]",
     bottom: "w-full h-32 mt-8",
   };

@@ -1,23 +1,36 @@
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { LanguageSelector } from "./LanguageSelector";
+import { useLanguage } from "../context/LanguageContext";
+import { useTranslation } from "../translations";
 
 export const Header = () => {
+  const { language } = useLanguage();
+  const t = useTranslation(language);
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <Link to="/" className="text-xl font-bold text-primary">
-            HureninBonaire.com
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center justify-between">
+        <Link to="/" className="flex items-center space-x-2">
+          <span className="text-xl font-bold">Bonaire Business Directory</span>
+        </Link>
+        
+        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+          <Link to="/" className="transition-colors hover:text-primary">
+            {t("home")}
           </Link>
-          <div className="flex items-center space-x-4">
-            <LanguageSelector />
-            <Link to="/login">
-              <Button variant="outline" size="sm">
-                Admin Login
-              </Button>
-            </Link>
-          </div>
+          <Link to="/categories" className="transition-colors hover:text-primary">
+            {t("categories")}
+          </Link>
+          <Link to="/featured" className="transition-colors hover:text-primary">
+            {t("featured")}
+          </Link>
+          <Link to="/about" className="transition-colors hover:text-primary">
+            {t("about")}
+          </Link>
+        </nav>
+
+        <div className="flex items-center space-x-4">
+          <LanguageSelector />
         </div>
       </div>
     </header>

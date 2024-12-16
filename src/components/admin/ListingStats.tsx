@@ -13,14 +13,8 @@ export const ListingStats = () => {
 
   useEffect(() => {
     fetchClickStats();
-    setupRealtimeSubscription();
-  }, []);
-
-  useEffect(() => {
-    filterStats();
-  }, [searchQuery, clickStats]);
-
-  const setupRealtimeSubscription = () => {
+    
+    // Set up real-time subscription
     const channel = supabase
       .channel('listing-clicks')
       .on(
@@ -40,7 +34,11 @@ export const ListingStats = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  };
+  }, []);
+
+  useEffect(() => {
+    filterStats();
+  }, [searchQuery, clickStats]);
 
   const fetchClickStats = async () => {
     console.log("Fetching click stats...");
