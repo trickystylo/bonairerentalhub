@@ -8,15 +8,27 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Star } from "lucide-react";
 import { useState } from "react";
 import { DeleteConfirmationDialog } from "./DeleteConfirmationDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 interface ListingsTableProps {
   listings: any[];
   onDelete: (ids: string[]) => void;
+  currentPage?: number;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
 }
 
-export const ListingsTable = ({ listings, onDelete }: ListingsTableProps) => {
+export const ListingsTable = ({ 
+  listings,
+  onDelete,
+  currentPage = 1,
+  onLoadMore,
+  hasMore = false
+}: ListingsTableProps) => {
   const [selectedListings, setSelectedListings] = useState<string[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [pendingDeleteIds, setPendingDeleteIds] = useState<string[]>([]);
@@ -49,6 +61,29 @@ export const ListingsTable = ({ listings, onDelete }: ListingsTableProps) => {
     setSelectedListings([]);
   };
 
+  const toggleFeatured = async (id: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('listings')
+        .update({ is_premium: !currentStatus })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: currentStatus ? "Removed from featured" : "Added to featured",
+        description: `Listing has been ${currentStatus ? 'removed from' : 'added to'} featured listings.`,
+      });
+    } catch (error) {
+      console.error("Error toggling featured status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update featured status",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -67,7 +102,6 @@ export const ListingsTable = ({ listings, onDelete }: ListingsTableProps) => {
             size="sm"
             onClick={() => handleDeleteClick(selectedListings)}
             disabled={selectedListings.length === 0}
-            className="hover:scale-105 transition-transform"
           >
             Delete Selected
           </Button>
@@ -75,7 +109,6 @@ export const ListingsTable = ({ listings, onDelete }: ListingsTableProps) => {
             variant="destructive"
             size="sm"
             onClick={() => handleDeleteClick(listings.map(listing => listing.id))}
-            className="hover:scale-105 transition-transform"
           >
             Delete All
           </Button>
@@ -96,6 +129,7 @@ export const ListingsTable = ({ listings, onDelete }: ListingsTableProps) => {
               <TableHead>Category</TableHead>
               <TableHead>Rating</TableHead>
               <TableHead>Price Level</TableHead>
+              <TableHead>Featured</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -114,10 +148,19 @@ export const ListingsTable = ({ listings, onDelete }: ListingsTableProps) => {
                 <TableCell>{"€".repeat(listing.price_level)}</TableCell>
                 <TableCell>
                   <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => toggleFeatured(listing.id, listing.is_premium)}
+                    className={listing.is_premium ? "text-yellow-500" : "text-gray-400"}
+                  >
+                    <Star className="h-5 w-5" fill={listing.is_premium ? "currentColor" : "none"} />
+                  </Button>
+                </TableCell>
+                <TableCell>
+                  <Button
                     variant="destructive"
                     size="sm"
                     onClick={() => handleDeleteClick([listing.id])}
-                    className="hover:scale-105 transition-transform"
                   >
                     Delete
                   </Button>
@@ -127,6 +170,14 @@ export const ListingsTable = ({ listings, onDelete }: ListingsTableProps) => {
           </TableBody>
         </Table>
       </div>
+
+      {hasMore && (
+        <div className="flex justify-center mt-4">
+          <Button onClick={onLoadMore} variant="outline">
+            Load More
+          </Button>
+        </div>
+      )}
 
       <DeleteConfirmationDialog
         isOpen={showDeleteDialog}

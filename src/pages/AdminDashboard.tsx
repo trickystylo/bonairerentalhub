@@ -7,8 +7,11 @@ import { toast } from "@/components/ui/use-toast";
 import { ListingsTable } from "@/components/admin/ListingsTable";
 import { AdvertisementForm } from "@/components/admin/AdvertisementForm";
 import { DuplicateListingDialog } from "@/components/admin/DuplicateListingDialog";
+import { CategoryManager } from "@/components/admin/CategoryManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+const ITEMS_PER_PAGE = 15;
 
 const AdminDashboard = () => {
   const [listings, setListings] = useState<any[]>([]);
@@ -16,6 +19,8 @@ const AdminDashboard = () => {
   const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
   const [duplicateListingName, setDuplicateListingName] = useState("");
   const [pendingListingData, setPendingListingData] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,10 +56,14 @@ const AdminDashboard = () => {
   };
 
   const fetchListings = async () => {
-    const { data, error } = await supabase
+    const from = (currentPage - 1) * ITEMS_PER_PAGE;
+    const to = from + ITEMS_PER_PAGE - 1;
+
+    const { data, error, count } = await supabase
       .from('listings')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
 
     if (error) {
       console.error("Error fetching listings:", error);
@@ -62,6 +71,11 @@ const AdminDashboard = () => {
     }
 
     setListings(data || []);
+    setHasMore(count ? count > to + 1 : false);
+  };
+
+  const handleLoadMore = () => {
+    setCurrentPage(prev => prev + 1);
   };
 
   const handleDelete = async (ids: string[]) => {
@@ -162,38 +176,6 @@ const AdminDashboard = () => {
     fetchListings();
   };
 
-  const handleCsvUpload = async (data: any) => {
-    // Check for duplicates
-    const existingListing = listings.find(listing => listing.name === data.name);
-    
-    if (existingListing) {
-      setDuplicateListingName(data.name);
-      setPendingListingData(data);
-      setShowDuplicateDialog(true);
-      return;
-    }
-
-    // If no duplicate, proceed with creation
-    const { error } = await supabase
-      .from('listings')
-      .insert([data]);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create listing",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: "Success",
-      description: "Listing created successfully",
-    });
-    fetchListings();
-  };
-
   if (!isAdmin) {
     return null;
   }
@@ -209,8 +191,9 @@ const AdminDashboard = () => {
         </div>
         
         <Tabs defaultValue="listings" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+          <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
             <TabsTrigger value="listings">Listings</TabsTrigger>
+            <TabsTrigger value="categories">Categories</TabsTrigger>
             <TabsTrigger value="advertisements">Advertisements</TabsTrigger>
           </TabsList>
 
@@ -221,7 +204,7 @@ const AdminDashboard = () => {
                 <CardDescription>Upload your CSV file with listing data</CardDescription>
               </CardHeader>
               <CardContent>
-                <CsvUploader onUpload={handleCsvUpload} />
+                <CsvUploader onUpload={handleDuplicateAction} />
               </CardContent>
             </Card>
 
@@ -231,9 +214,19 @@ const AdminDashboard = () => {
                 <CardDescription>View and manage all listings</CardDescription>
               </CardHeader>
               <CardContent>
-                <ListingsTable listings={listings} onDelete={handleDelete} />
+                <ListingsTable 
+                  listings={listings} 
+                  onDelete={handleDelete}
+                  currentPage={currentPage}
+                  onLoadMore={handleLoadMore}
+                  hasMore={hasMore}
+                />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="categories" className="space-y-8">
+            <CategoryManager />
           </TabsContent>
 
           <TabsContent value="advertisements" className="space-y-8">
