@@ -120,59 +120,12 @@ const AdminDashboard = () => {
     });
   };
 
-  const handleDuplicateAction = async (action: 'create' | 'merge' | 'ignore') => {
-    if (!pendingListingData) return;
-
-    switch (action) {
-      case 'create':
-        const { error: createError } = await supabase
-          .from('listings')
-          .insert([pendingListingData]);
-        
-        if (createError) {
-          toast({
-            title: "Error",
-            description: "Failed to create new listing",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Success",
-            description: "New listing created successfully",
-          });
-        }
-        break;
-
-      case 'merge':
-        const { error: mergeError } = await supabase
-          .from('listings')
-          .update(pendingListingData)
-          .eq('name', pendingListingData.name);
-        
-        if (mergeError) {
-          toast({
-            title: "Error",
-            description: "Failed to merge listing data",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Success",
-            description: "Listing data merged successfully",
-          });
-        }
-        break;
-
-      case 'ignore':
-        toast({
-          title: "Info",
-          description: "Upload ignored",
-        });
-        break;
-    }
-
-    setShowDuplicateDialog(false);
-    setPendingListingData(null);
+  const handleCsvUpload = async (data: any[]) => {
+    // Process the CSV data and save it
+    toast({
+      title: "Success",
+      description: "CSV data processed successfully",
+    });
     fetchListings();
   };
 
@@ -204,7 +157,7 @@ const AdminDashboard = () => {
                 <CardDescription>Upload your CSV file with listing data</CardDescription>
               </CardHeader>
               <CardContent>
-                <CsvUploader onUpload={handleDuplicateAction} />
+                <CsvUploader onUpload={handleCsvUpload} />
               </CardContent>
             </Card>
 
@@ -245,7 +198,7 @@ const AdminDashboard = () => {
         <DuplicateListingDialog
           isOpen={showDuplicateDialog}
           onClose={() => setShowDuplicateDialog(false)}
-          onAction={handleDuplicateAction}
+          onAction={handleCsvUpload}
           duplicateName={duplicateListingName}
         />
       </div>

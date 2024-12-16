@@ -46,6 +46,8 @@ export const CategoryManager = () => {
     // Update display order
     const updates = newCategories.map((cat, idx) => ({
       id: cat.id,
+      name: cat.name,
+      icon: cat.icon,
       display_order: idx,
     }));
 
