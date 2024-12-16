@@ -1,3 +1,7 @@
+export type Language = 'NL' | 'EN' | 'PAP' | 'ES';
+
+export type TranslationKey = keyof typeof translations['EN'];
+
 export const translations = {
   NL: {
     allCategories: "Alle categorieën",
@@ -31,6 +35,11 @@ export const translations = {
     searchResults: "Zoekresultaten",
     resetClicks: "Reset clicks",
     clickStats: "Click statistieken",
+    loading: "Laden...",
+    noResults: "Geen resultaten gevonden",
+    showMore: "Toon meer",
+    showLess: "Toon minder",
+    featuredListings: "Uitgelichte advertenties"
   },
   EN: {
     allCategories: "All categories",
@@ -64,6 +73,11 @@ export const translations = {
     searchResults: "Search Results",
     resetClicks: "Reset clicks",
     clickStats: "Click statistics",
+    loading: "Loading...",
+    noResults: "No results found",
+    showMore: "Show more",
+    showLess: "Show less",
+    featuredListings: "Featured Listings"
   },
   PAP: {
     allCategories: "Tur kategoria",
@@ -97,6 +111,11 @@ export const translations = {
     searchResults: "Resultadonan di búskeda",
     resetClicks: "Reset clicks",
     clickStats: "Statistika di click",
+    loading: "Kargando...",
+    noResults: "No a haña resultado",
+    showMore: "Mustra mas",
+    showLess: "Mustra menos",
+    featuredListings: "Listanan Destakado"
   },
   ES: {
     allCategories: "Todas las categorías",
@@ -130,5 +149,16 @@ export const translations = {
     searchResults: "Resultados de búsqueda",
     resetClicks: "Restablecer clics",
     clickStats: "Estadísticas de clics",
+    loading: "Cargando...",
+    noResults: "No se encontraron resultados",
+    showMore: "Mostrar más",
+    showLess: "Mostrar menos",
+    featuredListings: "Listados Destacados"
   }
+};
+
+export const useTranslation = (language: Language) => {
+  return (key: TranslationKey): string => {
+    return translations[language][key] || translations['EN'][key] || key;
+  };
 };
