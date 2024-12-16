@@ -83,21 +83,35 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
       return null;
     }
 
-    const isDuplicate = await checkDuplicateListing(listingData.name);
-    
-    if (isDuplicate) {
-      console.log(`Skipping duplicate listing: ${listingData.name}`);
-      toast({
-        title: "Skipped Duplicate",
-        description: `Listing "${listingData.name}" already exists and was skipped.`,
-      });
-      return null;
-    }
+    // Create a clean listing object with only the fields that exist in the database
+    const cleanListingData = {
+      name: listingData.name,
+      category: listingData.category,
+      display_category: listingData.display_category,
+      rating: listingData.rating,
+      total_reviews: listingData.total_reviews,
+      price_level: listingData.price_level,
+      languages: listingData.languages,
+      phone: listingData.phone,
+      website: listingData.website,
+      address: listingData.address,
+      country: listingData.country,
+      postal_code: listingData.postal_code,
+      area: listingData.area,
+      description: listingData.description,
+      amenities: listingData.amenities,
+      images: listingData.images,
+      latitude: listingData.latitude,
+      longitude: listingData.longitude,
+      opening_hours: listingData.opening_hours,
+      price_range: listingData.price_range,
+      status: 'active'
+    };
 
     const { data, error } = await supabase
       .from('listings')
-      .insert([listingData])
-      .select('*')
+      .insert([cleanListingData])
+      .select()
       .single();
 
     if (error) throw error;
