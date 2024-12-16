@@ -34,7 +34,8 @@ export const BusinessGrid = ({
           .from('listings')
           .select('*');
         
-        if (selectedCategory) {
+        // Only apply category filter if it's not "all" and not null
+        if (selectedCategory && selectedCategory !== "all") {
           query = query.eq('category', selectedCategory);
         }
 
@@ -91,7 +92,7 @@ export const BusinessGrid = ({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-40">
-        <span className="text-lg text-gray-500">Loading listings...</span>
+        <span className="text-lg text-gray-500">{t("loading")}</span>
       </div>
     );
   }

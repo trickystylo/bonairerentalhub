@@ -36,7 +36,6 @@ export const AdSpace = ({ className, position }: AdSpaceProps) => {
           return;
         }
 
-        // Set the first ad if available, otherwise null
         setAd(data && data.length > 0 ? data[0] : null);
       } catch (error) {
         console.error("Error in ad fetch:", error);
@@ -49,7 +48,7 @@ export const AdSpace = ({ className, position }: AdSpaceProps) => {
   }, [position]);
 
   const positionStyles = {
-    top: "w-full h-32 mb-8 mt-16", // Added mt-16 for more spacing
+    top: "w-full h-32 mb-8 mt-16",
     sidebar: "w-64 h-[600px]",
     bottom: "w-full h-32 mt-8",
   };
@@ -60,12 +59,10 @@ export const AdSpace = ({ className, position }: AdSpaceProps) => {
     bottom: "from-teal-500 to-emerald-500",
   };
 
-  // Show nothing while loading
   if (isLoading) {
     return null;
   }
 
-  // If no ad is found or ad is not active, show a placeholder
   if (!ad?.is_active) {
     return (
       <div
@@ -85,13 +82,18 @@ export const AdSpace = ({ className, position }: AdSpaceProps) => {
     );
   }
 
+  const handleClick = () => {
+    if (ad.link) {
+      window.open(ad.link, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
-    <a
-      href={ad.link}
-      target="_blank"
-      rel="noopener noreferrer"
+    <div
+      role="button"
+      onClick={handleClick}
       className={cn(
-        "block rounded-lg overflow-hidden transition-transform hover:scale-[1.02]",
+        "block rounded-lg overflow-hidden transition-transform hover:scale-[1.02] cursor-pointer",
         positionStyles[position],
         className
       )}
@@ -109,6 +111,6 @@ export const AdSpace = ({ className, position }: AdSpaceProps) => {
           <p className="text-sm opacity-75">Click to learn more</p>
         </div>
       )}
-    </a>
+    </div>
   );
 };
