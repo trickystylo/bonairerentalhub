@@ -57,13 +57,23 @@ export const checkDuplicateListing = async (name: string) => {
     return false;
   }
 
-  const { data } = await supabase
-    .from('listings')
-    .select('name')
-    .eq('name', name)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('listings')
+      .select('id')
+      .eq('name', name)
+      .maybeSingle();
     
-  return data !== null;
+    if (error) {
+      console.error("Error checking for duplicate listing:", error);
+      return false;
+    }
+
+    return data !== null;
+  } catch (error) {
+    console.error("Error in checkDuplicateListing:", error);
+    return false;
+  }
 };
 
 export const saveListing = async (listingData: any, action: 'create' | 'merge' | 'ignore' = 'create') => {
@@ -87,10 +97,11 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
     const { data, error } = await supabase
       .from('listings')
       .insert([listingData])
-      .select();
+      .select('*')
+      .single();
 
     if (error) throw error;
-    return data[0];
+    return data;
   } catch (error) {
     console.error("Error in saveListing:", error);
     throw error;
