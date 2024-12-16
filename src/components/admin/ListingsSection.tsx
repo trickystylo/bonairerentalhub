@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ListingsTable } from "./ListingsTable";
-import { ListingsFilter } from "./ListingsFilter";
 import { CsvUploader } from "@/components/CsvUploader";
 import { DuplicateListingDialog } from "./DuplicateListingDialog";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { ListingsHeader } from "./listings/ListingsHeader";
+import { ListingsPagination } from "./listings/ListingsPagination";
 
 interface ListingsSectionProps {
   listings: any[];
@@ -30,6 +31,7 @@ export const ListingsSection = ({
   const [filteredListings, setFilteredListings] = useState(initialListings);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setFilteredListings(initialListings);
@@ -104,6 +106,12 @@ export const ListingsSection = ({
     setShowDuplicateDialog(false);
   };
 
+  const handleLoadMore = async () => {
+    setIsLoading(true);
+    await onLoadMore();
+    setIsLoading(false);
+  };
+
   return (
     <>
       <Card className="bg-white/80 backdrop-blur-sm border border-muted animate-fade-in">
@@ -122,17 +130,24 @@ export const ListingsSection = ({
           <CardDescription>View and manage all listings</CardDescription>
         </CardHeader>
         <CardContent>
-          <ListingsFilter
+          <ListingsHeader
             onSearch={handleSearch}
             selectedCategory={selectedCategory}
             onCategoryChange={handleCategoryChange}
+            onDelete={onDelete}
+            listings={filteredListings}
           />
           <ListingsTable 
             listings={filteredListings}
             onDelete={onDelete}
             currentPage={currentPage}
-            onLoadMore={onLoadMore}
+            onLoadMore={handleLoadMore}
             hasMore={hasMore}
+          />
+          <ListingsPagination 
+            hasMore={hasMore}
+            onLoadMore={handleLoadMore}
+            isLoading={isLoading}
           />
         </CardContent>
       </Card>

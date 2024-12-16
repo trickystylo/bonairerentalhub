@@ -5,6 +5,16 @@ import { toast } from "@/components/ui/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Trash2, Upload } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface AdvertisementFormProps {
   onSubmit: (data: any) => void;
@@ -17,6 +27,8 @@ export const AdvertisementForm = ({ onSubmit }: AdvertisementFormProps) => {
     link: "",
     image_url: "",
   });
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [adToDelete, setAdToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAds();
@@ -93,11 +105,13 @@ export const AdvertisementForm = ({ onSubmit }: AdvertisementFormProps) => {
     await fetchAds();
   };
 
-  const handleDeleteAd = async (id: string) => {
+  const handleDeleteConfirm = async () => {
+    if (!adToDelete) return;
+
     const { error } = await supabase
       .from('advertisements')
       .delete()
-      .eq('id', id);
+      .eq('id', adToDelete);
 
     if (error) {
       toast({
@@ -113,7 +127,14 @@ export const AdvertisementForm = ({ onSubmit }: AdvertisementFormProps) => {
       description: "Advertisement deleted successfully",
     });
 
+    setShowDeleteDialog(false);
+    setAdToDelete(null);
     await fetchAds();
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setAdToDelete(id);
+    setShowDeleteDialog(true);
   };
 
   return (
@@ -139,15 +160,6 @@ export const AdvertisementForm = ({ onSubmit }: AdvertisementFormProps) => {
               value={newAd.link}
               onChange={(e) => setNewAd({ ...newAd, link: e.target.value })}
               placeholder="https://example.com"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Image URL (optional)</label>
-            <Input
-              type="url"
-              value={newAd.image_url}
-              onChange={(e) => setNewAd({ ...newAd, image_url: e.target.value })}
-              placeholder="https://example.com/image.jpg"
             />
           </div>
         </div>
@@ -190,7 +202,7 @@ export const AdvertisementForm = ({ onSubmit }: AdvertisementFormProps) => {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => handleDeleteAd(ad.id)}
+                    onClick={() => handleDeleteClick(ad.id)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -200,6 +212,21 @@ export const AdvertisementForm = ({ onSubmit }: AdvertisementFormProps) => {
           </Card>
         ))}
       </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Advertisement</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this advertisement? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowDeleteDialog(false)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
