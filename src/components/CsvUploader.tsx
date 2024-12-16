@@ -22,8 +22,18 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
       .trim();
   };
 
+  const parseOpeningHours = (openingHours: string) => {
+    try {
+      return openingHours ? JSON.parse(openingHours) : null;
+    } catch (error) {
+      console.error("Error parsing opening hours:", error);
+      return null;
+    }
+  };
+
   const saveToSupabase = async (formattedData: any[]) => {
     try {
+      console.log("Saving to Supabase:", formattedData);
       const { data, error } = await supabase
         .from('listings')
         .insert(formattedData)
@@ -69,16 +79,24 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
               category: category,
               display_category: formatCategoryName(category),
               rating: parseFloat(row.rating) || 0,
+              total_reviews: parseInt(row.total_reviews) || 0,
               price_level: 2,
               languages: ["NL", "EN", "PAP", "ES"],
               phone: row.phone,
               website: row.website,
-              address: `${row.address}, ${row.city}`,
+              address: row.address,
+              city: row.city,
+              country: row.country || 'Bonaire',
+              postal_code: row.postal_code,
+              area: row.area,
               description: row.description || '',
               amenities: row.amenities ? row.amenities.split('|') : [],
               images: row.images ? [row.images] : [],
               latitude: parseFloat(row.latitude) || 0,
-              longitude: parseFloat(row.longitude) || 0
+              longitude: parseFloat(row.longitude) || 0,
+              opening_hours: parseOpeningHours(row.opening_hours),
+              price_range: row.price_range,
+              status: 'active'
             };
           });
 
