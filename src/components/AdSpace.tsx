@@ -17,23 +17,32 @@ interface Advertisement {
 
 export const AdSpace = ({ className, position }: AdSpaceProps) => {
   const [ad, setAd] = useState<Advertisement | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchAd = async () => {
-      const { data, error } = await supabase
-        .from('advertisements')
-        .select('*')
-        .eq('position', position)
-        .eq('is_active', true)
-        .limit(1)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('advertisements')
+          .select('*')
+          .eq('position', position)
+          .eq('is_active', true)
+          .limit(1);
 
-      if (error) {
-        console.error("Error fetching advertisement:", error);
-        return;
+        console.log(`Fetching ad for position: ${position}`, { data, error });
+
+        if (error) {
+          console.error("Error fetching advertisement:", error);
+          return;
+        }
+
+        // Set the first ad if available, otherwise null
+        setAd(data && data.length > 0 ? data[0] : null);
+      } catch (error) {
+        console.error("Error in ad fetch:", error);
+      } finally {
+        setIsLoading(false);
       }
-
-      setAd(data);
     };
 
     fetchAd();
@@ -45,8 +54,35 @@ export const AdSpace = ({ className, position }: AdSpaceProps) => {
     bottom: "w-full h-32 mt-8",
   };
 
-  if (!ad?.is_active) {
+  const placeholderGradients = {
+    top: "from-purple-500 to-blue-500",
+    sidebar: "from-blue-500 to-teal-500",
+    bottom: "from-teal-500 to-emerald-500",
+  };
+
+  // Show nothing while loading
+  if (isLoading) {
     return null;
+  }
+
+  // If no ad is found or ad is not active, show a placeholder
+  if (!ad?.is_active) {
+    return (
+      <div
+        className={cn(
+          "rounded-lg overflow-hidden transition-transform hover:scale-[1.02]",
+          `bg-gradient-to-br ${placeholderGradients[position]}`,
+          positionStyles[position],
+          className
+        )}
+      >
+        <div className="w-full h-full flex flex-col items-center justify-center text-white p-4 text-center space-y-2">
+          <div className="text-4xl">✨</div>
+          <p className="text-sm font-medium">Advertisement Space</p>
+          <p className="text-xs opacity-75">Contact us to advertise here</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -67,8 +103,10 @@ export const AdSpace = ({ className, position }: AdSpaceProps) => {
           className="w-full h-full object-cover"
         />
       ) : (
-        <div className="w-full h-full bg-gradient-caribbean flex items-center justify-center text-white p-4 text-center">
-          Advertisement Space
+        <div className="w-full h-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex flex-col items-center justify-center text-white p-4 text-center space-y-2">
+          <div className="text-4xl">🎯</div>
+          <p className="font-medium">Special Offer</p>
+          <p className="text-sm opacity-75">Click to learn more</p>
         </div>
       )}
     </a>
