@@ -24,7 +24,19 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
 
   const parseOpeningHours = (openingHours: string) => {
     try {
-      return openingHours ? JSON.parse(openingHours) : null;
+      if (!openingHours) return null;
+      
+      // Parse HH:MM-HH:MM format into a structured object
+      const [start, end] = openingHours.split('-');
+      return {
+        monday: { open: start, close: end },
+        tuesday: { open: start, close: end },
+        wednesday: { open: start, close: end },
+        thursday: { open: start, close: end },
+        friday: { open: start, close: end },
+        saturday: { open: start, close: end },
+        sunday: { open: start, close: end }
+      };
     } catch (error) {
       console.error("Error parsing opening hours:", error);
       return null;
@@ -74,6 +86,16 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
               newCategories.add(category);
             }
 
+            // Handle images - if it's a string, convert to array
+            const images = row.images ? 
+              (typeof row.images === 'string' ? [row.images] : row.images) : 
+              [];
+
+            // Handle amenities - if it's a string, split by commas
+            const amenities = row.amenities ? 
+              (typeof row.amenities === 'string' ? row.amenities.split(',').map(a => a.trim()) : row.amenities) : 
+              [];
+
             return {
               name: row.name,
               category: category,
@@ -85,13 +107,12 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
               phone: row.phone,
               website: row.website,
               address: row.address,
-              city: row.city,
               country: row.country || 'Bonaire',
               postal_code: row.postal_code,
               area: row.area,
               description: row.description || '',
-              amenities: row.amenities ? row.amenities.split('|') : [],
-              images: row.images ? [row.images] : [],
+              amenities: amenities,
+              images: images,
               latitude: parseFloat(row.latitude) || 0,
               longitude: parseFloat(row.longitude) || 0,
               opening_hours: parseOpeningHours(row.opening_hours),
