@@ -9,7 +9,105 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      admin_users: {
+        Row: {
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string | null
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          icon?: string | null
+          id: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      listings: {
+        Row: {
+          address: string | null
+          amenities: string[] | null
+          category: string
+          created_at: string | null
+          description: string | null
+          display_category: string
+          id: string
+          images: string[] | null
+          languages: string[] | null
+          latitude: number | null
+          longitude: number | null
+          name: string
+          phone: string | null
+          price_level: number | null
+          rating: number | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          amenities?: string[] | null
+          category: string
+          created_at?: string | null
+          description?: string | null
+          display_category: string
+          id?: string
+          images?: string[] | null
+          languages?: string[] | null
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          phone?: string | null
+          price_level?: number | null
+          rating?: number | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          amenities?: string[] | null
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          display_category?: string
+          id?: string
+          images?: string[] | null
+          languages?: string[] | null
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          phone?: string | null
+          price_level?: number | null
+          rating?: number | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

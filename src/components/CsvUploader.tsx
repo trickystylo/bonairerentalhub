@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import Papa from "papaparse";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CsvUploaderProps {
   onUpload: (data: any[]) => void;
@@ -14,14 +15,34 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
 
   const formatCategoryName = (category: string) => {
     return category
-      .replace(/^-+/, '') // Remove leading hyphens
+      .replace(/^-+/, '')
       .split('-')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
       .trim();
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const saveToSupabase = async (formattedData: any[]) => {
+    try {
+      const { data, error } = await supabase
+        .from('listings')
+        .insert(formattedData)
+        .select();
+
+      if (error) {
+        console.error("Error saving to Supabase:", error);
+        throw error;
+      }
+
+      console.log("Successfully saved to Supabase:", data);
+      return data;
+    } catch (error) {
+      console.error("Error in saveToSupabase:", error);
+      throw error;
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -29,7 +50,7 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
 
     Papa.parse(file, {
       header: true,
-      complete: (results) => {
+      complete: async (results) => {
         console.log("Raw CSV data:", results.data);
         
         try {
@@ -44,12 +65,11 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
             }
 
             return {
-              id: `temp-${Math.random()}`,
               name: row.name,
               category: category,
-              displayCategory: formatCategoryName(category),
+              display_category: formatCategoryName(category),
               rating: parseFloat(row.rating) || 0,
-              priceLevel: 2,
+              price_level: 2,
               languages: ["NL", "EN", "PAP", "ES"],
               phone: row.phone,
               website: row.website,
@@ -57,15 +77,16 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
               description: row.description || '',
               amenities: row.amenities ? row.amenities.split('|') : [],
               images: row.images ? [row.images] : [],
-              location: {
-                latitude: parseFloat(row.latitude) || 0,
-                longitude: parseFloat(row.longitude) || 0
-              }
+              latitude: parseFloat(row.latitude) || 0,
+              longitude: parseFloat(row.longitude) || 0
             };
           });
 
           console.log("Formatted data:", formattedData);
-          onUpload(formattedData);
+          
+          // Save to Supabase
+          const savedData = await saveToSupabase(formattedData);
+          onUpload(savedData);
           
           if (newCategories.size > 0) {
             const categoryObjects = Array.from(newCategories).map(cat => ({
@@ -73,7 +94,22 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
               name: formatCategoryName(cat)
             }));
             console.log("New categories:", categoryObjects);
-            onNewCategories?.(categoryObjects);
+            
+            // Save new categories to Supabase
+            const { error: categoryError } = await supabase
+              .from('categories')
+              .insert(categoryObjects);
+
+            if (categoryError) {
+              console.error("Error saving categories:", categoryError);
+              toast({
+                title: "Warning",
+                description: "Listings saved but failed to save new categories",
+                variant: "destructive",
+              });
+            } else {
+              onNewCategories?.(categoryObjects);
+            }
           }
           
           toast({
