@@ -13,15 +13,6 @@ interface CategoryGridProps {
   selectedCategory: string | null;
 }
 
-const placeholderImages = [
-  "photo-1649972904349-6e44c42644a7",
-  "photo-1488590528505-98d2b5aba04b",
-  "photo-1518770660439-4636190af475",
-  "photo-1461749280684-dccba630e2f6",
-  "photo-1486312338219-ce68d2c6f44d",
-  "photo-1581091226825-a6a2a5aee158"
-];
-
 export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGridProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [showAll, setShowAll] = useState(false);
