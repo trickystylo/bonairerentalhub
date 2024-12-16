@@ -4,12 +4,19 @@ import { formatCategoryName, parseAmenities } from "@/utils/csvParser";
 
 export const saveCategory = async (category: { id: string; name: string; icon: string }) => {
   try {
-    // First check if category exists
-    const { data: existingCategory } = await supabase
+    console.log("Attempting to save category:", category);
+    
+    // First check if category exists using maybeSingle() instead of single()
+    const { data: existingCategory, error: checkError } = await supabase
       .from('categories')
       .select('*')
       .eq('id', category.id)
-      .single();
+      .maybeSingle();
+    
+    if (checkError) {
+      console.error("Error checking existing category:", checkError);
+      return false;
+    }
 
     if (existingCategory) {
       console.log(`Category ${category.name} already exists, skipping...`);
@@ -17,14 +24,16 @@ export const saveCategory = async (category: { id: string; name: string; icon: s
     }
 
     // If category doesn't exist, insert it
-    const { error } = await supabase
+    const { error: insertError } = await supabase
       .from('categories')
       .insert(category);
     
-    if (error) {
-      console.error("Error saving category:", error);
+    if (insertError) {
+      console.error("Error saving category:", insertError);
       return false;
     }
+    
+    console.log(`Successfully saved category: ${category.name}`);
     return true;
   } catch (error) {
     console.error("Error in saveCategory:", error);
@@ -118,7 +127,7 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
     const { data, error } = await supabase
       .from('listings')
       .insert([cleanListingData])
-      .select('*')
+      .select()
       .single();
 
     if (error) throw error;
