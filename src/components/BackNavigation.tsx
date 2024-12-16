@@ -1,13 +1,17 @@
 import { ArrowLeft, Home } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "../context/LanguageContext";
 import { useTranslation } from "../translations";
 
 export const BackNavigation = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { language } = useLanguage();
   const t = useTranslation(language);
+  const isHomePage = location.pathname === "/";
+
+  if (isHomePage) return null;
 
   return (
     <div className="flex items-center space-x-2 mb-4 mt-20">

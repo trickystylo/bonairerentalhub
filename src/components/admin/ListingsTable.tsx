@@ -61,7 +61,7 @@ export const ListingsTable = ({
     setSelectedListings([]);
   };
 
-  const toggleFeatured = async (id: string, currentStatus: boolean) => {
+  const handleToggleFeatured = async (id: string, currentStatus: boolean) => {
     try {
       const { error } = await supabase
         .from('listings')
@@ -129,7 +129,6 @@ export const ListingsTable = ({
               <TableHead>Category</TableHead>
               <TableHead>Rating</TableHead>
               <TableHead>Price Level</TableHead>
-              <TableHead>Featured</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -147,23 +146,26 @@ export const ListingsTable = ({
                 <TableCell>{listing.rating}</TableCell>
                 <TableCell>{"€".repeat(listing.price_level)}</TableCell>
                 <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => toggleFeatured(listing.id, listing.is_premium)}
-                    className={listing.is_premium ? "text-yellow-500" : "text-gray-400"}
-                  >
-                    <Star className="h-5 w-5" fill={listing.is_premium ? "currentColor" : "none"} />
-                  </Button>
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDeleteClick([listing.id])}
-                  >
-                    Delete
-                  </Button>
+                  <div className="flex items-center space-x-2">
+                    <ListingsTableActions
+                      listingId={listing.id}
+                      isPremium={listing.is_premium}
+                      onToggleFeatured={() => handleToggleFeatured(listing.id, listing.is_premium)}
+                      onImageUploaded={() => {
+                        toast({
+                          title: "Success",
+                          description: "Image uploaded successfully",
+                        });
+                      }}
+                    />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeleteClick([listing.id])}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
