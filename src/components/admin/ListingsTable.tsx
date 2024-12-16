@@ -7,46 +7,118 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from "react";
 
 interface ListingsTableProps {
   listings: any[];
-  onDelete: (id: string) => void;
+  onDelete: (ids: string[]) => void;
 }
 
 export const ListingsTable = ({ listings, onDelete }: ListingsTableProps) => {
+  const [selectedListings, setSelectedListings] = useState<string[]>([]);
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedListings(listings.map(listing => listing.id));
+    } else {
+      setSelectedListings([]);
+    }
+  };
+
+  const handleSelectListing = (id: string, checked: boolean) => {
+    if (checked) {
+      setSelectedListings([...selectedListings, id]);
+    } else {
+      setSelectedListings(selectedListings.filter(listingId => listingId !== id));
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedListings.length > 0) {
+      onDelete(selectedListings);
+      setSelectedListings([]);
+    }
+  };
+
   return (
-    <div className="overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-muted/50">
-            <TableHead>Name</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Rating</TableHead>
-            <TableHead>Price Level</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {listings.map((listing) => (
-            <TableRow key={listing.id} className="hover:bg-muted/30 transition-colors">
-              <TableCell className="font-medium">{listing.name}</TableCell>
-              <TableCell>{listing.display_category}</TableCell>
-              <TableCell>{listing.rating}</TableCell>
-              <TableCell>{"€".repeat(listing.price_level)}</TableCell>
-              <TableCell>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => onDelete(listing.id)}
-                  className="hover:scale-105 transition-transform"
-                >
-                  Delete
-                </Button>
-              </TableCell>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <Checkbox
+            checked={selectedListings.length === listings.length}
+            onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
+          />
+          <span className="text-sm text-gray-500">
+            {selectedListings.length} selected
+          </span>
+        </div>
+        <div className="space-x-2">
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleDeleteSelected}
+            disabled={selectedListings.length === 0}
+            className="hover:scale-105 transition-transform"
+          >
+            Delete Selected
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => onDelete(listings.map(listing => listing.id))}
+            className="hover:scale-105 transition-transform"
+          >
+            Delete All
+          </Button>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50">
+              <TableHead className="w-[50px]">
+                <Checkbox
+                  checked={selectedListings.length === listings.length}
+                  onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
+                />
+              </TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Rating</TableHead>
+              <TableHead>Price Level</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {listings.map((listing) => (
+              <TableRow key={listing.id} className="hover:bg-muted/30 transition-colors">
+                <TableCell>
+                  <Checkbox
+                    checked={selectedListings.includes(listing.id)}
+                    onCheckedChange={(checked) => handleSelectListing(listing.id, checked as boolean)}
+                  />
+                </TableCell>
+                <TableCell className="font-medium">{listing.name}</TableCell>
+                <TableCell>{listing.display_category}</TableCell>
+                <TableCell>{listing.rating}</TableCell>
+                <TableCell>{"€".repeat(listing.price_level)}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => onDelete([listing.id])}
+                    className="hover:scale-105 transition-transform"
+                  >
+                    Delete
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };

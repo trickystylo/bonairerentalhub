@@ -24,6 +24,11 @@ const Index = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+    // Scroll to results
+    const resultsElement = document.getElementById('search-results');
+    if (resultsElement) {
+      resultsElement.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const handleFilterChange = (filters: SearchFilters) => {
@@ -64,19 +69,22 @@ const Index = () => {
               {t("siteDescription")}
             </p>
           </div>
+
+          <CategoryGrid 
+            selectedCategory={selectedCategory}
+            onCategorySelect={handleCategoryChange}
+          />
           
           <div className="flex gap-8">
             <div className="flex-1">
               <SearchBar onSearch={handleSearch} onFilterChange={handleFilterChange} />
-              <CategoryGrid 
-                selectedCategory={selectedCategory}
-                onCategorySelect={handleCategoryChange}
-              />
-              <BusinessGrid 
-                selectedCategory={selectedCategory}
-                searchQuery={searchQuery}
-                searchFilters={searchFilters}
-              />
+              <div id="search-results">
+                <BusinessGrid 
+                  selectedCategory={selectedCategory}
+                  searchQuery={searchQuery}
+                  searchFilters={searchFilters}
+                />
+              </div>
               <AdSpace position="bottom" />
             </div>
             <div className="hidden lg:block">

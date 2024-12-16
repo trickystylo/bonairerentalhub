@@ -64,16 +64,16 @@ const AdminDashboard = () => {
     setListings(data || []);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (ids: string[]) => {
     const { error } = await supabase
       .from('listings')
       .delete()
-      .eq('id', id);
+      .in('id', ids);
 
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to delete listing",
+        description: "Failed to delete listings",
         variant: "destructive",
       });
       return;
@@ -81,7 +81,7 @@ const AdminDashboard = () => {
 
     toast({
       title: "Success",
-      description: "Listing deleted successfully",
+      description: `${ids.length} listing(s) deleted successfully`,
     });
     fetchListings();
   };
