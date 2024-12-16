@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ListingsTable } from "../ListingsTable";
 import { CsvUploader } from "@/components/CsvUploader";
@@ -6,7 +6,6 @@ import { DuplicateListingDialog } from "../DuplicateListingDialog";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingsHeader } from "./ListingsHeader";
-import { ListingsPagination } from "./ListingsPagination";
 
 interface ListingsContainerProps {
   listings: any[];
@@ -20,9 +19,6 @@ interface ListingsContainerProps {
 export const ListingsContainer = ({
   listings: initialListings,
   onDelete,
-  currentPage,
-  onLoadMore,
-  hasMore,
   onListingsUpdate,
 }: ListingsContainerProps) => {
   const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
@@ -31,7 +27,10 @@ export const ListingsContainer = ({
   const [filteredListings, setFilteredListings] = useState(initialListings);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setFilteredListings(initialListings);
+  }, [initialListings]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -127,17 +126,9 @@ export const ListingsContainer = ({
           <ListingsTable 
             listings={filteredListings}
             onDelete={onDelete}
-            currentPage={currentPage}
-            onLoadMore={onLoadMore}
-            hasMore={hasMore}
+            currentPage={1}
+            hasMore={false}
           />
-          {hasMore && (
-            <ListingsPagination 
-              hasMore={hasMore}
-              onLoadMore={onLoadMore}
-              isLoading={isLoading}
-            />
-          )}
         </CardContent>
       </Card>
 

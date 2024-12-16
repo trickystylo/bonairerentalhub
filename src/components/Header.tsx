@@ -2,20 +2,57 @@ import { Link } from "react-router-dom";
 import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "../context/LanguageContext";
 import { useTranslation } from "../translations";
-import { LogIn } from "lucide-react";
+import { LogIn, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 export const Header = () => {
   const { language } = useLanguage();
   const t = useTranslation(language);
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [session, setSession] = useState<any>(null);
+
+  useEffect(() => {
+    checkSession();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      checkAdmin(session?.user?.id);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const checkSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    setSession(session);
+    if (session) {
+      checkAdmin(session.user.id);
+    }
+  };
+
+  const checkAdmin = async (userId: string | undefined) => {
+    if (!userId) return;
+    
+    const { data: adminData } = await supabase
+      .from('admin_users')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    setIsAdmin(!!adminData);
+  };
 
   const handleAuthClick = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
     if (session) {
-      navigate('/admin');
+      if (isAdmin) {
+        navigate('/admin');
+      } else {
+        await supabase.auth.signOut();
+        navigate('/');
+      }
     } else {
       navigate('/login');
     }
@@ -29,21 +66,6 @@ export const Header = () => {
             HureninBonaire.com
           </span>
         </Link>
-        
-        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-          <Link to="/" className="transition-colors hover:text-primary">
-            {t("home")}
-          </Link>
-          <Link to="/categories" className="transition-colors hover:text-primary">
-            {t("categories")}
-          </Link>
-          <Link to="/featured" className="transition-colors hover:text-primary">
-            {t("featured")}
-          </Link>
-          <Link to="/about" className="transition-colors hover:text-primary">
-            {t("about")}
-          </Link>
-        </nav>
 
         <div className="flex items-center space-x-4">
           <LanguageSelector />
@@ -53,8 +75,23 @@ export const Header = () => {
             onClick={handleAuthClick}
             className="flex items-center gap-2"
           >
-            <LogIn className="h-4 w-4" />
-            <span>Login</span>
+            {session ? (
+              isAdmin ? (
+                <>
+                  <span>Dashboard</span>
+                </>
+              ) : (
+                <>
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </>
+              )
+            ) : (
+              <>
+                <LogIn className="h-4 w-4" />
+                <span>Login</span>
+              </>
+            )}
           </Button>
         </div>
       </div>

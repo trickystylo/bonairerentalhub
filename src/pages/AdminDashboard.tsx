@@ -9,13 +9,9 @@ import { ListingStats } from "@/components/admin/ListingStats";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ListingsSection } from "@/components/admin/ListingsSection";
 
-const ITEMS_PER_PAGE = 15;
-
 const AdminDashboard = () => {
   const [listings, setListings] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,31 +47,17 @@ const AdminDashboard = () => {
   };
 
   const fetchListings = async () => {
-    const from = (currentPage - 1) * ITEMS_PER_PAGE;
-    const to = from + ITEMS_PER_PAGE - 1;
-
-    const { data, error, count } = await supabase
+    const { data, error } = await supabase
       .from('listings')
-      .select('*', { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(from, to);
+      .select('*')
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error("Error fetching listings:", error);
       return;
     }
 
-    if (currentPage === 1) {
-      setListings(data || []);
-    } else {
-      setListings(prev => [...prev, ...(data || [])]);
-    }
-    
-    setHasMore(count ? count > to + 1 : false);
-  };
-
-  const handleLoadMore = () => {
-    setCurrentPage(prev => prev + 1);
+    setListings(data || []);
   };
 
   const handleDelete = async (ids: string[]) => {
@@ -98,7 +80,6 @@ const AdminDashboard = () => {
       description: `${ids.length} listing(s) deleted successfully`,
     });
     
-    setCurrentPage(1);
     fetchListings();
   };
 
@@ -148,9 +129,9 @@ const AdminDashboard = () => {
             <ListingsSection 
               listings={listings}
               onDelete={handleDelete}
-              currentPage={currentPage}
-              onLoadMore={handleLoadMore}
-              hasMore={hasMore}
+              currentPage={1}
+              onLoadMore={() => {}}
+              hasMore={false}
               onListingsUpdate={fetchListings}
             />
           </TabsContent>
