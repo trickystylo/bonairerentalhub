@@ -31,11 +31,19 @@ export const ListingImageUpload = ({ listingId, onImageUploaded }: ListingImageU
         .from('listings')
         .getPublicUrl(filePath);
 
+      // Update the listing's images array
+      const { data: listing } = await supabase
+        .from('listings')
+        .select('images')
+        .eq('id', listingId)
+        .single();
+
+      const currentImages = listing?.images || [];
+      const updatedImages = [...currentImages, publicUrl];
+
       const { error: updateError } = await supabase
         .from('listings')
-        .update({ 
-          images: supabase.sql`array_append(COALESCE(images, ARRAY[]::text[]), ${publicUrl})`
-        })
+        .update({ images: updatedImages })
         .eq('id', listingId);
 
       if (updateError) throw updateError;

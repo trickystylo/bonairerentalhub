@@ -113,7 +113,7 @@ export const getFeaturedListings = async () => {
   }
 };
 
-export type ClickType = 'website' | 'phone' | 'whatsapp' | 'map';
+export type ClickType = 'website' | 'phone' | 'whatsapp' | 'map' | 'call';
 
 export const trackListingClick = async (listingId: string, clickType: ClickType) => {
   try {
@@ -124,7 +124,9 @@ export const trackListingClick = async (listingId: string, clickType: ClickType)
 
     // Increment total clicks
     await supabase
-      .rpc('increment_listing_clicks', { listing_id: listingId });
+      .from('listings')
+      .update({ total_clicks: supabase.rpc('increment_listing_clicks', { listing_id: listingId }) })
+      .eq('id', listingId);
 
   } catch (error) {
     console.error("Error tracking click:", error);

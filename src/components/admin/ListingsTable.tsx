@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Star } from "lucide-react";
 import { useState } from "react";
 import { DeleteConfirmationDialog } from "./DeleteConfirmationDialog";
+import { ListingsTableActions } from "./ListingsTableActions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 
