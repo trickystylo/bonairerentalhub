@@ -108,7 +108,7 @@ export const BusinessGrid = ({
       
       {listings.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-lg text-gray-500">No listings found matching your criteria.</p>
+          <p className="text-lg text-gray-500">{t("noResults")}</p>
         </div>
       )}
 
@@ -120,7 +120,7 @@ export const BusinessGrid = ({
             onClick={loadMore}
             className="group"
           >
-            Show More
+            {t("showMore")}
             <ChevronDown className="ml-2 h-4 w-4 transition-transform group-hover:translate-y-1" />
           </Button>
         </div>

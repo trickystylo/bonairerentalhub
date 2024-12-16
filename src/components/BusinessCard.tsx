@@ -4,6 +4,7 @@ import { useLanguage } from "../context/LanguageContext";
 import { useTranslation, TranslationKey } from "../translations";
 import { toggleFeaturedListing } from "@/services/listingService";
 import { toast } from "./ui/use-toast";
+import { useState } from "react";
 
 interface Business {
   id: string;
@@ -31,6 +32,7 @@ interface BusinessCardProps {
 }
 
 export const BusinessCard = ({ business }: BusinessCardProps) => {
+  const [isStarred, setIsStarred] = useState(business.is_premium);
   const navigate = useNavigate();
   const { language } = useLanguage();
   const t = useTranslation(language);
@@ -66,12 +68,14 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
   const handleToggleFeatured = async (e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      await toggleFeaturedListing(business.id, !business.is_premium);
+      setIsStarred(!isStarred); // Immediate UI update
+      await toggleFeaturedListing(business.id, !isStarred);
       toast({
-        title: business.is_premium ? "Removed from featured" : "Added to featured",
-        description: `${business.name} has been ${business.is_premium ? 'removed from' : 'added to'} featured listings.`,
+        title: isStarred ? "Removed from featured" : "Added to featured",
+        description: `${business.name} has been ${isStarred ? 'removed from' : 'added to'} featured listings.`,
       });
     } catch (error) {
+      setIsStarred(!isStarred); // Revert on error
       console.error("Error toggling featured status:", error);
       toast({
         title: "Error",
@@ -104,12 +108,12 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
                 <button
                   onClick={handleToggleFeatured}
                   className={`p-2 rounded-full transition-colors ${
-                    business.is_premium 
+                    isStarred 
                       ? 'bg-yellow-400 text-yellow-900' 
                       : 'bg-gray-200/20 text-gray-200 hover:bg-gray-200/40'
                   }`}
                 >
-                  <Star className="w-5 h-5" fill={business.is_premium ? "currentColor" : "none"} />
+                  <Star className="w-5 h-5" fill={isStarred ? "currentColor" : "none"} />
                 </button>
               </div>
             </div>
