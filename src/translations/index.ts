@@ -45,6 +45,7 @@ export const translations = {
     about: "Over ons",
     discoverTitle: "Ontdek de Beste Lokale Bedrijven op Bonaire",
     discoverDescription: "Verken de beste restaurants, winkels, activiteiten en diensten op Bonaire. Onze uitgebreide gids helpt u bij het vinden van betrouwbare lokale bedrijven met geverifieerde beoordelingen en essentiële informatie.",
+    rentalDescription: "Ontdek de beste verhuurservices op Bonaire - van auto's en boten tot vakantiehuizen. Uw one-stop bestemming voor al uw verhuurbehoeften op het prachtige eiland.",
   },
   EN: {
     allCategories: "All categories",
@@ -88,6 +89,7 @@ export const translations = {
     about: "About",
     discoverTitle: "Discover Bonaire's Best Local Businesses",
     discoverDescription: "Explore the finest restaurants, shops, activities, and services in Bonaire. Our comprehensive directory helps you find trusted local businesses with verified reviews and essential information.",
+    rentalDescription: "Find the best rental services in Bonaire - from cars and boats to vacation homes. Your one-stop destination for all rental needs on the beautiful island.",
   },
   PAP: {
     allCategories: "Tur kategoria",
@@ -131,6 +133,7 @@ export const translations = {
     about: "Tokante",
     discoverTitle: "Deskubrí e Mihó Negoshinan Lokal na Bonaire",
     discoverDescription: "Eksplotá e mihó restorantnan, tiendanan, aktividatnan i servisionan na Bonaire. Nos guia kompleto ta yuda bo haña negoshinan lokal konfiabel ku reseñanan verifiká i informashon esensial.",
+    rentalDescription: "Deskubrí e mihó servisionan di hür na Bonaire - for di outo i boto te kasnan di fakansi. Bo destinashon kompleto pa tur nesesidat di hür riba e isla bunita.",
   },
   ES: {
     allCategories: "Todas las categorías",
@@ -174,6 +177,7 @@ export const translations = {
     about: "Acerca de",
     discoverTitle: "Descubre los Mejores Negocios Locales en Bonaire",
     discoverDescription: "Explora los mejores restaurantes, tiendas, actividades y servicios en Bonaire. Nuestra guía completa te ayuda a encontrar negocios locales confiables con reseñas verificadas e información esencial.",
+    rentalDescription: "Descubre los mejores servicios de alquiler en Bonaire - desde coches y barcos hasta casas de vacaciones. Tu destino único para todas las necesidades de alquiler en la hermosa isla.",
   }
 };
 

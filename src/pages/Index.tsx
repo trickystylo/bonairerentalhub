@@ -67,7 +67,7 @@ const Index = () => {
               {t("discoverTitle")}
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
-              Find the best rental services in Bonaire - from cars and boats to vacation homes. Your one-stop destination for all rental needs on the beautiful island.
+              {t("rentalDescription")}
             </p>
           </div>
 
@@ -91,7 +91,9 @@ const Index = () => {
                   searchFilters={searchFilters}
                 />
               </div>
-              <AdSpace position="bottom" />
+              <div className="mb-16">
+                <AdSpace position="bottom" />
+              </div>
             </div>
             <div className="hidden lg:block w-64">
               <AdSpace position="sidebar" className="sticky top-24" />
