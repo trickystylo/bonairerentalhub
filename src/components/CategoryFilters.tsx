@@ -8,12 +8,12 @@ interface Category {
 }
 
 const defaultCategories: Category[] = [
-  { id: "all", name: "Alle categorieën" },
-  { id: "auto", name: "Auto verhuur" },
-  { id: "boot", name: "Boot verhuur" },
-  { id: "watersport", name: "Watersport verhuur" },
-  { id: "vakantiehuizen", name: "Vakantiehuizen" },
-  { id: "equipment", name: "Equipment verhuur" },
+  { id: "all", name: "All categories" },
+  { id: "auto", name: "Car rental" },
+  { id: "boot", name: "Boat rental" },
+  { id: "watersport", name: "Watersport rental" },
+  { id: "vakantiehuizen", name: "Holiday homes" },
+  { id: "equipment", name: "Equipment rental" },
 ];
 
 interface CategoryFiltersProps {

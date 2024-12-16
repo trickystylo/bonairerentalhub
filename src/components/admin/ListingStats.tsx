@@ -1,20 +1,15 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ListingStatsDetail } from "./ListingStatsDetail";
-import { StatsSearch } from "./stats/StatsSearch";
-import { StatsTable } from "./stats/StatsTable";
+import { StatsContainer } from "./stats/StatsContainer";
 
 export const ListingStats = () => {
   const [clickStats, setClickStats] = useState<any[]>([]);
   const [selectedListing, setSelectedListing] = useState<any>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredStats, setFilteredStats] = useState<any[]>([]);
 
   useEffect(() => {
     fetchClickStats();
     
-    // Set up real-time subscription
     const channel = supabase
       .channel('listing-clicks')
       .on(
@@ -35,10 +30,6 @@ export const ListingStats = () => {
       supabase.removeChannel(channel);
     };
   }, []);
-
-  useEffect(() => {
-    filterStats();
-  }, [searchQuery, clickStats]);
 
   const fetchClickStats = async () => {
     console.log("Fetching click stats...");
@@ -64,23 +55,6 @@ export const ListingStats = () => {
     setClickStats(listings || []);
   };
 
-  const filterStats = () => {
-    if (!searchQuery) {
-      setFilteredStats(clickStats);
-      return;
-    }
-
-    const filtered = clickStats.filter(listing =>
-      listing.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredStats(filtered);
-  };
-
-  const handleListingClick = (listing: any) => {
-    console.log("Selected listing:", listing);
-    setSelectedListing(listing);
-  };
-
   return (
     <div className="space-y-4">
       {selectedListing ? (
@@ -93,19 +67,10 @@ export const ListingStats = () => {
           }}
         />
       ) : (
-        <Card className="bg-white/80 backdrop-blur-sm border border-muted animate-fade-in">
-          <CardHeader>
-            <CardTitle>Listing Statistics</CardTitle>
-            <CardDescription>Track engagement with your listings</CardDescription>
-            <StatsSearch value={searchQuery} onChange={setSearchQuery} />
-          </CardHeader>
-          <CardContent>
-            <StatsTable 
-              filteredStats={filteredStats}
-              onListingClick={handleListingClick}
-            />
-          </CardContent>
-        </Card>
+        <StatsContainer 
+          clickStats={clickStats}
+          onListingClick={setSelectedListing}
+        />
       )}
     </div>
   );
