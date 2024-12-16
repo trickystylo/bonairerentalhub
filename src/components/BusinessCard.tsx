@@ -2,7 +2,7 @@ import { MapPin, Phone, Star, MessageSquare, Link } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import { useTranslation, TranslationKey } from "../translations";
-import { toggleFeaturedListing } from "@/services/listingService";
+import { toggleFeaturedListing, trackListingClick } from "@/services/listingService";
 import { toast } from "./ui/use-toast";
 import { useState } from "react";
 
@@ -37,26 +37,30 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
   const { language } = useLanguage();
   const t = useTranslation(language);
 
-  const handleWhatsApp = (e: React.MouseEvent) => {
+  const handleWhatsApp = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    await trackListingClick(business.id, 'whatsapp');
     const phoneNumber = business.phone?.replace(/[^0-9]/g, '') || '';
     window.open(`https://wa.me/${phoneNumber}`, '_blank');
   };
 
-  const handleCall = (e: React.MouseEvent) => {
+  const handleCall = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    await trackListingClick(business.id, 'call');
     window.location.href = `tel:${business.phone}`;
   };
 
-  const handleMap = (e: React.MouseEvent) => {
+  const handleMap = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    await trackListingClick(business.id, 'map');
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.name)}&query_place_id=${business.id}`;
     window.open(mapsUrl, '_blank');
   };
 
-  const handleWebsite = (e: React.MouseEvent) => {
+  const handleWebsite = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (business.website) {
+      await trackListingClick(business.id, 'website');
       window.open(business.website, '_blank');
     }
   };

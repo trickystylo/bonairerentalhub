@@ -112,3 +112,40 @@ export const getFeaturedListings = async () => {
     throw error;
   }
 };
+
+export const trackListingClick = async (listingId: string, clickType: string) => {
+  try {
+    // Record the click
+    await supabase
+      .from('listing_clicks')
+      .insert([{ listing_id: listingId, click_type: clickType }]);
+
+    // Increment total clicks
+    await supabase
+      .rpc('increment_listing_clicks', { listing_id: listingId });
+
+  } catch (error) {
+    console.error("Error tracking click:", error);
+    throw error;
+  }
+};
+
+export const resetListingClicks = async (listingId: string) => {
+  try {
+    // Delete click records
+    await supabase
+      .from('listing_clicks')
+      .delete()
+      .eq('listing_id', listingId);
+
+    // Reset total clicks counter
+    await supabase
+      .from('listings')
+      .update({ total_clicks: 0 })
+      .eq('id', listingId);
+
+  } catch (error) {
+    console.error("Error resetting clicks:", error);
+    throw error;
+  }
+};

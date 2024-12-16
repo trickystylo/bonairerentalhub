@@ -82,7 +82,7 @@ export const Navigation = ({ onCategoryChange, selectedCategory, additionalCateg
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex-1 flex justify-center">
-            <div className="flex space-x-2 md:space-x-4 overflow-x-auto scrollbar-hide pb-2 px-2 md:px-0">
+            <div className="flex space-x-2 md:space-x-4 overflow-x-auto scrollbar-hide pb-2 px-2 md:px-0 max-h-[calc(100vh-4rem)]">
               {visibleCategories.map((category) => (
                 <button
                   key={category.id}
@@ -94,7 +94,9 @@ export const Navigation = ({ onCategoryChange, selectedCategory, additionalCateg
                   }`}
                 >
                   <span className="hidden md:inline">{category.icon}</span>
-                  <span className="text-xs md:text-sm">{category.name}</span>
+                  <span className="text-xs md:text-sm">
+                    {category.translations?.[language] || category.name}
+                  </span>
                 </button>
               ))}
               
@@ -104,7 +106,7 @@ export const Navigation = ({ onCategoryChange, selectedCategory, additionalCateg
                   className="flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition-all"
                 >
                   <span className="text-xs md:text-sm">
-                    {showAllCategories ? "Show Less" : "Show More"}
+                    {showAllCategories ? t("showLess") : t("showMore")}
                   </span>
                 </button>
               )}

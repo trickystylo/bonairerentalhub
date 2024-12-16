@@ -64,6 +64,7 @@ export type Database = {
           icon: string | null
           id: string
           name: string
+          translations: Json | null
         }
         Insert: {
           created_at?: string | null
@@ -71,6 +72,7 @@ export type Database = {
           icon?: string | null
           id: string
           name: string
+          translations?: Json | null
         }
         Update: {
           created_at?: string | null
@@ -78,8 +80,38 @@ export type Database = {
           icon?: string | null
           id?: string
           name?: string
+          translations?: Json | null
         }
         Relationships: []
+      }
+      listing_clicks: {
+        Row: {
+          click_type: string
+          created_at: string | null
+          id: string
+          listing_id: string | null
+        }
+        Insert: {
+          click_type: string
+          created_at?: string | null
+          id?: string
+          listing_id?: string | null
+        }
+        Update: {
+          click_type?: string
+          created_at?: string | null
+          id?: string
+          listing_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_clicks_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       listings: {
         Row: {
@@ -105,6 +137,7 @@ export type Database = {
           price_range: string | null
           rating: number | null
           status: string | null
+          total_clicks: number | null
           total_reviews: number | null
           updated_at: string | null
           website: string | null
@@ -132,6 +165,7 @@ export type Database = {
           price_range?: string | null
           rating?: number | null
           status?: string | null
+          total_clicks?: number | null
           total_reviews?: number | null
           updated_at?: string | null
           website?: string | null
@@ -159,6 +193,7 @@ export type Database = {
           price_range?: string | null
           rating?: number | null
           status?: string | null
+          total_clicks?: number | null
           total_reviews?: number | null
           updated_at?: string | null
           website?: string | null

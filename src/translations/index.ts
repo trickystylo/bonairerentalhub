@@ -27,12 +27,10 @@ export const translations = {
     appartementen: "Appartementen",
     siteDescription: "Ontdek de beste verhuurservices op Bonaire - van auto's en boten tot vakantiehuizen. Vind betrouwbare verhuurders met uitstekende service en de beste prijzen. Perfect voor toeristen en lokale bewoners die op zoek zijn naar kwaliteitsverhuur op het prachtige Bonaire.",
     welcomeMessage: "Welkom bij HureninBonaire",
-    searchPlaceholder: "Zoek naar verhuurbedrijven...",
-    showMore: "Toon meer",
-    noResults: "Geen resultaten gevonden",
-    loading: "Laden...",
-    featuredListings: "Uitgelichte aanbiedingen",
-    showMoreCategories: "Toon meer categorieën",
+    searchPlaceholder: "Zoek naar verhuurbedrijven op Bonaire...",
+    searchResults: "Zoekresultaten",
+    resetClicks: "Reset clicks",
+    clickStats: "Click statistieken",
   },
   EN: {
     allCategories: "All categories",
@@ -62,12 +60,10 @@ export const translations = {
     appartementen: "Apartments",
     siteDescription: "Discover the best rental services in Bonaire - from cars and boats to vacation homes. Find trusted rental providers with excellent service and competitive prices. Perfect for tourists and locals looking for quality rentals on beautiful Bonaire.",
     welcomeMessage: "Welcome to RentinBonaire",
-    searchPlaceholder: "Search for rental businesses...",
-    showMore: "Show more",
-    noResults: "No results found",
-    loading: "Loading...",
-    featuredListings: "Featured Listings",
-    showMoreCategories: "Show more categories",
+    searchPlaceholder: "Search for rental businesses in Bonaire...",
+    searchResults: "Search Results",
+    resetClicks: "Reset clicks",
+    clickStats: "Click statistics",
   },
   PAP: {
     allCategories: "Tur kategoria",
@@ -97,12 +93,10 @@ export const translations = {
     appartementen: "Apartamentunan",
     siteDescription: "Deskubrí e mihó servisionan di hür na Bonaire - for di outo i boto te kasnan di fakansi. Haña kompanianan di hür konfiabel ku servisio eksepshonal i preis kompetitivo. Perfekto pa turista i habitante lokal ku ta buska hür di kalidat riba e isla bunita di Bonaire.",
     welcomeMessage: "Bon biní na HürNaBonaire",
-    searchPlaceholder: "Buska negoshinan di hür...",
-    showMore: "Mustra mas",
-    noResults: "No a haña resultado",
-    loading: "Kargando...",
-    featuredListings: "Listanan Destakado",
-    showMoreCategories: "Mustra mas kategoria",
+    searchPlaceholder: "Buska negoshinan di hür na Bonaire...",
+    searchResults: "Resultadonan di búskeda",
+    resetClicks: "Reset clicks",
+    clickStats: "Statistika di click",
   },
   ES: {
     allCategories: "Todas las categorías",
@@ -132,18 +126,9 @@ export const translations = {
     appartementen: "Apartamentos",
     siteDescription: "Descubre los mejores servicios de alquiler en Bonaire - desde coches y barcos hasta casas de vacaciones. Encuentra proveedores de alquiler confiables con excelente servicio y precios competitivos. Perfecto para turistas y residentes locales que buscan alquileres de calidad en la hermosa Bonaire.",
     welcomeMessage: "Bienvenido a AlquilerenBonaire",
-    searchPlaceholder: "Buscar empresas de alquiler...",
-    showMore: "Mostrar más",
-    noResults: "No se encontraron resultados",
-    loading: "Cargando...",
-    featuredListings: "Listados Destacados",
-    showMoreCategories: "Mostrar más categorías",
+    searchPlaceholder: "Buscar empresas de alquiler en Bonaire...",
+    searchResults: "Resultados de búsqueda",
+    resetClicks: "Restablecer clics",
+    clickStats: "Estadísticas de clics",
   }
-};
-
-export type Language = keyof typeof translations;
-export type TranslationKey = keyof typeof translations.EN;
-
-export const useTranslation = (lang: Language) => {
-  return (key: TranslationKey) => translations[lang][key] || key;
 };
