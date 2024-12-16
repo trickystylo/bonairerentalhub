@@ -1,0 +1,34 @@
+import { ArrowLeft, Home } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useLanguage } from "../context/LanguageContext";
+import { useTranslation } from "../translations";
+
+export const BackNavigation = () => {
+  const navigate = useNavigate();
+  const { language } = useLanguage();
+  const t = useTranslation(language);
+
+  return (
+    <div className="flex items-center space-x-2 mb-4 mt-20">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        {t("back")}
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate("/")}
+        className="flex items-center gap-2"
+      >
+        <Home className="h-4 w-4" />
+        {t("home")}
+      </Button>
+    </div>
+  );
+};
