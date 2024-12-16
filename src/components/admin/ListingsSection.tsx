@@ -37,11 +37,13 @@ export const ListingsSection = ({
   };
 
   const handleCategoryChange = (category: string | null) => {
+    console.log("Category changed to:", category);
     setSelectedCategory(category);
     filterListings(searchQuery, category);
   };
 
   const filterListings = (query: string, category: string | null) => {
+    console.log("Filtering listings with query:", query, "and category:", category);
     let filtered = initialListings;
 
     if (query) {
@@ -58,6 +60,7 @@ export const ListingsSection = ({
       );
     }
 
+    console.log("Filtered listings:", filtered);
     setFilteredListings(filtered);
   };
 
