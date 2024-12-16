@@ -1,62 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
-import { formatCategoryName, parseAmenities } from "@/utils/csvParser";
-
-export const saveCategory = async (category: { id: string; name: string; icon: string }) => {
-  try {
-    console.log("Attempting to save category:", category);
-    
-    // First check if category exists using maybeSingle() instead of single()
-    const { data: existingCategory, error: checkError } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('id', category.id)
-      .maybeSingle();
-    
-    if (checkError) {
-      console.error("Error checking existing category:", checkError);
-      return false;
-    }
-
-    if (existingCategory) {
-      console.log(`Category ${category.name} already exists, skipping...`);
-      return true;
-    }
-
-    // If category doesn't exist, insert it
-    const { error: insertError } = await supabase
-      .from('categories')
-      .insert(category);
-    
-    if (insertError) {
-      console.error("Error saving category:", insertError);
-      return false;
-    }
-    
-    console.log(`Successfully saved category: ${category.name}`);
-    return true;
-  } catch (error) {
-    console.error("Error in saveCategory:", error);
-    return false;
-  }
-};
-
-export const saveCategories = async (categories: Set<string>) => {
-  console.log("Saving categories:", categories);
-  const categoryObjects = Array.from(categories)
-    .filter(cat => cat)
-    .map(cat => ({
-      id: cat.toLowerCase(),
-      name: formatCategoryName(cat),
-      icon: '🏠'
-    }));
-
-  const results = await Promise.all(
-    categoryObjects.map(category => saveCategory(category))
-  );
-
-  return categoryObjects;
-};
+import { parseAmenities } from "@/utils/csvParser";
 
 export const checkDuplicateListing = async (name: string) => {
   if (!name) {
@@ -96,11 +39,10 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
       return null;
     }
 
-    // Map CSV fields to database columns
     const cleanListingData = {
       name: listingData.name,
       category: listingData.category?.toLowerCase() || '',
-      display_category: formatCategoryName(listingData.category) || '',
+      display_category: listingData.display_category || '',
       rating: parseFloat(listingData.rating) || 0,
       total_reviews: parseInt(listingData.total_reviews) || 0,
       price_level: parseInt(listingData.price_level) || 2,
@@ -123,7 +65,6 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
 
     console.log("Cleaned listing data:", cleanListingData);
 
-    // Insert the listing and return all columns
     const { data, error } = await supabase
       .from('listings')
       .insert([cleanListingData])
@@ -135,6 +76,39 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
     return data;
   } catch (error) {
     console.error("Error in saveListing:", error);
+    throw error;
+  }
+};
+
+export const toggleFeaturedListing = async (id: string, isFeatured: boolean) => {
+  try {
+    const { data, error } = await supabase
+      .from('listings')
+      .update({ is_premium: isFeatured })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error toggling featured status:", error);
+    throw error;
+  }
+};
+
+export const getFeaturedListings = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('listings')
+      .select('*')
+      .eq('is_premium', true)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error fetching featured listings:", error);
     throw error;
   }
 };

@@ -52,8 +52,8 @@ export const SearchBar = ({ onSearch, onFilterChange }: SearchBarProps) => {
   };
 
   return (
-    <div className="relative max-w-2xl mx-auto mb-8 md:mb-12 px-4 md:px-0">
-      <form onSubmit={handleSearch} className="relative flex gap-2">
+    <div className="relative max-w-4xl mx-auto mb-8 md:mb-12 px-4 md:px-0">
+      <form onSubmit={handleSearch} className="relative flex">
         <div className="relative flex-1">
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-primary w-5 h-5" />
           <input
@@ -61,22 +61,25 @@ export const SearchBar = ({ onSearch, onFilterChange }: SearchBarProps) => {
             value={searchTerm}
             onChange={handleInputChange}
             placeholder="Search rentals in Bonaire..."
-            className="w-full pl-12 pr-4 py-3 md:py-4 rounded-xl md:rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-lg bg-white/90 backdrop-blur-sm transition-all duration-300 hover:shadow-xl text-sm md:text-base"
+            className="w-full pl-12 pr-16 py-3 md:py-4 rounded-xl md:rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-lg bg-white/90 backdrop-blur-sm transition-all duration-300 hover:shadow-xl text-sm md:text-base"
           />
+          <Button 
+            type="submit"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2"
+          >
+            <Send className="w-5 h-5 text-primary" />
+          </Button>
         </div>
-
-        <Button 
-          type="submit"
-          className="p-3 md:p-4 rounded-xl md:rounded-2xl border border-gray-200 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
-        >
-          <Send className="w-5 h-5 text-primary" />
-        </Button>
 
         <Sheet>
           <SheetTrigger asChild>
-            <button className="p-3 md:p-4 rounded-xl md:rounded-2xl border border-gray-200 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300">
+            <Button 
+              type="button" 
+              variant="outline"
+              className="ml-2"
+            >
               <SlidersHorizontal className="w-5 h-5 text-primary" />
-            </button>
+            </Button>
           </SheetTrigger>
           <SheetContent>
             <SheetHeader>

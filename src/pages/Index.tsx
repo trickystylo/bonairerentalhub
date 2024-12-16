@@ -6,6 +6,8 @@ import { CategoryGrid } from "@/components/CategoryGrid";
 import { Navigation } from "@/components/Navigation";
 import { BackNavigation } from "@/components/BackNavigation";
 import { AdSpace } from "@/components/AdSpace";
+import { FeaturedListings } from "@/components/FeaturedListings";
+import { BackToTop } from "@/components/BackToTop";
 import { useLanguage } from "../context/LanguageContext";
 import { useTranslation } from "../translations";
 
@@ -69,6 +71,8 @@ const Index = () => {
             </p>
           </div>
 
+          <SearchBar onSearch={handleSearch} onFilterChange={handleFilterChange} />
+
           <div className="max-w-4xl mx-auto">
             <CategoryGrid 
               selectedCategory={selectedCategory}
@@ -76,9 +80,10 @@ const Index = () => {
             />
           </div>
           
+          <FeaturedListings />
+          
           <div className="flex gap-8 mt-8">
             <div className="flex-1">
-              <SearchBar onSearch={handleSearch} onFilterChange={handleFilterChange} />
               <div id="search-results">
                 <BusinessGrid 
                   selectedCategory={selectedCategory}
@@ -94,6 +99,7 @@ const Index = () => {
           </div>
         </div>
       </div>
+      <BackToTop />
     </div>
   );
 };

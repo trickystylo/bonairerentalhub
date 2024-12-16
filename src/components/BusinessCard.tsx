@@ -2,6 +2,8 @@ import { MapPin, Phone, Star, MessageSquare, Link } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import { useTranslation, TranslationKey } from "../translations";
+import { toggleFeaturedListing } from "@/services/listingService";
+import { toast } from "./ui/use-toast";
 
 interface Business {
   id: string;
@@ -21,6 +23,7 @@ interface Business {
     latitude: number;
     longitude: number;
   };
+  is_premium?: boolean;
 }
 
 interface BusinessCardProps {
@@ -60,30 +63,63 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
     navigate(`/listing/${business.id}`, { state: business });
   };
 
-  // Use displayCategory instead of trying to translate the category directly
+  const handleToggleFeatured = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await toggleFeaturedListing(business.id, !business.is_premium);
+      toast({
+        title: business.is_premium ? "Removed from featured" : "Added to featured",
+        description: `${business.name} has been ${business.is_premium ? 'removed from' : 'added to'} featured listings.`,
+      });
+    } catch (error) {
+      console.error("Error toggling featured status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update featured status",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div 
       className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1"
       onClick={handleCardClick}
     >
-      {business.images && business.images.length > 0 ? (
-        <div className="relative h-48">
-          <img
-            src={business.images[0]}
-            alt={business.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-            <h3 className="font-semibold text-xl">{business.name}</h3>
-            <p className="text-sm opacity-90">{business.displayCategory}</p>
+      <div className="relative">
+        {business.images && business.images.length > 0 ? (
+          <div className="relative h-48">
+            <img
+              src={business.images[0]}
+              alt={business.name}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-xl">{business.name}</h3>
+                  <p className="text-sm opacity-90">{business.displayCategory}</p>
+                </div>
+                <button
+                  onClick={handleToggleFeatured}
+                  className={`p-2 rounded-full transition-colors ${
+                    business.is_premium 
+                      ? 'bg-yellow-400 text-yellow-900' 
+                      : 'bg-gray-200/20 text-gray-200 hover:bg-gray-200/40'
+                  }`}
+                >
+                  <Star className="w-5 h-5" fill={business.is_premium ? "currentColor" : "none"} />
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      ) : (
-        <div className="h-48 bg-gradient-caribbean flex items-center justify-center p-6">
-          <h3 className="font-semibold text-xl text-white text-center">{business.name}</h3>
-        </div>
-      )}
+        ) : (
+          <div className="h-48 bg-gradient-caribbean flex items-center justify-center p-6">
+            <h3 className="font-semibold text-xl text-white text-center">{business.name}</h3>
+          </div>
+        )}
+      </div>
       
       <div className="p-4">
         <div className="flex items-center gap-2 mb-3">
