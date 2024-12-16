@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { DuplicateListingDialog } from "./admin/DuplicateListingDialog";
-import { parseOpeningHours, parseCsvFile } from "@/utils/csvParser";
+import { parseOpeningHours, parseCsvFile, formatCategoryName } from "@/utils/csvParser";
 import { saveCategories, checkDuplicateListing, saveListing } from "@/services/listingService";
 
 interface CsvUploaderProps {
