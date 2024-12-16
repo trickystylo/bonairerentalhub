@@ -120,14 +120,24 @@ const AdminDashboard = () => {
     });
   };
 
+  // New handler for CSV data upload
+  const handleCsvUpload = async (data: any[]) => {
+    if (data && data.length > 0) {
+      // Store the first listing data for potential duplicate handling
+      setPendingListingData(data[0]);
+      setDuplicateListingName(data[0].name || '');
+      setShowDuplicateDialog(true);
+    }
+  };
+
+  // Handler for duplicate dialog actions
   const handleCsvAction = async (action: "create" | "merge" | "ignore") => {
     if (!pendingListingData) return;
     
     if (action === "create") {
-      // Process the CSV data and save it
       const { error } = await supabase
         .from('listings')
-        .insert(pendingListingData);
+        .insert([pendingListingData]);
 
       if (error) {
         toast({
@@ -144,7 +154,7 @@ const AdminDashboard = () => {
       });
       fetchListings();
     }
-    // Reset the pending data and close dialog
+    
     setPendingListingData(null);
     setShowDuplicateDialog(false);
   };
@@ -177,7 +187,7 @@ const AdminDashboard = () => {
                 <CardDescription>Upload your CSV file with listing data</CardDescription>
               </CardHeader>
               <CardContent>
-                <CsvUploader onUpload={handleCsvAction} />
+                <CsvUploader onUpload={handleCsvUpload} />
               </CardContent>
             </Card>
 
