@@ -55,6 +55,7 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
 
     try {
       const rawData = await parseCsvFile(file);
+      console.log("Raw CSV data:", rawData);
       const newCategories = new Set<string>();
       
       const formattedData = rawData.map((row: any) => {
@@ -95,19 +96,47 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
         onNewCategories?.(savedCategories);
       }
 
-      // Check for duplicates
-      const isDuplicate = await checkDuplicateListing(formattedData[0].name);
-      
-      if (isDuplicate) {
-        setDuplicateListingName(formattedData[0].name);
-        setPendingListingData(formattedData[0]);
-        setShowDuplicateDialog(true);
-      } else {
-        const savedData = await saveListing(formattedData[0]);
-        onUpload([savedData]);
+      // Process all listings
+      const savedListings = [];
+      for (const listing of formattedData) {
+        try {
+          // Check for duplicates
+          const isDuplicate = await checkDuplicateListing(listing.name);
+          
+          if (isDuplicate) {
+            // For the first duplicate, show the dialog
+            if (savedListings.length === 0) {
+              setDuplicateListingName(listing.name);
+              setPendingListingData(listing);
+              setShowDuplicateDialog(true);
+              setIsLoading(false);
+              return;
+            } else {
+              // Skip other duplicates but notify
+              console.log(`Skipping duplicate listing: ${listing.name}`);
+              continue;
+            }
+          }
+
+          const savedData = await saveListing(listing);
+          if (savedData) {
+            savedListings.push(savedData);
+          }
+        } catch (error) {
+          console.error(`Error processing listing ${listing.name}:`, error);
+          toast({
+            title: "Error",
+            description: `Failed to process listing: ${listing.name}`,
+            variant: "destructive",
+          });
+        }
+      }
+
+      if (savedListings.length > 0) {
+        onUpload(savedListings);
         toast({
           title: "Success",
-          description: `Uploaded listing successfully`,
+          description: `Successfully uploaded ${savedListings.length} listings`,
         });
       }
     } catch (error) {
