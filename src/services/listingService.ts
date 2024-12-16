@@ -112,13 +112,15 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
       status: 'active'
     };
 
+    // Insert the listing and return all columns
     const { data, error } = await supabase
       .from('listings')
       .insert([cleanListingData])
-      .select()
+      .select('*')
       .single();
 
     if (error) throw error;
+    console.log("Successfully saved listing:", data);
     return data;
   } catch (error) {
     console.error("Error in saveListing:", error);
