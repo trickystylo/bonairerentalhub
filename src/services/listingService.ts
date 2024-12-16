@@ -122,10 +122,17 @@ export const trackListingClick = async (listingId: string, clickType: ClickType)
       .from('listing_clicks')
       .insert([{ listing_id: listingId, click_type: clickType }]);
 
+    // Get current total_clicks
+    const { data: listing } = await supabase
+      .from('listings')
+      .select('total_clicks')
+      .eq('id', listingId)
+      .single();
+
     // Increment total clicks
     await supabase
       .from('listings')
-      .update({ total_clicks: supabase.rpc('increment_listing_clicks', { listing_id: listingId }) })
+      .update({ total_clicks: (listing?.total_clicks || 0) + 1 })
       .eq('id', listingId);
 
   } catch (error) {
