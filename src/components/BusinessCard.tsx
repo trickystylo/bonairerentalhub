@@ -1,8 +1,8 @@
 import { MapPin, Phone, Star, MessageSquare, Link } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
-import { useTranslation, TranslationKey } from "../translations";
-import { toggleFeaturedListing, trackListingClick } from "@/services/listingService";
+import { useTranslation } from "../translations";
+import { toggleFeaturedListing, trackListingClick, ClickType } from "@/services/listingService";
 import { toast } from "./ui/use-toast";
 import { useState } from "react";
 
@@ -46,7 +46,7 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
 
   const handleCall = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    await trackListingClick(business.id, 'call');
+    await trackListingClick(business.id, 'phone' as ClickType);
     window.location.href = `tel:${business.phone}`;
   };
 
