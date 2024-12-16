@@ -4,13 +4,26 @@ import { formatCategoryName } from "@/utils/csvParser";
 
 export const saveCategory = async (category: { id: string; name: string; icon: string }) => {
   try {
+    // First check if category exists
+    const { data: existingCategory } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('id', category.id)
+      .single();
+
+    if (existingCategory) {
+      console.log(`Category ${category.name} already exists, skipping...`);
+      return true;
+    }
+
+    // If category doesn't exist, insert it
     const { error } = await supabase
       .from('categories')
       .insert(category)
       .select()
       .single();
     
-    if (error && error.code !== '23505') {
+    if (error) {
       console.error("Error saving category:", error);
       return false;
     }
@@ -22,6 +35,7 @@ export const saveCategory = async (category: { id: string; name: string; icon: s
 };
 
 export const saveCategories = async (categories: Set<string>) => {
+  console.log("Saving categories:", categories);
   const categoryObjects = Array.from(categories)
     .filter(cat => cat)
     .map(cat => ({
@@ -38,6 +52,11 @@ export const saveCategories = async (categories: Set<string>) => {
 };
 
 export const checkDuplicateListing = async (name: string) => {
+  if (!name) {
+    console.log("No name provided for duplicate check");
+    return false;
+  }
+
   const { data } = await supabase
     .from('listings')
     .select('name')
@@ -49,6 +68,11 @@ export const checkDuplicateListing = async (name: string) => {
 
 export const saveListing = async (listingData: any, action: 'create' | 'merge' | 'ignore' = 'create') => {
   try {
+    if (!listingData.name) {
+      console.error("Listing name is required");
+      return null;
+    }
+
     const isDuplicate = await checkDuplicateListing(listingData.name);
     
     if (isDuplicate) {
