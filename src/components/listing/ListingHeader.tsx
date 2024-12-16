@@ -12,22 +12,22 @@ export const ListingHeader = () => {
   return (
     <>
       <Header />
-      <div className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="fixed top-16 left-0 right-0 bg-white shadow-sm z-50">
+        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <button
               onClick={() => navigate(-1)}
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
             >
-              <ArrowLeft className="w-5 h-5" />
-              <span>{t("back")}</span>
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm">{t("back")}</span>
             </button>
             <Link
               to="/"
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
             >
-              <Home className="w-5 h-5" />
-              <span>{t("home")}</span>
+              <Home className="w-4 h-4" />
+              <span className="text-sm">{t("home")}</span>
             </Link>
           </div>
         </div>
