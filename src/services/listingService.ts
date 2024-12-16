@@ -117,23 +117,42 @@ export type ClickType = 'website' | 'phone' | 'whatsapp' | 'map' | 'call';
 
 export const trackListingClick = async (listingId: string, clickType: ClickType) => {
   try {
+    console.log(`Tracking click for listing ${listingId}, type: ${clickType}`);
+    
     // Record the click
-    await supabase
+    const { error: clickError } = await supabase
       .from('listing_clicks')
       .insert([{ listing_id: listingId, click_type: clickType }]);
 
+    if (clickError) {
+      console.error("Error recording click:", clickError);
+      throw clickError;
+    }
+
     // Get current total_clicks
-    const { data: listing } = await supabase
+    const { data: listing, error: fetchError } = await supabase
       .from('listings')
       .select('total_clicks')
       .eq('id', listingId)
       .single();
 
+    if (fetchError) {
+      console.error("Error fetching listing:", fetchError);
+      throw fetchError;
+    }
+
     // Increment total clicks
-    await supabase
+    const { error: updateError } = await supabase
       .from('listings')
       .update({ total_clicks: (listing?.total_clicks || 0) + 1 })
       .eq('id', listingId);
+
+    if (updateError) {
+      console.error("Error updating total clicks:", updateError);
+      throw updateError;
+    }
+
+    console.log(`Successfully tracked click for listing ${listingId}`);
 
   } catch (error) {
     console.error("Error tracking click:", error);
