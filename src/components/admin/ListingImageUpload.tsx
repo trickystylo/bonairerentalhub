@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
+import { Upload, Trash, Link } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface ListingImageUploadProps {
   listingId: string;
@@ -11,6 +13,8 @@ interface ListingImageUploadProps {
 
 export const ListingImageUpload = ({ listingId, onImageUploaded }: ListingImageUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [showUrlDialog, setShowUrlDialog] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -31,22 +35,7 @@ export const ListingImageUpload = ({ listingId, onImageUploaded }: ListingImageU
         .from('listings')
         .getPublicUrl(filePath);
 
-      // Update the listing's images array
-      const { data: listing } = await supabase
-        .from('listings')
-        .select('images')
-        .eq('id', listingId)
-        .single();
-
-      const currentImages = listing?.images || [];
-      const updatedImages = [...currentImages, publicUrl];
-
-      const { error: updateError } = await supabase
-        .from('listings')
-        .update({ images: updatedImages })
-        .eq('id', listingId);
-
-      if (updateError) throw updateError;
+      await updateListingImages(publicUrl);
 
       toast({
         title: "Success",
@@ -66,20 +55,118 @@ export const ListingImageUpload = ({ listingId, onImageUploaded }: ListingImageU
     }
   };
 
+  const handleUrlSubmit = async () => {
+    if (!imageUrl) return;
+
+    try {
+      await updateListingImages(imageUrl);
+      
+      toast({
+        title: "Success",
+        description: "Image URL added successfully",
+      });
+      
+      setShowUrlDialog(false);
+      setImageUrl("");
+      onImageUploaded();
+    } catch (error) {
+      console.error('Error adding image URL:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add image URL",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleClearImages = async () => {
+    try {
+      const { error } = await supabase
+        .from('listings')
+        .update({ images: [] })
+        .eq('id', listingId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "All images cleared successfully",
+      });
+      
+      onImageUploaded();
+    } catch (error) {
+      console.error('Error clearing images:', error);
+      toast({
+        title: "Error",
+        description: "Failed to clear images",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updateListingImages = async (newImageUrl: string) => {
+    const { data: listing } = await supabase
+      .from('listings')
+      .select('images')
+      .eq('id', listingId)
+      .single();
+
+    const currentImages = listing?.images || [];
+    const updatedImages = [...currentImages, newImageUrl];
+
+    const { error: updateError } = await supabase
+      .from('listings')
+      .update({ images: updatedImages })
+      .eq('id', listingId);
+
+    if (updateError) throw updateError;
+  };
+
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      className="relative"
-      disabled={isUploading}
-    >
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleImageUpload}
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-      />
-      <Upload className="h-5 w-5" />
-    </Button>
+    <div className="flex items-center space-x-2">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="relative"
+        disabled={isUploading}
+      >
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        />
+        <Upload className="h-5 w-5" />
+      </Button>
+
+      <Dialog open={showUrlDialog} onOpenChange={setShowUrlDialog}>
+        <DialogTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <Link className="h-5 w-5" />
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Image URL</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col space-y-4">
+            <Input
+              placeholder="Enter image URL"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+            />
+            <Button onClick={handleUrlSubmit}>Add Image</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={handleClearImages}
+      >
+        <Trash className="h-5 w-5" />
+      </Button>
+    </div>
   );
 };
