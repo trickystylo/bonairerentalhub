@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { CategoryFilters } from "@/components/CategoryFilters";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 interface ListingsFilterProps {
   onSearch: (query: string) => void;
@@ -21,7 +21,7 @@ export const ListingsFilter = ({
       const { data } = await supabase
         .from('categories')
         .select('*')
-        .order('display_order', { ascending: true });
+        .order('name');
       
       setCategories(data || []);
     };
@@ -36,10 +36,23 @@ export const ListingsFilter = ({
         onChange={(e) => onSearch(e.target.value)}
         className="max-w-md"
       />
-      <CategoryFilters
-        selectedCategory={selectedCategory}
-        onCategoryChange={onCategoryChange}
-      />
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant={selectedCategory === null ? "default" : "outline"}
+          onClick={() => onCategoryChange(null)}
+        >
+          All
+        </Button>
+        {categories.map((category) => (
+          <Button
+            key={category.id}
+            variant={selectedCategory === category.id ? "default" : "outline"}
+            onClick={() => onCategoryChange(category.id)}
+          >
+            {category.name}
+          </Button>
+        ))}
+      </div>
     </div>
   );
 };

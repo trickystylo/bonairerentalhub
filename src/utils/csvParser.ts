@@ -20,19 +20,26 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
       complete: async (results) => {
         console.log("Raw CSV data:", results.data);
         const cleanData = results.data
-          .filter((row: any) => row && Object.keys(row).length > 0 && row.title)
+          .filter((row: any) => row && Object.keys(row).length > 0)
           .map((row: any) => {
+            // Map 'title' to 'name' and ensure it exists
+            const name = row.title?.trim() || row.name?.trim();
+            if (!name) {
+              console.error("Row missing name/title:", row);
+              return null;
+            }
+
             // Convert categoryName to proper format for storage
             const category = row.categoryname?.toLowerCase().replace(/\s+/g, '-') || 'other';
             const displayCategory = row.categoryname || formatCategoryName(category);
             
             return {
-              name: row.title.trim(),
+              name: name,
               category: category,
               display_category: displayCategory,
               rating: parseFloat(row.totalscore) || 0,
               total_reviews: parseInt(row.reviewscount) || 0,
-              price_level: 2,
+              price_level: parseInt(row.price_level) || 2,
               languages: ["NL", "EN", "PAP", "ES"],
               phone: row.phone || '',
               website: row.website || '',
@@ -40,14 +47,16 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
               country: 'Bonaire',
               postal_code: '',
               area: row.city || '',
-              description: '',
+              description: row.description || '',
               amenities: [],
               images: row.imageurl ? [row.imageurl] : [],
               latitude: parseFloat(row['location/lat']) || null,
               longitude: parseFloat(row['location/lng']) || null,
               status: 'active'
             };
-          });
+          })
+          .filter(item => item !== null); // Remove any null items
+
         console.log("Cleaned data:", cleanData);
         resolve(cleanData);
       },
