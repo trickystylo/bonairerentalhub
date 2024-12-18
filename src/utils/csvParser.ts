@@ -13,49 +13,53 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: true,
+      delimiter: ',', // Explicitly set delimiter
       skipEmptyLines: 'greedy',
       transformHeader: (header) => {
+        // Clean up header names
         return header.toLowerCase().trim().replace(/[/"]/g, '');
       },
       complete: async (results) => {
-        console.log("Raw CSV data:", results.data);
+        console.log("Raw CSV parsing results:", results);
+        
+        // Map the data to our expected format
         const cleanData = results.data
-          .filter((row: any) => row && Object.keys(row).length > 0)
+          .filter((row: any) => row && typeof row === 'object')
           .map((row: any) => {
-            // Map 'title' to 'name' and ensure it exists
-            const name = row.title?.trim() || row.name?.trim();
-            if (!name) {
-              console.error("Row missing name/title:", row);
+            // Extract title/name from the correct field
+            const title = row.title || '';
+            if (!title) {
+              console.error("Row missing title:", row);
               return null;
             }
 
-            // Convert categoryName to proper format for storage
-            const category = row.categoryname?.toLowerCase().replace(/\s+/g, '-') || 'other';
-            const displayCategory = row.categoryname || formatCategoryName(category);
+            // Extract and clean category
+            const categoryName = row.categoryname || 'Other';
+            const category = categoryName.toLowerCase().replace(/\s+/g, '-');
             
             return {
-              name: name,
+              name: title.trim(),
               category: category,
-              display_category: displayCategory,
+              display_category: categoryName,
               rating: parseFloat(row.totalscore) || 0,
               total_reviews: parseInt(row.reviewscount) || 0,
               price_level: parseInt(row.price_level) || 2,
               languages: ["NL", "EN", "PAP", "ES"],
-              phone: row.phone || '',
-              website: row.website || '',
-              address: row.address || '',
+              phone: row.phone || null,
+              website: row.website || null,
+              address: row.address || null,
               country: 'Bonaire',
               postal_code: '',
-              area: row.city || '',
+              area: row.city || null,
               description: row.description || '',
               amenities: [],
               images: row.imageurl ? [row.imageurl] : [],
-              latitude: parseFloat(row['location/lat']) || null,
-              longitude: parseFloat(row['location/lng']) || null,
+              latitude: parseFloat(row.locationlat) || null,
+              longitude: parseFloat(row.locationlng) || null,
               status: 'active'
             };
           })
-          .filter(item => item !== null); // Remove any null items
+          .filter(item => item !== null);
 
         console.log("Cleaned data:", cleanData);
         resolve(cleanData);

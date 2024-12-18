@@ -43,15 +43,19 @@ export const ListingsFilter = ({
         >
           All
         </Button>
-        {categories.map((category) => (
-          <Button
-            key={category.id}
-            variant={selectedCategory === category.id ? "default" : "outline"}
-            onClick={() => onCategoryChange(category.id)}
-          >
-            {category.name}
-          </Button>
-        ))}
+        {categories.length > 0 ? (
+          categories.map((category) => (
+            <Button
+              key={category.id}
+              variant={selectedCategory === category.id ? "default" : "outline"}
+              onClick={() => onCategoryChange(category.id)}
+            >
+              {category.name}
+            </Button>
+          ))
+        ) : (
+          <p className="text-sm text-muted-foreground">No categories available</p>
+        )}
       </div>
     </div>
   );
