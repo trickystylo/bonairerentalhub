@@ -17,37 +17,6 @@ export const CsvProcessor = ({ onUpload, onNewCategories }: CsvProcessorProps) =
   const [pendingListingData, setPendingListingData] = useState<any>(null);
   const [duplicateListingName, setDuplicateListingName] = useState("");
 
-  const handleDuplicateAction = async (action: 'create' | 'merge' | 'ignore') => {
-    if (!pendingListingData) return;
-
-    try {
-      console.log("Processing duplicate action:", action, "for listing:", pendingListingData);
-      const savedData = await saveListing(pendingListingData, action);
-      
-      if (savedData) {
-        onUpload([savedData]);
-        toast({
-          title: "Success",
-          description: action === 'create' 
-            ? "New listing created successfully"
-            : "Listing data merged successfully"
-        });
-      } else {
-        toast({ title: "Info", description: "Upload ignored" });
-      }
-
-      setShowDuplicateDialog(false);
-      setPendingListingData(null);
-    } catch (error) {
-      console.error("Error handling duplicate action:", error);
-      toast({
-        title: "Error",
-        description: "Failed to process listing",
-        variant: "destructive",
-      });
-    }
-  };
-
   const processCategories = async (rawData: any[]) => {
     const newCategories = new Set<string>();
     rawData.forEach((listing: any) => {
@@ -76,28 +45,38 @@ export const CsvProcessor = ({ onUpload, onNewCategories }: CsvProcessorProps) =
       const rawData = await parseCsvFile(file);
       console.log("Parsed CSV data:", rawData);
 
+      if (!rawData || rawData.length === 0) {
+        toast({
+          title: "Error",
+          description: "No valid data found in CSV file",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Process categories first
       await processCategories(rawData);
 
       // Process listings
       const savedListings = [];
       for (const listing of rawData) {
         try {
+          console.log("Processing listing:", listing);
           const isDuplicate = await checkDuplicateListing(listing.name);
           
           if (isDuplicate) {
-            if (savedListings.length === 0) {
-              setDuplicateListingName(listing.name);
-              setPendingListingData(listing);
-              setShowDuplicateDialog(true);
-              setIsLoading(false);
-              return;
-            }
-            console.log(`Skipping duplicate listing: ${listing.name}`);
-            continue;
+            console.log(`Found duplicate listing: ${listing.name}`);
+            setDuplicateListingName(listing.name);
+            setPendingListingData(listing);
+            setShowDuplicateDialog(true);
+            setIsLoading(false);
+            return;
           }
 
           const savedData = await saveListing(listing);
           if (savedData) {
+            console.log("Successfully saved listing:", savedData);
             savedListings.push(savedData);
           }
         } catch (error) {
@@ -126,6 +105,37 @@ export const CsvProcessor = ({ onUpload, onNewCategories }: CsvProcessorProps) =
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDuplicateAction = async (action: 'create' | 'merge' | 'ignore') => {
+    if (!pendingListingData) return;
+
+    try {
+      console.log("Processing duplicate action:", action, "for listing:", pendingListingData);
+      const savedData = await saveListing(pendingListingData, action);
+      
+      if (savedData) {
+        onUpload([savedData]);
+        toast({
+          title: "Success",
+          description: action === 'create' 
+            ? "New listing created successfully"
+            : "Listing data merged successfully"
+        });
+      } else {
+        toast({ title: "Info", description: "Upload ignored" });
+      }
+
+      setShowDuplicateDialog(false);
+      setPendingListingData(null);
+    } catch (error) {
+      console.error("Error handling duplicate action:", error);
+      toast({
+        title: "Error",
+        description: "Failed to process listing",
+        variant: "destructive",
+      });
     }
   };
 

@@ -18,11 +18,18 @@ export const ListingsFilter = ({
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const { data } = await supabase
+      console.log("Fetching categories...");
+      const { data, error } = await supabase
         .from('categories')
         .select('*')
         .order('name');
       
+      if (error) {
+        console.error("Error fetching categories:", error);
+        return;
+      }
+      
+      console.log("Fetched categories:", data);
       setCategories(data || []);
     };
 
