@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BackNavigation } from "@/components/BackNavigation";
 import { toast } from "@/components/ui/use-toast";
 import { AdvertisementForm } from "@/components/admin/AdvertisementForm";
+import { CategoryManager } from "@/components/admin/CategoryManager";
 import { ListingStats } from "@/components/admin/ListingStats";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ListingsSection } from "@/components/admin/ListingsSection";
@@ -60,37 +61,46 @@ const AdminDashboard = () => {
   };
 
   const handleDelete = async (ids: string[]) => {
-    try {
-      // First delete all related clicks
-      const { error: clicksError } = await supabase
-        .from('listing_clicks')
-        .delete()
-        .in('listing_id', ids);
+    const { error } = await supabase
+      .from('listings')
+      .delete()
+      .in('id', ids);
 
-      if (clicksError) throw clicksError;
-
-      // Then delete the listings
-      const { error: listingsError } = await supabase
-        .from('listings')
-        .delete()
-        .in('id', ids);
-
-      if (listingsError) throw listingsError;
-
-      toast({
-        title: "Success",
-        description: `${ids.length} listing(s) deleted successfully`,
-      });
-      
-      fetchListings();
-    } catch (error) {
-      console.error("Error deleting listings:", error);
+    if (error) {
       toast({
         title: "Error",
         description: "Failed to delete listings",
         variant: "destructive",
       });
+      return;
     }
+
+    toast({
+      title: "Success",
+      description: `${ids.length} listing(s) deleted successfully`,
+    });
+    
+    fetchListings();
+  };
+
+  const handleAdSubmit = async (newAd: any) => {
+    const { error } = await supabase
+      .from('advertisements')
+      .insert([newAd]);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create advertisement",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Advertisement created successfully",
+    });
   };
 
   if (!isAdmin) {
@@ -108,8 +118,9 @@ const AdminDashboard = () => {
         </div>
         
         <Tabs defaultValue="listings" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
+          <TabsList className="grid w-full grid-cols-4 lg:w-[500px]">
             <TabsTrigger value="listings">Listings</TabsTrigger>
+            <TabsTrigger value="categories">Categories</TabsTrigger>
             <TabsTrigger value="advertisements">Advertisements</TabsTrigger>
             <TabsTrigger value="stats">Statistics</TabsTrigger>
           </TabsList>
@@ -125,9 +136,13 @@ const AdminDashboard = () => {
             />
           </TabsContent>
 
+          <TabsContent value="categories">
+            <CategoryManager />
+          </TabsContent>
+
           <TabsContent value="advertisements">
             <div className="space-y-8">
-              <AdvertisementForm onSubmit={() => {}} />
+              <AdvertisementForm onSubmit={handleAdSubmit} />
             </div>
           </TabsContent>
 
