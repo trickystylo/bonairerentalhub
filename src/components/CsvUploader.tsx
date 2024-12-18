@@ -60,8 +60,8 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
       // Extract unique categories
       const newCategories = new Set<string>();
       rawData.forEach((listing: any) => {
-        if (listing.category) {
-          newCategories.add(listing.category);
+        if (listing.categoryname) {
+          newCategories.add(listing.categoryname);
         }
       });
 
@@ -69,8 +69,8 @@ export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => 
       if (newCategories.size > 0) {
         console.log("Saving new categories:", newCategories);
         const savedCategories = await saveCategories(newCategories);
-        if (savedCategories) {
-          onNewCategories?.(savedCategories);
+        if (savedCategories && onNewCategories) {
+          onNewCategories(savedCategories);
         }
       }
 

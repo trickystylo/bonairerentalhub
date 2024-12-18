@@ -17,18 +17,19 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
       transformHeader: (header) => {
         return header.toLowerCase().trim().replace(/[/"]/g, '');
       },
-      complete: (results) => {
+      complete: async (results) => {
         console.log("Raw CSV data:", results.data);
         const cleanData = results.data
           .filter((row: any) => row && Object.keys(row).length > 0 && row.title)
           .map((row: any) => {
-            // Convert categoryName to proper format
+            // Convert categoryName to proper format for storage
             const category = row.categoryname?.toLowerCase().replace(/\s+/g, '-') || 'other';
+            const displayCategory = row.categoryname || formatCategoryName(category);
             
             return {
               name: row.title.trim(),
               category: category,
-              display_category: row.categoryname || formatCategoryName(category),
+              display_category: displayCategory,
               rating: parseFloat(row.totalscore) || 0,
               total_reviews: parseInt(row.reviewscount) || 0,
               price_level: 2,
