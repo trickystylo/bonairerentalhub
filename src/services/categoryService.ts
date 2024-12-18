@@ -43,7 +43,7 @@ export const saveCategories = async (categories: Set<string>) => {
   const categoryObjects = Array.from(categories)
     .filter(cat => cat)
     .map(cat => ({
-      id: cat.toLowerCase(),
+      id: cat.toLowerCase().replace(/\s+/g, '-'),
       name: formatCategoryName(cat),
       icon: '🏠'
     }));
