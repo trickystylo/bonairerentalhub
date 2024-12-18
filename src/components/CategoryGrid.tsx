@@ -66,11 +66,11 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
     }
   };
 
-  const visibleCategories = showAll ? categories : categories.slice(0, 4);
+  const visibleCategories = showAll ? categories : categories.slice(0, 6);
 
   return (
     <div className="max-w-4xl mx-auto px-4 mb-6">
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
         {visibleCategories.map((category) => (
           <button
             key={category.id}
@@ -81,22 +81,22 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
                 : "hover:shadow-lg hover:scale-[1.02]"
             }`}
           >
-            <div className="aspect-[4/3] relative p-4 flex flex-col justify-between">
-              <div className="text-3xl mb-2">{category.icon}</div>
+            <div className="aspect-[4/3] relative p-3 flex flex-col justify-between">
+              <div className="text-2xl mb-1">{category.icon}</div>
               <div>
-                <h3 className="font-medium text-base text-gray-900 line-clamp-1">{category.name}</h3>
-                <p className="text-sm text-gray-600">{category.listingCount} listings</p>
+                <h3 className="font-medium text-sm text-gray-900 line-clamp-1">{category.name}</h3>
+                <p className="text-xs text-gray-600">{category.listingCount} listings</p>
               </div>
             </div>
           </button>
         ))}
       </div>
       
-      {categories.length > 4 && (
-        <div className="text-center mt-6">
+      {categories.length > 6 && (
+        <div className="text-center mt-4">
           <button
             onClick={() => setShowAll(!showAll)}
-            className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-caribbean text-white hover:opacity-90 transition-opacity text-sm"
+            className="inline-flex items-center px-3 py-1.5 rounded-full bg-gradient-caribbean text-white hover:opacity-90 transition-opacity text-sm"
           >
             {showAll ? "Show Less" : "Show More Categories"}
           </button>

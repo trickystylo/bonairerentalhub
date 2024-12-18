@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { CategoryFilters } from "@/components/CategoryFilters";
-import { supabase } from "@/integrations/supabase/client";
 
 interface ListingsFilterProps {
   onSearch: (query: string) => void;
@@ -14,21 +12,6 @@ export const ListingsFilter = ({
   selectedCategory,
   onCategoryChange,
 }: ListingsFilterProps) => {
-  const [categories, setCategories] = useState<any[]>([]);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      const { data } = await supabase
-        .from('categories')
-        .select('*')
-        .order('display_order', { ascending: true });
-      
-      setCategories(data || []);
-    };
-
-    fetchCategories();
-  }, []);
-
   return (
     <div className="space-y-4 mb-6">
       <Input
