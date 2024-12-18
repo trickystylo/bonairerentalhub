@@ -20,13 +20,13 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
       complete: (results) => {
         console.log("Raw CSV data:", results.data);
         const cleanData = results.data
-          .filter((row: any) => row && Object.keys(row).length > 0)
+          .filter((row: any) => row && Object.keys(row).length > 0 && row.title)
           .map((row: any) => {
             // Convert categoryName to proper format
             const category = row.categoryname?.toLowerCase().replace(/\s+/g, '-') || 'other';
             
             return {
-              name: row.title || '',
+              name: row.title.trim(),
               category: category,
               display_category: row.categoryname || formatCategoryName(category),
               rating: parseFloat(row.totalscore) || 0,
@@ -47,6 +47,7 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
               status: 'active'
             };
           });
+        console.log("Cleaned data:", cleanData);
         resolve(cleanData);
       },
       error: (error) => {
