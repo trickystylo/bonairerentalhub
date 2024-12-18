@@ -3,24 +3,28 @@ import Papa from "papaparse";
 export const parseOpeningHours = (data: any) => {
   try {
     // Handle the new CSV format's opening hours
-    if (data['openingHours/0/day']) {
-      const hours: Record<string, { open: string; close: string }> = {};
-      for (let i = 0; i < 7; i++) {
-        const day = data[`openingHours/${i}/day`]?.toLowerCase();
-        const hoursRange = data[`openingHours/${i}/hours`];
-        if (day && hoursRange) {
-          const [open, close] = hoursRange.split(' to ');
-          hours[day] = { open, close };
-        }
+    const hours: Record<string, { open: string; close: string }> = {};
+    
+    for (let i = 0; i < 7; i++) {
+      const day = data[`openingHours/${i}/day`]?.toLowerCase();
+      const hoursRange = data[`openingHours/${i}/hours`];
+      
+      if (day && hoursRange) {
+        const [open, close] = hoursRange.split(' to ');
+        hours[day] = { open, close };
       }
+    }
+    
+    // Return the hours if we found any
+    if (Object.keys(hours).length > 0) {
       return hours;
     }
 
-    // Handle the existing format
+    // Handle the existing format as fallback
     if (!data.opening_hours && !data.openingHours) return null;
     
-    const hours = data.opening_hours || data.openingHours;
-    if (hours === '24/7') {
+    const existingHours = data.opening_hours || data.openingHours;
+    if (existingHours === '24/7') {
       return {
         monday: { open: '00:00', close: '23:59' },
         tuesday: { open: '00:00', close: '23:59' },
@@ -32,7 +36,7 @@ export const parseOpeningHours = (data: any) => {
       };
     }
     
-    const [start, end] = hours.split('-');
+    const [start, end] = existingHours.split('-');
     return {
       monday: { open: start, close: end },
       tuesday: { open: start, close: end },
