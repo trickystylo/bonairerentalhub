@@ -13,23 +13,45 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: true,
-      delimiter: ',', // Explicitly set delimiter
+      delimiter: ',',
       skipEmptyLines: 'greedy',
       transformHeader: (header) => {
-        // Clean up header names
-        return header.toLowerCase().trim().replace(/[/"]/g, '');
+        // Clean up header names and map them to our expected format
+        const headerMap: { [key: string]: string } = {
+          'title': 'name',
+          'categoryName': 'categoryname',
+          'location/lat': 'locationlat',
+          'location/lng': 'locationlng',
+          'searchPageUrl': 'searchpageurl',
+          'imageUrl': 'imageurl',
+          'totalScore': 'totalscore',
+          'reviewsCount': 'reviewscount'
+        };
+        
+        // Remove quotes and clean the header
+        const cleanHeader = header.replace(/['"]/g, '').trim().toLowerCase();
+        console.log("Cleaned header:", cleanHeader);
+        return headerMap[cleanHeader] || cleanHeader;
       },
       complete: async (results) => {
         console.log("Raw CSV parsing results:", results);
+        
+        if (!results.data || results.data.length === 0) {
+          console.error("No data found in CSV");
+          resolve([]);
+          return;
+        }
         
         // Map the data to our expected format
         const cleanData = results.data
           .filter((row: any) => row && typeof row === 'object')
           .map((row: any) => {
-            // Extract title/name from the correct field
-            const title = row.title || '';
-            if (!title) {
-              console.error("Row missing title:", row);
+            console.log("Processing row:", row);
+            
+            // Extract name from title
+            const name = row.name || '';
+            if (!name) {
+              console.error("Row missing name:", row);
               return null;
             }
 
@@ -38,7 +60,7 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
             const category = categoryName.toLowerCase().replace(/\s+/g, '-');
             
             return {
-              name: title.trim(),
+              name: name.trim(),
               category: category,
               display_category: categoryName,
               rating: parseFloat(row.totalscore) || 0,
