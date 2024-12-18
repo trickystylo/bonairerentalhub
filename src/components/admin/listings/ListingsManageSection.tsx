@@ -5,6 +5,8 @@ import { useListingsFilter } from "@/hooks/useListingsFilter";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { DeleteConfirmationDialog } from "../DeleteConfirmationDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 interface ListingsManageSectionProps {
   listings: any[];
@@ -28,9 +30,52 @@ export const ListingsManageSection = ({
     setShowDeleteDialog(true);
   };
 
-  const handleConfirmDelete = () => {
-    onDelete(listings.map(listing => listing.id));
-    setShowDeleteDialog(false);
+  const handleConfirmDelete = async () => {
+    try {
+      console.log("Starting deletion process...");
+      const listingIds = listings.map(listing => listing.id);
+      
+      // First delete all related clicks
+      const { error: clicksError } = await supabase
+        .from('listing_clicks')
+        .delete()
+        .in('listing_id', listingIds);
+
+      if (clicksError) {
+        console.error("Error deleting clicks:", clicksError);
+        throw clicksError;
+      }
+
+      console.log("Successfully deleted related clicks");
+
+      // Then delete the listings
+      const { error: listingsError } = await supabase
+        .from('listings')
+        .delete()
+        .in('id', listingIds);
+
+      if (listingsError) {
+        console.error("Error deleting listings:", listingsError);
+        throw listingsError;
+      }
+
+      console.log("Successfully deleted listings");
+      
+      toast({
+        title: "Success",
+        description: "All listings have been deleted",
+      });
+
+      onDelete(listingIds);
+      setShowDeleteDialog(false);
+    } catch (error) {
+      console.error("Error in deletion process:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete listings",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
