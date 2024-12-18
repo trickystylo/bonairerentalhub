@@ -4,12 +4,14 @@ import { toast } from "@/components/ui/use-toast";
 import { DuplicateListingDialog } from "./admin/DuplicateListingDialog";
 import { parseCsvFile } from "@/utils/csvParser";
 import { checkDuplicateListing, saveListing } from "@/services/listingService";
+import { saveCategories } from "@/services/categoryService";
 
 interface CsvUploaderProps {
   onUpload: (data: any[]) => void;
+  onNewCategories?: (categories: { id: string; name: string }[]) => void;
 }
 
-export const CsvUploader = ({ onUpload }: CsvUploaderProps) => {
+export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
   const [pendingListingData, setPendingListingData] = useState<any>(null);
@@ -54,6 +56,23 @@ export const CsvUploader = ({ onUpload }: CsvUploaderProps) => {
     try {
       const rawData = await parseCsvFile(file);
       console.log("Raw CSV data:", rawData);
+
+      // Extract unique categories
+      const newCategories = new Set<string>();
+      rawData.forEach((listing: any) => {
+        if (listing.category) {
+          newCategories.add(listing.category);
+        }
+      });
+
+      // Save new categories if any
+      if (newCategories.size > 0) {
+        console.log("Saving new categories:", newCategories);
+        const savedCategories = await saveCategories(newCategories);
+        if (savedCategories) {
+          onNewCategories?.(savedCategories);
+        }
+      }
 
       // Process all listings
       const savedListings = [];

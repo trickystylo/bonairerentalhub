@@ -22,14 +22,15 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
         const cleanData = results.data
           .filter((row: any) => row && Object.keys(row).length > 0)
           .map((row: any) => {
+            // Convert categoryName to proper format
             const category = row.categoryname?.toLowerCase().replace(/\s+/g, '-') || 'other';
             
             return {
               name: row.title || '',
               category: category,
-              display_category: formatCategoryName(category),
-              rating: 0,
-              total_reviews: 0,
+              display_category: row.categoryname || formatCategoryName(category),
+              rating: parseFloat(row.totalscore) || 0,
+              total_reviews: parseInt(row.reviewscount) || 0,
               price_level: 2,
               languages: ["NL", "EN", "PAP", "ES"],
               phone: row.phone || '',
@@ -41,8 +42,8 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
               description: '',
               amenities: [],
               images: row.imageurl ? [row.imageurl] : [],
-              latitude: parseFloat(row['location/lat']) || 0,
-              longitude: parseFloat(row['location/lng']) || 0,
+              latitude: parseFloat(row['location/lat']) || null,
+              longitude: parseFloat(row['location/lng']) || null,
               status: 'active'
             };
           });
