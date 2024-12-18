@@ -3,7 +3,6 @@ import Papa from "papaparse";
 export const formatCategoryName = (category: string) => {
   if (!category) return '';
   return category
-    .replace(/^-+/, '')
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ')
@@ -35,7 +34,7 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
               languages: ["NL", "EN", "PAP", "ES"],
               phone: row.phone || '',
               website: row.website || '',
-              address: `${row.street || ''}, ${row.city || ''}`.trim(),
+              address: row.address || '',
               country: 'Bonaire',
               postal_code: '',
               area: row.city || '',

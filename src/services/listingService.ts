@@ -1,5 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import { parseAmenities } from "@/utils/csvParser";
 
 export const checkDuplicateListing = async (name: string) => {
   if (!name) {
@@ -54,12 +53,10 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
       postal_code: listingData.postal_code || null,
       area: listingData.area || null,
       description: listingData.description || null,
-      amenities: parseAmenities(listingData.amenities),
-      images: listingData.images || null,
+      amenities: listingData.amenities || [],
+      images: listingData.images || [],
       latitude: parseFloat(listingData.latitude) || null,
       longitude: parseFloat(listingData.longitude) || null,
-      opening_hours: listingData.opening_hours || null,
-      price_range: listingData.price_range || null,
       status: 'active'
     };
 
