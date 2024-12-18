@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { BackNavigation } from "@/components/BackNavigation";
 import { toast } from "@/components/ui/use-toast";
 import { AdvertisementForm } from "@/components/admin/AdvertisementForm";
-import { CategoryManager } from "@/components/admin/CategoryManager";
 import { ListingStats } from "@/components/admin/ListingStats";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ListingsSection } from "@/components/admin/ListingsSection";
@@ -118,9 +117,8 @@ const AdminDashboard = () => {
         </div>
         
         <Tabs defaultValue="listings" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-4 lg:w-[500px]">
+          <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
             <TabsTrigger value="listings">Listings</TabsTrigger>
-            <TabsTrigger value="categories">Categories</TabsTrigger>
             <TabsTrigger value="advertisements">Advertisements</TabsTrigger>
             <TabsTrigger value="stats">Statistics</TabsTrigger>
           </TabsList>
@@ -134,10 +132,6 @@ const AdminDashboard = () => {
               hasMore={false}
               onListingsUpdate={fetchListings}
             />
-          </TabsContent>
-
-          <TabsContent value="categories">
-            <CategoryManager />
           </TabsContent>
 
           <TabsContent value="advertisements">
