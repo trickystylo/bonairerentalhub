@@ -18,25 +18,41 @@ export const CsvProcessor = ({ onUpload, onNewCategories }: CsvProcessorProps) =
   const [duplicateListingName, setDuplicateListingName] = useState("");
 
   const processCategories = async (rawData: any[]) => {
-    const newCategories = new Set<string>();
-    rawData.forEach((listing: any) => {
-      if (listing.categoryName) {
-        newCategories.add(listing.categoryName);
-      }
-    });
+    try {
+      const newCategories = new Set<string>();
+      rawData.forEach((listing: any) => {
+        if (listing.categoryName) {
+          newCategories.add(listing.categoryName);
+        }
+      });
 
-    if (newCategories.size > 0) {
-      console.log("Processing categories:", newCategories);
-      const savedCategories = await saveCategories(newCategories);
-      if (savedCategories && onNewCategories) {
-        onNewCategories(savedCategories);
+      if (newCategories.size > 0) {
+        console.log("Processing categories:", newCategories);
+        const savedCategories = await saveCategories(newCategories);
+        if (savedCategories && onNewCategories) {
+          onNewCategories(savedCategories);
+        }
       }
+    } catch (error) {
+      console.error("Error processing categories:", error);
+      toast({
+        title: "Warning",
+        description: "Failed to process some categories, but continuing with listings upload",
+        variant: "destructive",
+      });
     }
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      toast({
+        title: "Error",
+        description: "Please select a CSV file to upload",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsLoading(true);
     console.log("Starting CSV file processing");
@@ -48,7 +64,7 @@ export const CsvProcessor = ({ onUpload, onNewCategories }: CsvProcessorProps) =
       if (!rawData || rawData.length === 0) {
         toast({
           title: "Error",
-          description: "No valid data found in CSV file",
+          description: "No valid data found in CSV file. Make sure it contains at least name and category columns.",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -83,7 +99,7 @@ export const CsvProcessor = ({ onUpload, onNewCategories }: CsvProcessorProps) =
           console.error(`Error processing listing ${listing.name}:`, error);
           toast({
             title: "Error",
-            description: `Failed to process listing: ${listing.name}`,
+            description: `Failed to process listing "${listing.name}": ${error.message}`,
             variant: "destructive",
           });
         }
@@ -100,7 +116,7 @@ export const CsvProcessor = ({ onUpload, onNewCategories }: CsvProcessorProps) =
       console.error("Error processing CSV:", error);
       toast({
         title: "Error",
-        description: "Failed to process CSV file. Please check the format.",
+        description: error.message || "Failed to process CSV file. Please check the format.",
         variant: "destructive",
       });
     } finally {
@@ -133,7 +149,7 @@ export const CsvProcessor = ({ onUpload, onNewCategories }: CsvProcessorProps) =
       console.error("Error handling duplicate action:", error);
       toast({
         title: "Error",
-        description: "Failed to process listing",
+        description: `Failed to process listing: ${error.message}`,
         variant: "destructive",
       });
     }

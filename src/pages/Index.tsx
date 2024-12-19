@@ -58,11 +58,11 @@ const Index = () => {
           
           <div className="max-w-4xl mx-auto text-center mb-8 space-y-6">
             <h1 className="text-5xl font-bold bg-gradient-caribbean bg-clip-text text-transparent animate-fade-in">
-              Hier is weer van Huren in Bonaire
+              Find Your Perfect Rental in Bonaire
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
-              Ontdek de beste verhuurservices op Bonaire - van auto's en boten tot vakantiehuizen. 
-              Hier vind je alles wat je nodig hebt voor jouw verblijf op het prachtige eiland.
+              Discover the best rental services on Bonaire - from cars and boats to vacation homes. 
+              Start your island adventure today with our trusted local providers.
             </p>
           </div>
 
