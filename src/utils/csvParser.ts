@@ -1,5 +1,14 @@
 import Papa from "papaparse";
 
+export const formatCategoryName = (category: string) => {
+  if (!category) return '';
+  return category
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+    .trim();
+};
+
 export const parseCsvFile = (file: File): Promise<any[]> => {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
