@@ -14,7 +14,10 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
-      delimiter: ',', // Explicitly set delimiter
+      transformHeader: (header) => {
+        // Remove quotes and trim whitespace
+        return header.replace(/['"]+/g, '').trim();
+      },
       complete: (results) => {
         console.log("Raw CSV parsing results:", results);
         console.log("Headers found:", results.meta.fields);
@@ -30,25 +33,14 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
           .map((row: any) => {
             console.log("Raw row data:", row);
             
-            // Extract all required fields with proper column names
-            const {
-              title,
-              categoryName,
-              address,
-              city,
-              "location/lat": latitude,
-              "location/lng": longitude,
-              street,
-              phone,
-              website,
-              searchPageUrl,
-              imageUrl,
-              url,
-              totalScore,
-              reviewsCount
-            } = row;
+            // Extract values and log them for debugging
+            const title = row.title;
+            const categoryName = row.categoryName;
+            const latitude = row['location/lat'];
+            const longitude = row['location/lng'];
+            const totalScore = row.totalScore;
+            const reviewsCount = row.reviewsCount;
 
-            // Log extracted values
             console.log("Extracted values:", {
               title,
               categoryName,
@@ -60,7 +52,10 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
 
             // Validate required fields
             if (!title || !categoryName) {
-              console.error("Missing required fields:", { title, categoryName });
+              console.error("Missing required fields:", {
+                title: { _type: typeof title, value: title },
+                categoryName: { _type: typeof categoryName, value: categoryName }
+              });
               return null;
             }
 
@@ -73,15 +68,15 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
               total_reviews: parseInt(reviewsCount) || 0,
               price_level: 2,
               languages: ["NL", "EN", "PAP", "ES"],
-              phone: phone || null,
-              website: website || null,
-              address: address || null,
+              phone: row.phone || null,
+              website: row.website || null,
+              address: row.address || null,
               country: 'Bonaire',
               postal_code: '',
-              area: city || null,
+              area: row.city || null,
               description: '',
               amenities: [],
-              images: imageUrl ? [imageUrl] : [],
+              images: row.imageUrl ? [row.imageUrl] : [],
               latitude: parseFloat(latitude) || null,
               longitude: parseFloat(longitude) || null,
               status: 'active'
