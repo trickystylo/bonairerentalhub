@@ -15,6 +15,14 @@ interface BusinessGridProps {
 
 const ITEMS_PER_PAGE = 15;
 
+// Helper function to normalize text for comparison
+const normalizeText = (text: string) => {
+  return text.toLowerCase()
+    .replace(/\s+/g, '') // Remove spaces
+    .normalize("NFD") // Normalize accents
+    .replace(/[\u0300-\u036f]/g, ""); // Remove diacritics
+};
+
 export const BusinessGrid = ({ 
   selectedCategory, 
   searchQuery,
@@ -44,8 +52,8 @@ export const BusinessGrid = ({
         }
 
         if (searchQuery) {
-          const searchTerm = searchQuery.toLowerCase().trim();
-          console.log("Processing search term:", searchTerm);
+          const searchTerm = normalizeText(searchQuery);
+          console.log("Normalized search term:", searchTerm);
 
           // First check if the search term matches any category
           const { data: categories } = await supabase
@@ -54,11 +62,13 @@ export const BusinessGrid = ({
 
           console.log("Available categories:", categories);
 
-          // Look for category matches - now includes partial matches within category names
-          const matchingCategories = categories?.filter(cat => 
-            cat.name.toLowerCase().includes(searchTerm) || 
-            cat.id.toLowerCase().includes(searchTerm)
-          ) || [];
+          // Look for category matches in normalized form
+          const matchingCategories = categories?.filter(cat => {
+            const normalizedCatName = normalizeText(cat.name);
+            const normalizedCatId = normalizeText(cat.id);
+            return normalizedCatName.includes(searchTerm) || 
+                   normalizedCatId.includes(searchTerm);
+          }) || [];
 
           if (matchingCategories.length > 0) {
             console.log("Found matching categories:", matchingCategories);
@@ -66,9 +76,12 @@ export const BusinessGrid = ({
             const categoryIds = matchingCategories.map(cat => cat.id);
             query = query.in('category', categoryIds);
           } else {
-            // If no category match, search in listings
-            // Use contains for more flexible matching
-            query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
+            // If no category match, search in listings with normalized comparison
+            query = query.or(
+              `name.ilike.%${searchTerm}%,` +
+              `description.ilike.%${searchTerm}%,` +
+              `category.ilike.%${searchTerm}%`
+            );
           }
         }
 
@@ -111,7 +124,12 @@ export const BusinessGrid = ({
       }
     };
 
-    fetchListings();
+    // Debounce the search to avoid too many requests
+    const timeoutId = setTimeout(() => {
+      fetchListings();
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timeoutId);
   }, [selectedCategory, searchQuery, searchFilters]);
 
   const loadMore = () => {
