@@ -28,6 +28,16 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
           return;
         }
 
+        // Extract unique categories first
+        const categories = new Set<string>();
+        results.data.forEach((row: any) => {
+          if (row.categoryName) {
+            categories.add(row.categoryName);
+          }
+        });
+
+        console.log("Found categories:", categories);
+
         const cleanData = results.data
           .filter((row: any) => row && typeof row === 'object')
           .map((row: any) => {

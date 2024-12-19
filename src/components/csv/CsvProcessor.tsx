@@ -20,8 +20,8 @@ export const CsvProcessor = ({ onUpload, onNewCategories }: CsvProcessorProps) =
   const processCategories = async (rawData: any[]) => {
     const newCategories = new Set<string>();
     rawData.forEach((listing: any) => {
-      if (listing.categoryname) {
-        newCategories.add(listing.categoryname);
+      if (listing.categoryName) {
+        newCategories.add(listing.categoryName);
       }
     });
 
