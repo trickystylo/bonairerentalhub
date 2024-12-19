@@ -188,3 +188,9 @@ export const translations = {
     rentalDescription: "Descubre los mejores servicios de alquiler en Bonaire - desde coches y barcos hasta casas de vacaciones. Tu destino único para todas las necesidades de alquiler en la hermosa isla.",
   }
 };
+
+export const useTranslation = (language: Language) => {
+  return (key: TranslationKey): string => {
+    return translations[language][key] || key;
+  };
+};
