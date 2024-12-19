@@ -28,6 +28,31 @@ const splitSearchQuery = (query: string): string[] => {
   return query.toLowerCase().trim().split(/\s+/);
 };
 
+// Helper function to calculate match score
+const calculateMatchScore = (listing: any, searchTerms: string[]) => {
+  const normalizedName = normalizeText(listing.name);
+  const joinedSearchTerms = searchTerms.join('');
+  const normalizedSearchTerm = normalizeText(joinedSearchTerms);
+
+  // Exact match gets highest priority
+  if (normalizedName === normalizedSearchTerm) {
+    return 3;
+  }
+  
+  // Starts with search term gets second priority
+  if (normalizedName.startsWith(normalizedSearchTerm)) {
+    return 2;
+  }
+
+  // Contains all search terms gets third priority
+  if (searchTerms.every(term => normalizedName.includes(normalizeText(term)))) {
+    return 1;
+  }
+
+  // No direct match
+  return 0;
+};
+
 export const BusinessGrid = ({ 
   selectedCategory, 
   searchQuery,
@@ -121,11 +146,22 @@ export const BusinessGrid = ({
           return;
         }
 
-        console.log("Search results count:", data?.length);
-        console.log("First few results:", data?.slice(0, 3));
+        // Sort results based on match score if there's a search query
+        let sortedData = data || [];
+        if (searchQuery.trim()) {
+          const searchTerms = splitSearchQuery(searchQuery);
+          sortedData = sortedData.sort((a, b) => {
+            const scoreA = calculateMatchScore(a, searchTerms);
+            const scoreB = calculateMatchScore(b, searchTerms);
+            return scoreB - scoreA;
+          });
+        }
+
+        console.log("Search results count:", sortedData.length);
+        console.log("First few results:", sortedData.slice(0, 3));
         
-        setListings(data || []);
-        setDisplayedListings((data || []).slice(0, ITEMS_PER_PAGE));
+        setListings(sortedData);
+        setDisplayedListings(sortedData.slice(0, ITEMS_PER_PAGE));
         setPage(1);
       } catch (error) {
         console.error("Error in fetchListings:", error);
