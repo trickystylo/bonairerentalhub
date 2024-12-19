@@ -1,5 +1,14 @@
 import Papa from "papaparse";
 
+export const formatCategoryName = (name: string): string => {
+  if (!name) return '';
+  return name.trim()
+    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 const mapColumnNames = (headers: string[]) => {
   console.log("Original headers:", headers);
   
@@ -12,7 +21,7 @@ const mapColumnNames = (headers: string[]) => {
     longitude: ['location/lng', 'lng', 'longitude'],
     phone: ['phone', 'telephone', 'contact'],
     website: ['website', 'web', 'url'],
-    imageUrl: ['imageurl', 'image', 'image_url', 'photo'],
+    imageUrl: ['imageurl', 'image', 'image_url', 'photo', 'searchpageurl'],
     totalScore: ['totalscore', 'rating', 'score', 'total_score'],
     reviewsCount: ['reviewscount', 'reviews', 'review_count', 'total_reviews']
   };
@@ -83,7 +92,7 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
             const listing = {
               name: name.trim(),
               category: categoryName.toLowerCase().replace(/\s+/g, '-'),
-              display_category: categoryName,
+              display_category: formatCategoryName(categoryName),
               rating: parseFloat(getMappedValue('totalScore')) || 0,
               total_reviews: parseInt(getMappedValue('reviewsCount')) || 0,
               price_level: 2,
