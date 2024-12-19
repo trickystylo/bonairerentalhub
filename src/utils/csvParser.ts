@@ -14,6 +14,7 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
+      delimiter: ',', // Explicitly set delimiter
       complete: (results) => {
         console.log("Raw CSV parsing results:", results);
         
@@ -26,9 +27,9 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
         const cleanData = results.data
           .filter((row: any) => row && typeof row === 'object')
           .map((row: any) => {
-            console.log("Raw row data:", row);
+            console.log("Processing row:", row);
             
-            // Extract all required fields
+            // Extract all required fields with proper column names
             const {
               title,
               categoryName,
