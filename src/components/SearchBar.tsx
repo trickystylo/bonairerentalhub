@@ -1,4 +1,4 @@
-import { Search, Send, X } from "lucide-react";
+import { Search, Send } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { useTranslation } from "../translations";
@@ -32,11 +32,6 @@ export const SearchBar = ({ onSearch, onFilterChange }: SearchBarProps) => {
     setSearchTerm(value);
   };
 
-  const clearSearch = () => {
-    setSearchTerm("");
-    onSearch("");
-  };
-
   return (
     <div className="relative max-w-4xl mx-auto mb-8 md:mb-12 px-4 md:px-0">
       <form onSubmit={handleSearch} className="relative flex">
@@ -47,17 +42,8 @@ export const SearchBar = ({ onSearch, onFilterChange }: SearchBarProps) => {
             value={searchTerm}
             onChange={handleInputChange}
             placeholder={t("searchPlaceholder")}
-            className="w-full pl-12 pr-24 py-3 md:py-4 rounded-xl md:rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-lg bg-white/90 backdrop-blur-sm transition-all duration-300 hover:shadow-xl text-sm md:text-base"
+            className="w-full pl-12 pr-12 py-3 md:py-4 rounded-xl md:rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-lg bg-white/90 backdrop-blur-sm transition-all duration-300 hover:shadow-xl text-sm md:text-base"
           />
-          {searchTerm && (
-            <button
-              type="button"
-              onClick={clearSearch}
-              className="absolute right-16 top-1/2 transform -translate-y-1/2 p-2 rounded-full hover:bg-gray-100 transition-colors"
-            >
-              <X className="w-4 h-4 text-gray-500" />
-            </button>
-          )}
           <button 
             type="submit"
             className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-xl bg-gradient-caribbean hover:opacity-90 transition-opacity text-white"

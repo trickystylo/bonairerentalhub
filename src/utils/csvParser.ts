@@ -13,81 +13,39 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: true,
-      skipEmptyLines: true,
+      skipEmptyLines: 'greedy',
       transformHeader: (header) => {
-        // Remove quotes and trim whitespace
-        return header.replace(/['"]+/g, '').trim();
+        return header.toLowerCase().trim().replace(/[/"]/g, '');
       },
       complete: (results) => {
-        console.log("Raw CSV parsing results:", results);
-        console.log("Headers found:", results.meta.fields);
-        
-        if (!results.data || results.data.length === 0) {
-          console.error("No data found in CSV");
-          resolve([]);
-          return;
-        }
-
+        console.log("Raw CSV data:", results.data);
         const cleanData = results.data
-          .filter((row: any) => row && typeof row === 'object')
+          .filter((row: any) => row && Object.keys(row).length > 0)
           .map((row: any) => {
-            console.log("Raw row data:", row);
+            const category = row.categoryname?.toLowerCase().replace(/\s+/g, '-') || 'other';
             
-            // Extract values and log them for debugging
-            const title = row.title;
-            const categoryName = row.categoryName;
-            const latitude = row['location/lat'];
-            const longitude = row['location/lng'];
-            const totalScore = row.totalScore;
-            const reviewsCount = row.reviewsCount;
-
-            console.log("Extracted values:", {
-              title,
-              categoryName,
-              latitude,
-              longitude,
-              totalScore,
-              reviewsCount
-            });
-
-            // Validate required fields
-            if (!title || !categoryName) {
-              console.error("Missing required fields:", {
-                title: { _type: typeof title, value: title },
-                categoryName: { _type: typeof categoryName, value: categoryName }
-              });
-              return null;
-            }
-
-            // Create listing object with all fields mapped to database columns
-            const listing = {
-              name: title.trim(),
-              category: categoryName.toLowerCase().replace(/\s+/g, '-'),
-              display_category: categoryName,
-              rating: parseFloat(totalScore) || 0,
-              total_reviews: parseInt(reviewsCount) || 0,
+            return {
+              name: row.title || '',
+              category: category,
+              display_category: formatCategoryName(category),
+              rating: 0,
+              total_reviews: 0,
               price_level: 2,
               languages: ["NL", "EN", "PAP", "ES"],
-              phone: row.phone || null,
-              website: row.website || null,
-              address: row.address || null,
+              phone: row.phone || '',
+              website: row.website || '',
+              address: row.address || '',
               country: 'Bonaire',
               postal_code: '',
-              area: row.city || null,
+              area: row.city || '',
               description: '',
               amenities: [],
-              images: row.imageUrl ? [row.imageUrl] : [],
-              latitude: parseFloat(latitude) || null,
-              longitude: parseFloat(longitude) || null,
+              images: row.imageurl ? [row.imageurl] : [],
+              latitude: parseFloat(row['location/lat']) || 0,
+              longitude: parseFloat(row['location/lng']) || 0,
               status: 'active'
             };
-
-            console.log("Created listing object:", listing);
-            return listing;
-          })
-          .filter(item => item !== null);
-
-        console.log("Final cleaned data:", cleanData);
+          });
         resolve(cleanData);
       },
       error: (error) => {

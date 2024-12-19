@@ -27,8 +27,6 @@ export const checkDuplicateListing = async (name: string) => {
 
 export const saveListing = async (listingData: any, action: 'create' | 'merge' | 'ignore' = 'create') => {
   try {
-    console.log("Attempting to save listing:", listingData);
-
     if (!listingData.name) {
       console.error("Listing name is required");
       return null;
@@ -70,11 +68,7 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
       .select()
       .single();
 
-    if (error) {
-      console.error("Error saving listing:", error);
-      throw error;
-    }
-    
+    if (error) throw error;
     console.log("Successfully saved listing:", data);
     return data;
   } catch (error) {
