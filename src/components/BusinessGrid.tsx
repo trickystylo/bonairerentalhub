@@ -23,6 +23,11 @@ const normalizeText = (text: string) => {
     .replace(/[\u0300-\u036f]/g, ""); // Remove diacritics
 };
 
+// Helper function to split search query into words
+const splitSearchQuery = (query: string): string[] => {
+  return query.toLowerCase().trim().split(/\s+/);
+};
+
 export const BusinessGrid = ({ 
   selectedCategory, 
   searchQuery,
@@ -53,22 +58,24 @@ export const BusinessGrid = ({
 
         // Only apply search filters if there's a search query
         if (searchQuery.trim()) {
-          const searchTerm = normalizeText(searchQuery);
-          console.log("Normalized search term:", searchTerm);
+          const searchTerms = splitSearchQuery(searchQuery);
+          console.log("Search terms:", searchTerms);
 
-          // First check if the search term matches any category
+          // First check if any search term matches any category
           const { data: categories } = await supabase
             .from('categories')
             .select('id, name');
 
           console.log("Available categories:", categories);
 
-          // Look for category matches in normalized form
+          // Look for category matches
           const matchingCategories = categories?.filter(cat => {
             const normalizedCatName = normalizeText(cat.name);
             const normalizedCatId = normalizeText(cat.id);
-            return normalizedCatName.includes(searchTerm) || 
-                   normalizedCatId.includes(searchTerm);
+            return searchTerms.some(term => 
+              normalizedCatName.includes(term) || 
+              normalizedCatId.includes(term)
+            );
           }) || [];
 
           if (matchingCategories.length > 0) {
@@ -77,12 +84,14 @@ export const BusinessGrid = ({
             const categoryIds = matchingCategories.map(cat => cat.id);
             query = query.in('category', categoryIds);
           } else {
-            // If no category match, search in listings with normalized comparison
-            query = query.or(
-              `name.ilike.%${searchTerm}%,` +
-              `description.ilike.%${searchTerm}%,` +
-              `category.ilike.%${searchTerm}%`
-            );
+            // If no category match, search in listings
+            // Build the OR conditions for each search term
+            const searchConditions = searchTerms.map(term => {
+              const likePattern = `%${term}%`;
+              return `name.ilike.${likePattern},description.ilike.${likePattern},category.ilike.${likePattern}`;
+            }).join(',');
+
+            query = query.or(searchConditions);
           }
         }
 
