@@ -22,9 +22,14 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
       console.log("Fetching categories and their listing counts...");
       
       // First get all listings to count by category
-      const { data: listings } = await supabase
+      const { data: listings, error: listingsError } = await supabase
         .from('listings')
         .select('category');
+
+      if (listingsError) {
+        console.error("Error fetching listings:", listingsError);
+        return;
+      }
 
       console.log("Fetched listings:", listings);
 
@@ -38,24 +43,29 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
       console.log("Category counts:", categoryCount);
 
       // Then fetch all categories
-      const { data: categories } = await supabase
+      const { data: categoriesData, error: categoriesError } = await supabase
         .from('categories')
         .select('*')
         .order('name');
 
-      if (categories) {
-        console.log("Fetched categories:", categories);
+      if (categoriesError) {
+        console.error("Error fetching categories:", categoriesError);
+        return;
+      }
+
+      if (categoriesData) {
+        console.log("Fetched categories:", categoriesData);
         
         // Create the "All categories" option
         const allCategory = {
           id: 'all',
-          name: 'All categories',
+          name: 'Alle categorieën',
           icon: '🏠',
           listingCount: listings?.length || 0
         };
 
         // Map categories with their counts and filter out empty ones
-        const categoriesWithCount = categories.map(cat => ({
+        const categoriesWithCount = categoriesData.map(cat => ({
           ...cat,
           listingCount: categoryCount?.[cat.id] || 0
         }));
@@ -107,7 +117,7 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
                   {category.name}
                 </h3>
                 <p className="text-sm text-gray-600">
-                  {category.listingCount} listings
+                  {category.listingCount} {category.listingCount === 1 ? 'advertentie' : 'advertenties'}
                 </p>
               </div>
             </div>
@@ -121,7 +131,7 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
             onClick={() => setShowAll(!showAll)}
             className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-caribbean text-white hover:opacity-90 transition-opacity text-sm"
           >
-            {showAll ? "Show Less" : "Show More Categories"}
+            {showAll ? "Toon minder" : "Toon meer categorieën"}
           </button>
         </div>
       )}
