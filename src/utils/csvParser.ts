@@ -14,26 +14,26 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
     Papa.parse(file, {
       header: true,
       delimiter: ',',
-      skipEmptyLines: 'greedy',
+      skipEmptyLines: true,
       transformHeader: (header) => {
-        // Clean up header names and map them to our expected format
+        // Remove quotes and clean the header
+        const cleanHeader = header.replace(/['"]/g, '').trim();
+        console.log("Original header:", header, "Cleaned header:", cleanHeader);
+        
+        // Map headers to our database column names
         const headerMap: { [key: string]: string } = {
           'title': 'name',
-          'categoryName': 'categoryname',
-          'location/lat': 'locationlat',
-          'location/lng': 'locationlng',
-          'searchPageUrl': 'searchpageurl',
-          'imageUrl': 'imageurl',
-          'totalScore': 'totalscore',
-          'reviewsCount': 'reviewscount'
+          'categoryName': 'category',
+          'totalScore': 'rating',
+          'reviewsCount': 'total_reviews',
+          'location/lat': 'latitude',
+          'location/lng': 'longitude',
+          'imageUrl': 'images'
         };
         
-        // Remove quotes and clean the header
-        const cleanHeader = header.replace(/['"]/g, '').trim().toLowerCase();
-        console.log("Cleaned header:", cleanHeader);
-        return headerMap[cleanHeader] || cleanHeader;
+        return headerMap[cleanHeader] || cleanHeader.toLowerCase();
       },
-      complete: async (results) => {
+      complete: (results) => {
         console.log("Raw CSV parsing results:", results);
         
         if (!results.data || results.data.length === 0) {
@@ -48,24 +48,25 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
           .map((row: any) => {
             console.log("Processing row:", row);
             
-            // Extract name from title
-            const name = row.name || '';
+            // Get the name from the title field
+            const name = row.name;
             if (!name) {
               console.error("Row missing name:", row);
               return null;
             }
 
-            // Extract and clean category
-            const categoryName = row.categoryname || 'Other';
+            // Get and clean category
+            const categoryName = row.category || 'Other';
             const category = categoryName.toLowerCase().replace(/\s+/g, '-');
             
-            return {
+            // Create listing object with all required fields
+            const listing = {
               name: name.trim(),
               category: category,
               display_category: categoryName,
-              rating: parseFloat(row.totalscore) || 0,
-              total_reviews: parseInt(row.reviewscount) || 0,
-              price_level: parseInt(row.price_level) || 2,
+              rating: parseFloat(row.rating) || 0,
+              total_reviews: parseInt(row.total_reviews) || 0,
+              price_level: 2,
               languages: ["NL", "EN", "PAP", "ES"],
               phone: row.phone || null,
               website: row.website || null,
@@ -73,17 +74,20 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
               country: 'Bonaire',
               postal_code: '',
               area: row.city || null,
-              description: row.description || '',
+              description: '',
               amenities: [],
-              images: row.imageurl ? [row.imageurl] : [],
-              latitude: parseFloat(row.locationlat) || null,
-              longitude: parseFloat(row.locationlng) || null,
+              images: row.images ? [row.images] : [],
+              latitude: parseFloat(row.latitude) || null,
+              longitude: parseFloat(row.longitude) || null,
               status: 'active'
             };
+
+            console.log("Created listing object:", listing);
+            return listing;
           })
           .filter(item => item !== null);
 
-        console.log("Cleaned data:", cleanData);
+        console.log("Final cleaned data:", cleanData);
         resolve(cleanData);
       },
       error: (error) => {
