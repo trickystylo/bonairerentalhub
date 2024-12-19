@@ -30,13 +30,15 @@ export const BusinessGrid = ({
   useEffect(() => {
     const fetchListings = async () => {
       try {
-        console.log("Fetching listings with query:", searchQuery, "and category:", selectedCategory);
+        console.log("Starting search with query:", searchQuery);
+        console.log("Selected category:", selectedCategory);
         
+        // Start with base query
         let query = supabase
           .from('listings')
           .select('*');
 
-        // Handle category selection
+        // Handle category selection first
         if (selectedCategory && selectedCategory !== "all") {
           query = query.eq('category', selectedCategory);
         }
@@ -45,33 +47,31 @@ export const BusinessGrid = ({
           const searchTerm = searchQuery.toLowerCase().trim();
           console.log("Processing search term:", searchTerm);
 
-          // First, get all categories to check if search term matches any category
+          // First check if the search term matches any category
           const { data: categories } = await supabase
             .from('categories')
-            .select('id, name');
+            .select('id, name, display_category');
 
+          console.log("Available categories:", categories);
+
+          // Look for category matches
           const matchingCategory = categories?.find(cat => 
-            cat.name.toLowerCase().includes(searchTerm) || 
-            cat.id.toLowerCase().includes(searchTerm)
+            cat.name.toLowerCase().startsWith(searchTerm) || 
+            cat.id.toLowerCase() === searchTerm
           );
 
           if (matchingCategory) {
             console.log("Found matching category:", matchingCategory);
-            // If search term matches a category, show all listings from that category
+            // If search matches a category, show all listings from that category
             query = query.eq('category', matchingCategory.id);
           } else {
-            // Otherwise, search in listing names and descriptions
-            // Using startsWith for name (ilike with % only at the end)
-            // and contains for description (ilike with % at both ends)
-            query = query.or(`
-              name.ilike.${searchTerm}%,
-              description.ilike.%${searchTerm}%,
-              display_category.ilike.${searchTerm}%
-            `);
+            // If no category match, search in listings
+            // Use startsWith for name (no leading %)
+            query = query.or(`name.ilike.${searchTerm}%,description.ilike.%${searchTerm}%`);
           }
         }
 
-        // Apply filters
+        // Apply additional filters
         if (searchFilters.minRating > 0) {
           query = query.gte('rating', searchFilters.minRating);
         }
@@ -97,7 +97,7 @@ export const BusinessGrid = ({
           return;
         }
 
-        console.log("Fetched listings count:", data?.length);
+        console.log("Search results count:", data?.length);
         console.log("First few results:", data?.slice(0, 3));
         
         setListings(data || []);
