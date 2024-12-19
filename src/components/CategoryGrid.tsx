@@ -19,67 +19,72 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
 
   useEffect(() => {
     const fetchCategoriesWithCount = async () => {
-      console.log("Fetching categories and their listing counts...");
-      
-      // First get all listings to count by category
-      const { data: listings, error: listingsError } = await supabase
-        .from('listings')
-        .select('category');
+      try {
+        console.log("Starting to fetch categories and counts...");
+        
+        // First get all listings to count by category
+        const { data: listings, error: listingsError } = await supabase
+          .from('listings')
+          .select('category');
 
-      if (listingsError) {
-        console.error("Error fetching listings:", listingsError);
-        return;
-      }
-
-      console.log("Fetched listings:", listings);
-
-      const categoryCount = listings?.reduce((acc: Record<string, number>, listing) => {
-        if (listing.category) {
-          acc[listing.category] = (acc[listing.category] || 0) + 1;
+        if (listingsError) {
+          console.error("Error fetching listings:", listingsError);
+          return;
         }
-        return acc;
-      }, {});
 
-      console.log("Category counts:", categoryCount);
+        console.log("Raw listings data:", listings);
 
-      // Then fetch all categories
-      const { data: categoriesData, error: categoriesError } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name');
+        // Create category count map
+        const categoryCount: Record<string, number> = {};
+        listings?.forEach(listing => {
+          if (listing.category) {
+            categoryCount[listing.category] = (categoryCount[listing.category] || 0) + 1;
+          }
+        });
 
-      if (categoriesError) {
-        console.error("Error fetching categories:", categoriesError);
-        return;
-      }
+        console.log("Category counts:", categoryCount);
 
-      if (categoriesData) {
-        console.log("Fetched categories:", categoriesData);
-        
-        // Create the "All categories" option
-        const allCategory = {
-          id: 'all',
-          name: 'Alle categorieën',
-          icon: '🏠',
-          listingCount: listings?.length || 0
-        };
+        // Then fetch all categories
+        const { data: categoriesData, error: categoriesError } = await supabase
+          .from('categories')
+          .select('*')
+          .order('display_order', { ascending: true })
+          .order('name');
 
-        // Map categories with their counts and filter out empty ones
-        const categoriesWithCount = categoriesData.map(cat => ({
-          ...cat,
-          listingCount: categoryCount?.[cat.id] || 0
-        }));
+        if (categoriesError) {
+          console.error("Error fetching categories:", categoriesError);
+          return;
+        }
 
-        // Filter out categories with no listings and sort by listing count
-        const nonEmptyCategories = categoriesWithCount
-          .filter(cat => cat.listingCount > 0)
-          .sort((a, b) => (b.listingCount || 0) - (a.listingCount || 0));
+        console.log("Raw categories data:", categoriesData);
 
-        // Add "All categories" at the beginning
-        const finalCategories = [allCategory, ...nonEmptyCategories];
-        
-        console.log("Processed categories:", finalCategories);
-        setCategories(finalCategories);
+        if (categoriesData) {
+          // Create the "All categories" option
+          const allCategory = {
+            id: 'all',
+            name: 'Alle categorieën',
+            icon: '🏠',
+            listingCount: listings?.length || 0
+          };
+
+          // Map categories with their counts
+          const categoriesWithCount = categoriesData.map(cat => ({
+            ...cat,
+            listingCount: categoryCount[cat.id] || 0
+          }));
+
+          // Filter out categories with no listings and sort by listing count
+          const nonEmptyCategories = categoriesWithCount
+            .filter(cat => cat.listingCount > 0)
+            .sort((a, b) => (b.listingCount || 0) - (a.listingCount || 0));
+
+          console.log("Processed categories before setting state:", [allCategory, ...nonEmptyCategories]);
+          
+          // Add "All categories" at the beginning
+          setCategories([allCategory, ...nonEmptyCategories]);
+        }
+      } catch (error) {
+        console.error("Error in fetchCategoriesWithCount:", error);
       }
     };
 
