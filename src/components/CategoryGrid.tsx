@@ -19,6 +19,9 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
 
   useEffect(() => {
     const fetchCategoriesWithCount = async () => {
+      console.log("Fetching categories and their listing counts...");
+      
+      // First get all listings to count by category
       const { data: listings } = await supabase
         .from('listings')
         .select('category');
@@ -28,12 +31,17 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
         return acc;
       }, {});
 
+      console.log("Category counts:", categoryCount);
+
+      // Then fetch all categories
       const { data: categories } = await supabase
         .from('categories')
         .select('*')
         .order('name');
 
       if (categories) {
+        console.log("Fetched categories:", categories);
+        
         const allCategory = {
           id: 'all',
           name: 'All categories',
@@ -46,10 +54,12 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
           listingCount: categoryCount?.[cat.id] || 0
         }));
 
+        // Filter out categories with no listings and sort by listing count
         const nonEmptyCategories = [allCategory, ...categoriesWithCount
           .filter(cat => cat.listingCount > 0)
           .sort((a, b) => (b.listingCount || 0) - (a.listingCount || 0))];
 
+        console.log("Processed categories:", nonEmptyCategories);
         setCategories(nonEmptyCategories);
       }
     };
