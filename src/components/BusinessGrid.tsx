@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { BusinessCard } from "./BusinessCard";
 import { supabase } from "@/integrations/supabase/client";
+import { BusinessCard } from "./BusinessCard";
 import { SearchFilters } from "./SearchBar";
 import { Button } from "./ui/button";
 import { ChevronDown } from "lucide-react";
@@ -30,6 +30,8 @@ export const BusinessGrid = ({
   useEffect(() => {
     const fetchListings = async () => {
       try {
+        console.log("Fetching listings with query:", searchQuery, "and category:", selectedCategory);
+        
         let query = supabase
           .from('listings')
           .select('*');
@@ -39,13 +41,19 @@ export const BusinessGrid = ({
         }
 
         if (searchQuery) {
-          // More flexible search with partial matching and multiple fields
-          query = query.or(`
-            name.ilike.%${searchQuery}%,
-            description.ilike.%${searchQuery}%,
-            display_category.ilike.%${searchQuery}%,
-            address.ilike.%${searchQuery}%
-          `);
+          // Split search query into words for better matching
+          const searchTerms = searchQuery.toLowerCase().split(' ');
+          
+          // Create OR conditions for each search term
+          const searchConditions = searchTerms.map(term => `
+            name.ilike.%${term}%,
+            description.ilike.%${term}%,
+            display_category.ilike.%${term}%,
+            address.ilike.%${term}%,
+            category.ilike.%${term}%
+          `).join(',');
+
+          query = query.or(searchConditions);
         }
 
         if (searchFilters.minRating > 0) {
@@ -72,6 +80,8 @@ export const BusinessGrid = ({
           console.error("Error fetching listings:", error);
           return;
         }
+
+        console.log("Fetched listings:", data?.length);
         
         setListings(data || []);
         setDisplayedListings((data || []).slice(0, ITEMS_PER_PAGE));
