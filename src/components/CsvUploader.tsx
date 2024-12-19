@@ -1,15 +1,18 @@
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { DuplicateListingDialog } from "./admin/DuplicateListingDialog";
-import { parseCsvFile } from "@/utils/csvParser";
+import { parseOpeningHours, parseCsvFile, formatCategoryName } from "@/utils/csvParser";
 import { checkDuplicateListing, saveListing } from "@/services/listingService";
+import { saveCategories } from "@/services/categoryService";
 
 interface CsvUploaderProps {
   onUpload: (data: any[]) => void;
+  onNewCategories?: (categories: { id: string; name: string }[]) => void;
 }
 
-export const CsvUploader = ({ onUpload }: CsvUploaderProps) => {
+export const CsvUploader = ({ onUpload, onNewCategories }: CsvUploaderProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
   const [pendingListingData, setPendingListingData] = useState<any>(null);
@@ -54,10 +57,49 @@ export const CsvUploader = ({ onUpload }: CsvUploaderProps) => {
     try {
       const rawData = await parseCsvFile(file);
       console.log("Raw CSV data:", rawData);
+      const newCategories = new Set<string>();
+      
+      const formattedData = rawData.map((row: any) => {
+        const type = row.type?.toLowerCase() || '';
+        let category = type.replace(/\s+/g, '-').toLowerCase();
+        
+        if (category && !['auto', 'boot', 'vakantiehuizen', 'watersport', 'equipment'].includes(category)) {
+          newCategories.add(category);
+        }
+
+        return {
+          name: row.name,
+          category: category,
+          display_category: formatCategoryName(category),
+          rating: parseFloat(row.rating) || 0,
+          total_reviews: parseInt(row.total_reviews) || 0,
+          price_level: parseInt(row.price_level) || 2,
+          languages: row.languages ? row.languages.split(',').map((l: string) => l.trim()) : ["NL", "EN", "PAP", "ES"],
+          phone: row.phone,
+          website: row.website,
+          address: row.address,
+          country: row.country || 'Bonaire',
+          postal_code: row.postal_code,
+          area: row.area,
+          description: row.description || '',
+          amenities: row.amenities ? row.amenities.split(',').map((a: string) => a.trim()) : [],
+          images: row.images ? (typeof row.images === 'string' ? [row.images] : row.images) : [],
+          latitude: parseFloat(row.latitude) || 0,
+          longitude: parseFloat(row.longitude) || 0,
+          opening_hours: parseOpeningHours(row.opening_hours),
+          price_range: row.price_range,
+          status: 'active'
+        };
+      });
+
+      if (newCategories.size > 0) {
+        const savedCategories = await saveCategories(newCategories);
+        onNewCategories?.(savedCategories);
+      }
 
       // Process all listings
       const savedListings = [];
-      for (const listing of rawData) {
+      for (const listing of formattedData) {
         try {
           // Check for duplicates
           const isDuplicate = await checkDuplicateListing(listing.name);
