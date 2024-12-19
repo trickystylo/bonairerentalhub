@@ -78,8 +78,11 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
     e.stopPropagation();
     if (business.website) {
       await trackListingClick(business.id, 'website');
-      // Use the original website URL directly
-      window.open(business.website, '_blank');
+      // Ensure the website URL has a protocol
+      const websiteUrl = business.website.startsWith('http') 
+        ? business.website 
+        : `https://${business.website}`;
+      window.open(websiteUrl, '_blank');
     }
   };
 
