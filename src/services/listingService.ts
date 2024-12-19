@@ -7,6 +7,7 @@ export const checkDuplicateListing = async (name: string) => {
   }
 
   try {
+    console.log(`Checking for duplicate listing with name: ${name}`);
     const { data, error } = await supabase
       .from('listings')
       .select('id')
@@ -15,18 +16,22 @@ export const checkDuplicateListing = async (name: string) => {
     
     if (error) {
       console.error("Error checking for duplicate listing:", error);
+      // Instead of throwing error, return false to allow the operation to continue
       return false;
     }
 
     return data !== null;
   } catch (error) {
     console.error("Error in checkDuplicateListing:", error);
+    // Return false instead of throwing error to allow the operation to continue
     return false;
   }
 };
 
 export const saveListing = async (listingData: any, action: 'create' | 'merge' | 'ignore' = 'create') => {
   try {
+    console.log("Attempting to save listing:", listingData);
+
     if (!listingData.name) {
       console.error("Listing name is required");
       return null;
@@ -44,6 +49,8 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
       display_category: listingData.display_category || '',
       rating: parseFloat(listingData.rating) || 0,
       total_reviews: parseInt(listingData.total_reviews) || 0,
+      total_score: parseFloat(listingData.totalScore) || null,
+      reviews_count: parseInt(listingData.reviewsCount) || null,
       price_level: parseInt(listingData.price_level) || 2,
       languages: listingData.languages || ["NL", "EN", "PAP", "ES"],
       phone: listingData.phone || null,
@@ -68,7 +75,11 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error saving listing:", error);
+      throw error;
+    }
+    
     console.log("Successfully saved listing:", data);
     return data;
   } catch (error) {

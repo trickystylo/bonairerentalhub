@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { CategoryFilters } from "@/components/CategoryFilters";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 interface ListingsFilterProps {
   onSearch: (query: string) => void;
@@ -12,6 +14,28 @@ export const ListingsFilter = ({
   selectedCategory,
   onCategoryChange,
 }: ListingsFilterProps) => {
+  const [categories, setCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      console.log("Fetching categories...");
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+      
+      if (error) {
+        console.error("Error fetching categories:", error);
+        return;
+      }
+      
+      console.log("Fetched categories:", data);
+      setCategories(data || []);
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
     <div className="space-y-4 mb-6">
       <Input
@@ -19,10 +43,27 @@ export const ListingsFilter = ({
         onChange={(e) => onSearch(e.target.value)}
         className="max-w-md"
       />
-      <CategoryFilters
-        selectedCategory={selectedCategory}
-        onCategoryChange={onCategoryChange}
-      />
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant={selectedCategory === null ? "default" : "outline"}
+          onClick={() => onCategoryChange(null)}
+        >
+          All
+        </Button>
+        {categories.length > 0 ? (
+          categories.map((category) => (
+            <Button
+              key={category.id}
+              variant={selectedCategory === category.id ? "default" : "outline"}
+              onClick={() => onCategoryChange(category.id)}
+            >
+              {category.name}
+            </Button>
+          ))
+        ) : (
+          <p className="text-sm text-muted-foreground">No categories available</p>
+        )}
+      </div>
     </div>
   );
 };
