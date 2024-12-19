@@ -31,7 +31,7 @@ export const translations = {
     appartementen: "Appartementen",
     siteDescription: "Ontdek de beste verhuurservices op Bonaire - van auto's en boten tot vakantiehuizen. Vind betrouwbare verhuurders met uitstekende service en de beste prijzen. Perfect voor toeristen en lokale bewoners die op zoek zijn naar kwaliteitsverhuur op het prachtige Bonaire.",
     welcomeMessage: "Welkom bij HureninBonaire",
-    welcomeTitle: "Vind Uw Perfecte Huurwoning op Bonaire",
+    welcomeTitle: "Vind Jouw Perfecte Huurwoning op Bonaire",
     welcomeDescription: "Ontdek de beste verhuurservices op Bonaire - van auto's en boten tot vakantiehuizen. Begin vandaag uw eilandavontuur met onze betrouwbare lokale aanbieders.",
     searchPlaceholder: "Zoek naar verhuurbedrijven op Bonaire...",
     searchResults: "Zoekresultaten",
@@ -187,13 +187,4 @@ export const translations = {
     discoverDescription: "Explora los mejores restaurantes, tiendas, actividades y servicios en Bonaire. Nuestra guía completa te ayuda a encontrar negocios locales confiables con reseñas verificadas e información esencial.",
     rentalDescription: "Descubre los mejores servicios de alquiler en Bonaire - desde coches y barcos hasta casas de vacaciones. Tu destino único para todas las necesidades de alquiler en la hermosa isla.",
   }
-};
-
-export const useTranslation = (language: Language) => {
-  const t = (key: TranslationKey): string => {
-    console.log('Translation requested for:', key, 'in language:', language);
-    return translations[language][key] || translations['EN'][key] || key;
-  };
-
-  return t;
 };

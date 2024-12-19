@@ -34,13 +34,18 @@ export const BusinessGrid = ({
           .from('listings')
           .select('*');
         
-        // Only apply category filter if it's not "all" and not null
         if (selectedCategory && selectedCategory !== "all") {
           query = query.eq('category', selectedCategory);
         }
 
         if (searchQuery) {
-          query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+          // More flexible search with partial matching and multiple fields
+          query = query.or(`
+            name.ilike.%${searchQuery}%,
+            description.ilike.%${searchQuery}%,
+            display_category.ilike.%${searchQuery}%,
+            address.ilike.%${searchQuery}%
+          `);
         }
 
         if (searchFilters.minRating > 0) {

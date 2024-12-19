@@ -125,7 +125,7 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
             <div className="aspect-[4/3] relative p-4 flex flex-col justify-between">
               <div className="text-3xl mb-2">{category.icon}</div>
               <div>
-                <h3 className="font-medium text-base text-gray-900 line-clamp-1">
+                <h3 className="font-medium text-base text-gray-900 break-words line-clamp-2 min-h-[2.5rem]">
                   {category.name}
                 </h3>
                 <p className="text-sm text-gray-600">

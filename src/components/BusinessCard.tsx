@@ -4,7 +4,8 @@ import { useLanguage } from "../context/LanguageContext";
 import { useTranslation } from "../translations";
 import { toggleFeaturedListing, trackListingClick, ClickType } from "@/services/listingService";
 import { toast } from "./ui/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Business {
   id: string;
@@ -33,9 +34,25 @@ interface BusinessCardProps {
 
 export const BusinessCard = ({ business }: BusinessCardProps) => {
   const [isStarred, setIsStarred] = useState(business.is_premium);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const { language } = useLanguage();
   const t = useTranslation(language);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: adminData } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .single();
+        setIsAdmin(!!adminData);
+      }
+    };
+    checkAdminStatus();
+  }, []);
 
   const handleWhatsApp = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -70,6 +87,7 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
   };
 
   const handleToggleFeatured = async (e: React.MouseEvent) => {
+    if (!isAdmin) return;
     e.stopPropagation();
     try {
       setIsStarred(!isStarred); // Immediate UI update
@@ -109,16 +127,18 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
                   <h3 className="font-semibold text-xl">{business.name}</h3>
                   <p className="text-sm opacity-90">{business.displayCategory}</p>
                 </div>
-                <button
-                  onClick={handleToggleFeatured}
-                  className={`p-2 rounded-full transition-colors ${
-                    isStarred 
-                      ? 'bg-yellow-400 text-yellow-900' 
-                      : 'bg-gray-200/20 text-gray-200 hover:bg-gray-200/40'
-                  }`}
-                >
-                  <Star className="w-5 h-5" fill={isStarred ? "currentColor" : "none"} />
-                </button>
+                {isAdmin && (
+                  <button
+                    onClick={handleToggleFeatured}
+                    className={`p-2 rounded-full transition-colors ${
+                      isStarred 
+                        ? 'bg-yellow-400 text-yellow-900' 
+                        : 'bg-gray-200/20 text-gray-200 hover:bg-gray-200/40'
+                    }`}
+                  >
+                    <Star className="w-5 h-5" fill={isStarred ? "currentColor" : "none"} />
+                  </button>
+                )}
               </div>
             </div>
           </div>
