@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { ListingsFilter } from "../ListingsFilter";
 
 interface ListingsHeaderProps {
@@ -12,6 +13,8 @@ export const ListingsHeader = ({
   onSearch,
   selectedCategory,
   onCategoryChange,
+  onDelete,
+  listings,
 }: ListingsHeaderProps) => {
   return (
     <div className="space-y-4">
@@ -20,6 +23,15 @@ export const ListingsHeader = ({
         selectedCategory={selectedCategory}
         onCategoryChange={onCategoryChange}
       />
+      <div className="flex justify-end space-x-2">
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => onDelete(listings.map(listing => listing.id))}
+        >
+          Delete All
+        </Button>
+      </div>
     </div>
   );
 };

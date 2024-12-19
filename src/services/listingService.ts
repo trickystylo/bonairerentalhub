@@ -1,5 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import { parseAmenities } from "@/utils/csvParser";
 
 export const checkDuplicateListing = async (name: string) => {
   if (!name) {
@@ -28,6 +27,8 @@ export const checkDuplicateListing = async (name: string) => {
 
 export const saveListing = async (listingData: any, action: 'create' | 'merge' | 'ignore' = 'create') => {
   try {
+    console.log("Attempting to save listing:", listingData);
+
     if (!listingData.name) {
       console.error("Listing name is required");
       return null;
@@ -54,12 +55,10 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
       postal_code: listingData.postal_code || null,
       area: listingData.area || null,
       description: listingData.description || null,
-      amenities: parseAmenities(listingData.amenities),
-      images: listingData.images || null,
+      amenities: listingData.amenities || [],
+      images: listingData.images || [],
       latitude: parseFloat(listingData.latitude) || null,
       longitude: parseFloat(listingData.longitude) || null,
-      opening_hours: listingData.opening_hours || null,
-      price_range: listingData.price_range || null,
       status: 'active'
     };
 
@@ -71,7 +70,11 @@ export const saveListing = async (listingData: any, action: 'create' | 'merge' |
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error saving listing:", error);
+      throw error;
+    }
+    
     console.log("Successfully saved listing:", data);
     return data;
   } catch (error) {
