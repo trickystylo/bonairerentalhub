@@ -35,45 +35,43 @@ export const BusinessGrid = ({
         let query = supabase
           .from('listings')
           .select('*');
-        
+
+        // Handle category selection
         if (selectedCategory && selectedCategory !== "all") {
           query = query.eq('category', selectedCategory);
         }
 
         if (searchQuery) {
-          // Split search query into words and remove empty strings
-          const searchTerms = searchQuery.toLowerCase().split(' ').filter(term => term.length > 0);
-          
-          console.log("Search terms:", searchTerms);
+          const searchTerm = searchQuery.toLowerCase().trim();
+          console.log("Processing search term:", searchTerm);
 
-          // For each search term, create a condition that checks all relevant fields
-          searchTerms.forEach(term => {
-            // Using ilike with wildcards for partial matches
-            query = query.or(`
-              name.ilike.%${term}%,
-              description.ilike.%${term}%,
-              display_category.ilike.%${term}%,
-              category.ilike.%${term}%,
-              address.ilike.%${term}%
-            `);
-          });
+          // First, get all categories to check if search term matches any category
+          const { data: categories } = await supabase
+            .from('categories')
+            .select('id, name');
 
-          // Add an additional filter to ensure ALL terms are matched
-          // This makes the search more precise
-          query = query.not('name', 'eq', 'DO_NOT_MATCH');
-          searchTerms.forEach(term => {
+          const matchingCategory = categories?.find(cat => 
+            cat.name.toLowerCase().includes(searchTerm) || 
+            cat.id.toLowerCase().includes(searchTerm)
+          );
+
+          if (matchingCategory) {
+            console.log("Found matching category:", matchingCategory);
+            // If search term matches a category, show all listings from that category
+            query = query.eq('category', matchingCategory.id);
+          } else {
+            // Otherwise, search in listing names and descriptions
+            // Using startsWith for name (ilike with % only at the end)
+            // and contains for description (ilike with % at both ends)
             query = query.or(`
-              and(
-                name.ilike.%${term}%,
-                description.ilike.%${term}%,
-                display_category.ilike.%${term}%,
-                category.ilike.%${term}%,
-                address.ilike.%${term}%
-              )
+              name.ilike.${searchTerm}%,
+              description.ilike.%${searchTerm}%,
+              display_category.ilike.${searchTerm}%
             `);
-          });
+          }
         }
 
+        // Apply filters
         if (searchFilters.minRating > 0) {
           query = query.gte('rating', searchFilters.minRating);
         }
