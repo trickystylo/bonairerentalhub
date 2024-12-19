@@ -76,9 +76,9 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
 
   const handleWebsite = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (business.website) {
+    // Only proceed if there's a valid website URL
+    if (business.website && (business.website.startsWith('http://') || business.website.startsWith('https://'))) {
       await trackListingClick(business.id, 'website');
-      // Use the original website URL directly
       window.open(business.website, '_blank');
     }
   };
@@ -107,6 +107,9 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
       });
     }
   };
+
+  // Only show website button if there's a valid URL
+  const hasValidWebsite = business.website && (business.website.startsWith('http://') || business.website.startsWith('https://'));
 
   return (
     <div 
@@ -192,7 +195,7 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
             <MapPin className="w-4 h-4" />
             <span>{t("map")}</span>
           </button>
-          {business.website && (
+          {hasValidWebsite && (
             <button 
               onClick={handleWebsite}
               className="flex items-center justify-center gap-1 bg-secondary text-white rounded-lg py-2 px-3 hover:bg-opacity-90 transition-colors text-sm"
