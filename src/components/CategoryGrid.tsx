@@ -27,7 +27,9 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
         .select('category');
 
       const categoryCount = listings?.reduce((acc: Record<string, number>, listing) => {
-        acc[listing.category] = (acc[listing.category] || 0) + 1;
+        if (listing.category) {
+          acc[listing.category] = (acc[listing.category] || 0) + 1;
+        }
         return acc;
       }, {});
 
@@ -42,6 +44,7 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
       if (categories) {
         console.log("Fetched categories:", categories);
         
+        // Create the "All categories" option
         const allCategory = {
           id: 'all',
           name: 'All categories',
@@ -49,18 +52,22 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
           listingCount: listings?.length || 0
         };
 
+        // Map categories with their counts and filter out empty ones
         const categoriesWithCount = categories.map(cat => ({
           ...cat,
           listingCount: categoryCount?.[cat.id] || 0
         }));
 
         // Filter out categories with no listings and sort by listing count
-        const nonEmptyCategories = [allCategory, ...categoriesWithCount
+        const nonEmptyCategories = categoriesWithCount
           .filter(cat => cat.listingCount > 0)
-          .sort((a, b) => (b.listingCount || 0) - (a.listingCount || 0))];
+          .sort((a, b) => (b.listingCount || 0) - (a.listingCount || 0));
 
-        console.log("Processed categories:", nonEmptyCategories);
-        setCategories(nonEmptyCategories);
+        // Add "All categories" at the beginning
+        const finalCategories = [allCategory, ...nonEmptyCategories];
+        
+        console.log("Processed categories:", finalCategories);
+        setCategories(finalCategories);
       }
     };
 
@@ -94,8 +101,12 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
             <div className="aspect-[4/3] relative p-4 flex flex-col justify-between">
               <div className="text-3xl mb-2">{category.icon}</div>
               <div>
-                <h3 className="font-medium text-base text-gray-900 line-clamp-1">{category.name}</h3>
-                <p className="text-sm text-gray-600">{category.listingCount} listings</p>
+                <h3 className="font-medium text-base text-gray-900 line-clamp-1">
+                  {category.name}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {category.listingCount} listings
+                </p>
               </div>
             </div>
           </button>
