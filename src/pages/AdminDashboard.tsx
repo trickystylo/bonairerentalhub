@@ -60,46 +60,37 @@ const AdminDashboard = () => {
   };
 
   const handleDelete = async (ids: string[]) => {
-    const { error } = await supabase
-      .from('listings')
-      .delete()
-      .in('id', ids);
+    try {
+      // First delete all related clicks
+      const { error: clicksError } = await supabase
+        .from('listing_clicks')
+        .delete()
+        .in('listing_id', ids);
 
-    if (error) {
+      if (clicksError) throw clicksError;
+
+      // Then delete the listings
+      const { error: listingsError } = await supabase
+        .from('listings')
+        .delete()
+        .in('id', ids);
+
+      if (listingsError) throw listingsError;
+
+      toast({
+        title: "Success",
+        description: `${ids.length} listing(s) deleted successfully`,
+      });
+      
+      fetchListings();
+    } catch (error) {
+      console.error("Error deleting listings:", error);
       toast({
         title: "Error",
         description: "Failed to delete listings",
         variant: "destructive",
       });
-      return;
     }
-
-    toast({
-      title: "Success",
-      description: `${ids.length} listing(s) deleted successfully`,
-    });
-    
-    fetchListings();
-  };
-
-  const handleAdSubmit = async (newAd: any) => {
-    const { error } = await supabase
-      .from('advertisements')
-      .insert([newAd]);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create advertisement",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: "Success",
-      description: "Advertisement created successfully",
-    });
   };
 
   if (!isAdmin) {
@@ -136,7 +127,7 @@ const AdminDashboard = () => {
 
           <TabsContent value="advertisements">
             <div className="space-y-8">
-              <AdvertisementForm onSubmit={handleAdSubmit} />
+              <AdvertisementForm onSubmit={() => {}} />
             </div>
           </TabsContent>
 

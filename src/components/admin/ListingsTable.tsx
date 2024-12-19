@@ -97,23 +97,15 @@ export const ListingsTable = ({
             {selectedListings.length} selected
           </span>
         </div>
-        <div className="space-x-2">
+        {selectedListings.length > 0 && (
           <Button
             variant="destructive"
             size="sm"
             onClick={() => handleDeleteClick(selectedListings)}
-            disabled={selectedListings.length === 0}
           >
             Delete Selected
           </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => handleDeleteClick(listings.map(listing => listing.id))}
-          >
-            Delete All
-          </Button>
-        </div>
+        )}
       </div>
 
       <div className="overflow-x-auto">
@@ -127,9 +119,9 @@ export const ListingsTable = ({
                 />
               </TableHead>
               <TableHead>Name</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Rating</TableHead>
-              <TableHead>Price Level</TableHead>
+              <TableHead className="hidden md:table-cell">Category</TableHead>
+              <TableHead className="hidden md:table-cell">Rating</TableHead>
+              <TableHead className="hidden md:table-cell">Price Level</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -143,9 +135,9 @@ export const ListingsTable = ({
                   />
                 </TableCell>
                 <TableCell className="font-medium">{listing.name}</TableCell>
-                <TableCell>{listing.display_category}</TableCell>
-                <TableCell>{listing.rating}</TableCell>
-                <TableCell>{"€".repeat(listing.price_level)}</TableCell>
+                <TableCell className="hidden md:table-cell">{listing.display_category}</TableCell>
+                <TableCell className="hidden md:table-cell">{listing.rating}</TableCell>
+                <TableCell className="hidden md:table-cell">{"€".repeat(listing.price_level)}</TableCell>
                 <TableCell>
                   <div className="flex items-center space-x-2">
                     <ListingsTableActions

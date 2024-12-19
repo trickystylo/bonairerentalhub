@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import { SearchBar, SearchFilters } from "@/components/SearchBar";
 import { BusinessGrid } from "@/components/BusinessGrid";
 import { CategoryGrid } from "@/components/CategoryGrid";
+import { Navigation } from "@/components/Navigation";
 import { BackNavigation } from "@/components/BackNavigation";
 import { AdSpace } from "@/components/AdSpace";
 import { FeaturedListings } from "@/components/FeaturedListings";
@@ -53,6 +54,11 @@ const Index = () => {
       <BackNavigation />
       
       <div className="relative z-10">
+        <Navigation 
+          selectedCategory={selectedCategory}
+          onCategoryChange={handleCategoryChange}
+        />
+        
         <div className="container mx-auto px-4 pt-4">
           <AdSpace position="top" />
           
