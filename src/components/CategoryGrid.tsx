@@ -26,6 +26,8 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
         .from('listings')
         .select('category');
 
+      console.log("Fetched listings:", listings);
+
       const categoryCount = listings?.reduce((acc: Record<string, number>, listing) => {
         if (listing.category) {
           acc[listing.category] = (acc[listing.category] || 0) + 1;
