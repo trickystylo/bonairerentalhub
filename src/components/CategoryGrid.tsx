@@ -25,7 +25,8 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
         // First get all listings to count by category
         const { data: listings, error: listingsError } = await supabase
           .from('listings')
-          .select('category');
+          .select('category, display_category')
+          .not('category', 'is', null);
 
         if (listingsError) {
           console.error("Error fetching listings:", listingsError);
@@ -34,55 +35,50 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
 
         console.log("Raw listings data:", listings);
 
-        // Create category count map
-        const categoryCount: Record<string, number> = {};
+        // Create unique categories from listings with counts
+        const categoryMap = new Map<string, { count: number; name: string }>();
+        
         listings?.forEach(listing => {
-          if (listing.category) {
-            categoryCount[listing.category] = (categoryCount[listing.category] || 0) + 1;
+          if (listing.category && listing.display_category) {
+            if (categoryMap.has(listing.category)) {
+              const current = categoryMap.get(listing.category)!;
+              categoryMap.set(listing.category, {
+                count: current.count + 1,
+                name: listing.display_category
+              });
+            } else {
+              categoryMap.set(listing.category, {
+                count: 1,
+                name: listing.display_category
+              });
+            }
           }
         });
 
-        console.log("Category counts:", categoryCount);
+        console.log("Category map:", categoryMap);
 
-        // Then fetch all categories
-        const { data: categoriesData, error: categoriesError } = await supabase
-          .from('categories')
-          .select('*')
-          .order('display_order', { ascending: true })
-          .order('name');
+        // Convert map to array and add "All categories"
+        const allCategory = {
+          id: 'all',
+          name: 'Alle categorieën',
+          icon: '🏠',
+          listingCount: listings?.length || 0
+        };
 
-        if (categoriesError) {
-          console.error("Error fetching categories:", categoriesError);
-          return;
-        }
+        const categoriesArray = Array.from(categoryMap.entries()).map(([id, data]) => ({
+          id,
+          name: data.name,
+          icon: getCategoryIcon(id),
+          listingCount: data.count
+        }));
 
-        console.log("Raw categories data:", categoriesData);
+        // Sort categories by listing count
+        const sortedCategories = categoriesArray
+          .sort((a, b) => (b.listingCount || 0) - (a.listingCount || 0));
 
-        if (categoriesData) {
-          // Create the "All categories" option
-          const allCategory = {
-            id: 'all',
-            name: 'Alle categorieën',
-            icon: '🏠',
-            listingCount: listings?.length || 0
-          };
-
-          // Map categories with their counts
-          const categoriesWithCount = categoriesData.map(cat => ({
-            ...cat,
-            listingCount: categoryCount[cat.id] || 0
-          }));
-
-          // Filter out categories with no listings and sort by listing count
-          const nonEmptyCategories = categoriesWithCount
-            .filter(cat => cat.listingCount > 0)
-            .sort((a, b) => (b.listingCount || 0) - (a.listingCount || 0));
-
-          console.log("Processed categories before setting state:", [allCategory, ...nonEmptyCategories]);
-          
-          // Add "All categories" at the beginning
-          setCategories([allCategory, ...nonEmptyCategories]);
-        }
+        console.log("Final categories array:", [allCategory, ...sortedCategories]);
+        
+        setCategories([allCategory, ...sortedCategories]);
       } catch (error) {
         console.error("Error in fetchCategoriesWithCount:", error);
       }
@@ -90,6 +86,17 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
 
     fetchCategoriesWithCount();
   }, []);
+
+  const getCategoryIcon = (categoryId: string): string => {
+    const iconMap: Record<string, string> = {
+      'auto': '🚗',
+      'boot': '⛵',
+      'watersport': '🏄‍♂️',
+      'vakantiehuizen': '🏠',
+      'equipment': '🎥'
+    };
+    return iconMap[categoryId] || '🏠';
+  };
 
   const handleCategoryClick = (categoryId: string) => {
     onCategorySelect(categoryId === selectedCategory ? null : categoryId);
