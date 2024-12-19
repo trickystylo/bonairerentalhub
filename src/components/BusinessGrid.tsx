@@ -41,19 +41,37 @@ export const BusinessGrid = ({
         }
 
         if (searchQuery) {
-          // Split search query into words for better matching
-          const searchTerms = searchQuery.toLowerCase().split(' ');
+          // Split search query into words and remove empty strings
+          const searchTerms = searchQuery.toLowerCase().split(' ').filter(term => term.length > 0);
           
-          // Create OR conditions for each search term
-          const searchConditions = searchTerms.map(term => `
-            name.ilike.%${term}%,
-            description.ilike.%${term}%,
-            display_category.ilike.%${term}%,
-            address.ilike.%${term}%,
-            category.ilike.%${term}%
-          `).join(',');
+          console.log("Search terms:", searchTerms);
 
-          query = query.or(searchConditions);
+          // For each search term, create a condition that checks all relevant fields
+          searchTerms.forEach(term => {
+            // Using ilike with wildcards for partial matches
+            query = query.or(`
+              name.ilike.%${term}%,
+              description.ilike.%${term}%,
+              display_category.ilike.%${term}%,
+              category.ilike.%${term}%,
+              address.ilike.%${term}%
+            `);
+          });
+
+          // Add an additional filter to ensure ALL terms are matched
+          // This makes the search more precise
+          query = query.not('name', 'eq', 'DO_NOT_MATCH');
+          searchTerms.forEach(term => {
+            query = query.or(`
+              and(
+                name.ilike.%${term}%,
+                description.ilike.%${term}%,
+                display_category.ilike.%${term}%,
+                category.ilike.%${term}%,
+                address.ilike.%${term}%
+              )
+            `);
+          });
         }
 
         if (searchFilters.minRating > 0) {
@@ -81,7 +99,8 @@ export const BusinessGrid = ({
           return;
         }
 
-        console.log("Fetched listings:", data?.length);
+        console.log("Fetched listings count:", data?.length);
+        console.log("First few results:", data?.slice(0, 3));
         
         setListings(data || []);
         setDisplayedListings((data || []).slice(0, ITEMS_PER_PAGE));
