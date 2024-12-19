@@ -157,6 +157,8 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
           <span className="text-gray-600">
             {"€".repeat(business.priceLevel)}
           </span>
+          <span className="text-gray-400">•</span>
+          <span className="text-sm text-gray-600">{business.displayCategory}</span>
         </div>
 
         <div className="flex items-start gap-2 mb-2">

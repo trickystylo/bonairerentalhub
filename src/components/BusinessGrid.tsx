@@ -50,24 +50,25 @@ export const BusinessGrid = ({
           // First check if the search term matches any category
           const { data: categories } = await supabase
             .from('categories')
-            .select('id, name, display_category');
+            .select('id, name');
 
           console.log("Available categories:", categories);
 
-          // Look for category matches
-          const matchingCategory = categories?.find(cat => 
-            cat.name.toLowerCase().startsWith(searchTerm) || 
-            cat.id.toLowerCase() === searchTerm
-          );
+          // Look for category matches - now includes partial matches within category names
+          const matchingCategories = categories?.filter(cat => 
+            cat.name.toLowerCase().includes(searchTerm) || 
+            cat.id.toLowerCase().includes(searchTerm)
+          ) || [];
 
-          if (matchingCategory) {
-            console.log("Found matching category:", matchingCategory);
-            // If search matches a category, show all listings from that category
-            query = query.eq('category', matchingCategory.id);
+          if (matchingCategories.length > 0) {
+            console.log("Found matching categories:", matchingCategories);
+            // If search matches categories, show all listings from those categories
+            const categoryIds = matchingCategories.map(cat => cat.id);
+            query = query.in('category', categoryIds);
           } else {
             // If no category match, search in listings
-            // Use startsWith for name (no leading %)
-            query = query.or(`name.ilike.${searchTerm}%,description.ilike.%${searchTerm}%`);
+            // Use contains for more flexible matching
+            query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
           }
         }
 
