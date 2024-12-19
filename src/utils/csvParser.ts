@@ -1,40 +1,10 @@
 import Papa from "papaparse";
 
-export const formatCategoryName = (category: string) => {
-  if (!category) return '';
-  return category
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-    .trim();
-};
-
 export const parseCsvFile = (file: File): Promise<any[]> => {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: true,
-      delimiter: ',',
       skipEmptyLines: true,
-      transformHeader: (header) => {
-        // Remove quotes and clean the header
-        const cleanHeader = header.replace(/['"]/g, '').trim();
-        console.log("Processing header:", cleanHeader);
-        
-        // Map CSV headers to database column names
-        const headerMap: { [key: string]: string } = {
-          'title': 'name',
-          'categoryName': 'category',
-          'totalScore': 'rating',
-          'reviewsCount': 'total_reviews',
-          'location/lat': 'latitude',
-          'location/lng': 'longitude',
-          'imageUrl': 'images',
-          'searchPageUrl': 'search_url',
-          'url': 'listing_url'
-        };
-        
-        return headerMap[cleanHeader] || cleanHeader.toLowerCase();
-      },
       complete: (results) => {
         console.log("Raw CSV parsing results:", results);
         
@@ -43,44 +13,56 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
           resolve([]);
           return;
         }
-        
-        // Map the data to our expected format
+
         const cleanData = results.data
           .filter((row: any) => row && typeof row === 'object')
           .map((row: any) => {
-            console.log("Processing row:", row);
+            console.log("Raw row data:", row);
             
-            // Get the name from the title field
-            const title = row.name;
-            if (!title) {
-              console.error("Row missing title:", row);
+            // Extract all required fields
+            const {
+              title,
+              categoryName,
+              address,
+              city,
+              "location/lat": latitude,
+              "location/lng": longitude,
+              street,
+              phone,
+              website,
+              searchPageUrl,
+              imageUrl,
+              url,
+              totalScore,
+              reviewsCount
+            } = row;
+
+            // Validate required fields
+            if (!title || !categoryName) {
+              console.error("Missing required fields:", { title, categoryName });
               return null;
             }
 
-            // Get and clean category
-            const categoryName = row.category || 'Other';
-            const category = categoryName.toLowerCase().replace(/\s+/g, '-');
-            
-            // Create listing object with all required fields
+            // Create listing object with all fields mapped to database columns
             const listing = {
               name: title.trim(),
-              category: category,
+              category: categoryName.toLowerCase().replace(/\s+/g, '-'),
               display_category: categoryName,
-              rating: parseFloat(row.rating) || 0,
-              total_reviews: parseInt(row.total_reviews) || 0,
+              rating: parseFloat(totalScore) || 0,
+              total_reviews: parseInt(reviewsCount) || 0,
               price_level: 2,
               languages: ["NL", "EN", "PAP", "ES"],
-              phone: row.phone || null,
-              website: row.website || null,
-              address: row.address || null,
+              phone: phone || null,
+              website: website || null,
+              address: address || null,
               country: 'Bonaire',
               postal_code: '',
-              area: row.city || null,
+              area: city || null,
               description: '',
               amenities: [],
-              images: row.images ? [row.images] : [],
-              latitude: parseFloat(row.latitude) || null,
-              longitude: parseFloat(row.longitude) || null,
+              images: imageUrl ? [imageUrl] : [],
+              latitude: parseFloat(latitude) || null,
+              longitude: parseFloat(longitude) || null,
               status: 'active'
             };
 
