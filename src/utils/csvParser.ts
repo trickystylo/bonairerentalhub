@@ -1,46 +1,51 @@
 import Papa from "papaparse";
 
-export const parseOpeningHours = (row: any) => {
+export const parseOpeningHours = (data: any) => {
   try {
-    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-    const dutchToDays: { [key: string]: string } = {
-      'maandag': 'monday',
-      'dinsdag': 'tuesday',
-      'woensdag': 'wednesday',
-      'donderdag': 'thursday',
-      'vrijdag': 'friday',
-      'zaterdag': 'saturday',
-      'zondag': 'sunday'
-    };
-
+    // Handle the new CSV format's opening hours
     const hours: Record<string, { open: string; close: string }> = {};
     
-    // Handle the new CSV format's opening hours
     for (let i = 0; i < 7; i++) {
-      const dayKey = `openingHours/${i}/day`;
-      const hoursKey = `openingHours/${i}/hours`;
+      const day = data[`openingHours/${i}/day`]?.toLowerCase();
+      const hoursRange = data[`openingHours/${i}/hours`];
       
-      if (row[dayKey] && row[hoursKey]) {
-        const day = dutchToDays[row[dayKey].toLowerCase()] || row[dayKey].toLowerCase();
-        const [open, close] = row[hoursKey].split(' to ');
+      if (day && hoursRange) {
+        const [open, close] = hoursRange.split(' to ');
         hours[day] = { open, close };
       }
     }
-
+    
     // Return the hours if we found any
     if (Object.keys(hours).length > 0) {
       return hours;
     }
 
-    // Handle 24/7 case
-    if (row.opening_hours === '24/7') {
-      return days.reduce((acc, day) => ({
-        ...acc,
-        [day]: { open: '00:00', close: '23:59' }
-      }), {});
+    // Handle the existing format as fallback
+    if (!data.opening_hours && !data.openingHours) return null;
+    
+    const existingHours = data.opening_hours || data.openingHours;
+    if (existingHours === '24/7') {
+      return {
+        monday: { open: '00:00', close: '23:59' },
+        tuesday: { open: '00:00', close: '23:59' },
+        wednesday: { open: '00:00', close: '23:59' },
+        thursday: { open: '00:00', close: '23:59' },
+        friday: { open: '00:00', close: '23:59' },
+        saturday: { open: '00:00', close: '23:59' },
+        sunday: { open: '00:00', close: '23:59' }
+      };
     }
-
-    return null;
+    
+    const [start, end] = existingHours.split('-');
+    return {
+      monday: { open: start, close: end },
+      tuesday: { open: start, close: end },
+      wednesday: { open: start, close: end },
+      thursday: { open: start, close: end },
+      friday: { open: start, close: end },
+      saturday: { open: start, close: end },
+      sunday: { open: start, close: end }
+    };
   } catch (error) {
     console.error("Error parsing opening hours:", error);
     return null;
@@ -77,33 +82,29 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
           .filter((row: any) => row && Object.keys(row).length > 0)
           .map((row: any) => {
             // Transform the new CSV format to match our database schema
-            const category = (row.categoryname || 'auto').toLowerCase().replace(/\s+/g, '-');
-            
             const formattedRow = {
-              name: row.title || '',
-              category: category,
-              display_category: formatCategoryName(category),
-              rating: 0,
-              total_reviews: 0,
-              price_level: 2,
-              languages: ["NL", "EN", "PAP", "ES"],
-              phone: row.phone || null,
-              website: row.website || row.url || null,
+              name: row.title || row.name,
+              category: (row.categoryname || row.category || 'auto').toLowerCase().replace(/\s+/g, '-'),
+              display_category: row.categoryname || row.category || 'Auto',
+              rating: parseFloat(row.rating) || 0,
+              total_reviews: parseInt(row.total_reviews) || 0,
+              price_level: parseInt(row.price_level) || 2,
+              languages: row.languages ? row.languages.split(',').map((l: string) => l.trim()) : ["NL", "EN", "PAP", "ES"],
+              phone: row.phone,
+              website: row.website || row.url,
               address: row.address || `${row.street}, ${row.city}`,
-              country: 'Bonaire',
-              postal_code: null,
-              area: row.city || null,
-              description: '',
-              amenities: [],
-              images: row.imageurl ? [row.imageurl] : [],
-              latitude: parseFloat(row['location/lat']) || 0,
-              longitude: parseFloat(row['location/lng']) || 0,
+              country: row.country || 'Bonaire',
+              postal_code: row.postal_code,
+              area: row.city,
+              description: row.description || '',
+              amenities: parseAmenities(row.amenities),
+              images: row.imageurl ? [row.imageurl] : (row.images ? [row.images] : []),
+              latitude: parseFloat(row['location/lat'] || row.latitude) || 0,
+              longitude: parseFloat(row['location/lng'] || row.longitude) || 0,
               opening_hours: parseOpeningHours(row),
-              price_range: null,
+              price_range: row.price_range,
               status: 'active'
             };
-
-            console.log("Formatted row:", formattedRow);
 
             // Remove empty strings and undefined values
             return Object.fromEntries(
