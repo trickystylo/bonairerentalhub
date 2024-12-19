@@ -51,8 +51,7 @@ export const BusinessGrid = ({
           query = query.eq('category', selectedCategory);
         }
 
-        // Only apply search filters if there's a search query
-        if (searchQuery.trim()) {
+        if (searchQuery) {
           const searchTerm = normalizeText(searchQuery);
           console.log("Normalized search term:", searchTerm);
 
