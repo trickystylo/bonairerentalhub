@@ -75,10 +75,15 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
   };
 
   const handleWebsite = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // This prevents the card click from firing
+    e.stopPropagation();
     if (business.website) {
       await trackListingClick(business.id, 'website');
-      window.open(business.website, '_blank');
+      // Ensure the URL has a protocol
+      let websiteUrl = business.website;
+      if (!websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
+        websiteUrl = 'https://' + websiteUrl;
+      }
+      window.open(websiteUrl, '_blank');
     }
   };
 
