@@ -3,19 +3,35 @@ import Papa from "papaparse";
 export const formatCategoryName = (name: string): string => {
   if (!name) return '';
   return name.trim()
-    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+    .replace(/\s+/g, ' ')
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 };
 
+const validateRequiredColumns = (headers: string[]): string | null => {
+  const requiredColumns = ['title', 'name', 'categoryname', 'category'];
+  const hasNameColumn = headers.some(header => 
+    ['title', 'name'].includes(header.toLowerCase().trim()));
+  const hasCategoryColumn = headers.some(header => 
+    ['categoryname', 'category'].includes(header.toLowerCase().trim()));
+
+  if (!hasNameColumn) {
+    return "Missing required column: 'title' or 'name'. Please add one of these columns to your CSV.";
+  }
+  if (!hasCategoryColumn) {
+    return "Missing required column: 'categoryName' or 'category'. Please add one of these columns to your CSV.";
+  }
+  return null;
+};
+
 const mapColumnNames = (headers: string[]) => {
-  console.log("Original headers:", headers);
+  console.log("Processing CSV headers:", headers);
   
   const columnMappings: Record<string, string[]> = {
     name: ['title', 'name', 'listing_name'],
     categoryName: ['category', 'categoryname', 'category_name'],
-    address: ['address', 'location', 'full_address'],
+    address: ['address', 'location', 'full_address', 'street'],
     city: ['city', 'town', 'municipality'],
     latitude: ['location/lat', 'lat', 'latitude'],
     longitude: ['location/lng', 'lng', 'longitude'],
@@ -27,19 +43,30 @@ const mapColumnNames = (headers: string[]) => {
   };
 
   const headerMapping: Record<string, string> = {};
+  const unmappedColumns: string[] = [];
   
   headers.forEach(header => {
     const normalizedHeader = header.toLowerCase().replace(/['"]/g, '').trim();
+    let mapped = false;
     
     for (const [standardName, possibleNames] of Object.entries(columnMappings)) {
       if (possibleNames.includes(normalizedHeader)) {
         headerMapping[header] = standardName;
+        mapped = true;
         break;
       }
+    }
+    
+    if (!mapped) {
+      unmappedColumns.push(header);
     }
   });
 
   console.log("Mapped headers:", headerMapping);
+  if (unmappedColumns.length > 0) {
+    console.log("Unmapped columns (will be ignored):", unmappedColumns);
+  }
+  
   return headerMapping;
 };
 
@@ -52,21 +79,28 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
         return header.replace(/['"]+/g, '').trim();
       },
       complete: (results) => {
-        console.log("Raw CSV parsing results:", results);
+        console.log("Starting CSV parsing...");
         
         if (!results.data || results.data.length === 0) {
-          console.error("No data found in CSV");
-          reject(new Error("No data found in CSV file"));
+          reject(new Error("The CSV file is empty. Please make sure it contains data."));
           return;
         }
 
-        const headerMapping = mapColumnNames(results.meta.fields || []);
-        console.log("Header mapping created:", headerMapping);
+        const headers = results.meta.fields || [];
+        console.log("CSV headers found:", headers);
+
+        const validationError = validateRequiredColumns(headers);
+        if (validationError) {
+          reject(new Error(validationError));
+          return;
+        }
+
+        const headerMapping = mapColumnNames(headers);
 
         const cleanData = results.data
           .filter((row: any) => row && typeof row === 'object')
-          .map((row: any) => {
-            console.log("Processing row:", row);
+          .map((row: any, index: number) => {
+            console.log(`Processing row ${index + 1}:`, row);
 
             const getMappedValue = (standardName: string) => {
               const possibleHeaders = Object.entries(headerMapping)
@@ -74,7 +108,7 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
                 .map(([original]) => original);
 
               for (const header of possibleHeaders) {
-                if (row[header] !== undefined) {
+                if (row[header] !== undefined && row[header] !== '') {
                   return row[header];
                 }
               }
@@ -85,7 +119,8 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
             const categoryName = getMappedValue('categoryName');
 
             if (!name || !categoryName) {
-              console.log("Skipping row due to missing required fields:", { name, categoryName });
+              console.warn(`Skipping row ${index + 1} due to missing required fields:`, 
+                { name, categoryName });
               return null;
             }
 
@@ -111,17 +146,22 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
               status: 'active'
             };
 
-            console.log("Created listing object:", listing);
+            console.log(`Successfully processed row ${index + 1}:`, listing);
             return listing;
           })
           .filter(item => item !== null);
 
-        console.log("Final cleaned data:", cleanData);
+        if (cleanData.length === 0) {
+          reject(new Error("No valid data could be extracted from the CSV. Please check that your rows contain at least a name/title and category/categoryName."));
+          return;
+        }
+
+        console.log(`Successfully processed ${cleanData.length} listings`);
         resolve(cleanData);
       },
       error: (error) => {
         console.error("Error parsing CSV:", error);
-        reject(new Error(`Failed to parse CSV: ${error.message}`));
+        reject(new Error(`Failed to parse CSV: ${error.message}. Please ensure your file is a valid CSV format.`));
       }
     });
   });
