@@ -18,9 +18,9 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
       transformHeader: (header) => {
         // Remove quotes and clean the header
         const cleanHeader = header.replace(/['"]/g, '').trim();
-        console.log("Original header:", header, "Cleaned header:", cleanHeader);
+        console.log("Processing header:", cleanHeader);
         
-        // Map headers to our database column names
+        // Map CSV headers to database column names
         const headerMap: { [key: string]: string } = {
           'title': 'name',
           'categoryName': 'category',
@@ -28,7 +28,9 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
           'reviewsCount': 'total_reviews',
           'location/lat': 'latitude',
           'location/lng': 'longitude',
-          'imageUrl': 'images'
+          'imageUrl': 'images',
+          'searchPageUrl': 'search_url',
+          'url': 'listing_url'
         };
         
         return headerMap[cleanHeader] || cleanHeader.toLowerCase();
@@ -49,9 +51,9 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
             console.log("Processing row:", row);
             
             // Get the name from the title field
-            const name = row.name;
-            if (!name) {
-              console.error("Row missing name:", row);
+            const title = row.name;
+            if (!title) {
+              console.error("Row missing title:", row);
               return null;
             }
 
@@ -61,7 +63,7 @@ export const parseCsvFile = (file: File): Promise<any[]> => {
             
             // Create listing object with all required fields
             const listing = {
-              name: name.trim(),
+              name: title.trim(),
               category: category,
               display_category: categoryName,
               rating: parseFloat(row.rating) || 0,
