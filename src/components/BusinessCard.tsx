@@ -82,6 +82,7 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
       const websiteUrl = business.website.startsWith('http') 
         ? business.website 
         : `https://${business.website}`;
+      console.log('Opening website URL:', websiteUrl);
       window.open(websiteUrl, '_blank');
     }
   };
