@@ -75,7 +75,7 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
   };
 
   const handleWebsite = async (e: React.MouseEvent) => {
-    e.stopPropagation();
+    e.stopPropagation(); // This prevents the card click from firing
     if (business.website) {
       await trackListingClick(business.id, 'website');
       window.open(business.website, '_blank');
