@@ -136,11 +136,9 @@ export type Database = {
           price_level: number | null
           price_range: string | null
           rating: number | null
-          reviews_count: number | null
           status: string | null
           total_clicks: number | null
           total_reviews: number | null
-          total_score: number | null
           updated_at: string | null
           website: string | null
         }
@@ -166,11 +164,9 @@ export type Database = {
           price_level?: number | null
           price_range?: string | null
           rating?: number | null
-          reviews_count?: number | null
           status?: string | null
           total_clicks?: number | null
           total_reviews?: number | null
-          total_score?: number | null
           updated_at?: string | null
           website?: string | null
         }
@@ -196,11 +192,9 @@ export type Database = {
           price_level?: number | null
           price_range?: string | null
           rating?: number | null
-          reviews_count?: number | null
           status?: string | null
           total_clicks?: number | null
           total_reviews?: number | null
-          total_score?: number | null
           updated_at?: string | null
           website?: string | null
         }
