@@ -2,7 +2,6 @@ import { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { parseCsvFile } from "@/utils/csvParser";
 import { checkDuplicateListing, saveListing } from "@/services/listingService";
-import { saveCategories } from "@/services/categoryService";
 import { CsvFileInput } from "./CsvFileInput";
 import { DuplicateListingDialog } from "../admin/DuplicateListingDialog";
 
@@ -17,30 +16,39 @@ export const CsvProcessor = ({ onUpload, onNewCategories }: CsvProcessorProps) =
   const [pendingListingData, setPendingListingData] = useState<any>(null);
   const [duplicateListingName, setDuplicateListingName] = useState("");
 
-  const processCategories = async (rawData: any[]) => {
-    try {
-      const newCategories = new Set<string>();
-      rawData.forEach((listing: any) => {
-        if (listing.categoryName) {
-          newCategories.add(listing.categoryName);
-        }
-      });
+  const processBatch = async (listings: any[], startIdx: number, batchSize: number) => {
+    const batch = listings.slice(startIdx, startIdx + batchSize);
+    const savedListings = [];
 
-      if (newCategories.size > 0) {
-        console.log("Processing categories:", newCategories);
-        const savedCategories = await saveCategories(newCategories);
-        if (savedCategories && onNewCategories) {
-          onNewCategories(savedCategories);
+    for (const listing of batch) {
+      try {
+        console.log(`Processing listing ${listing.name}`);
+        const isDuplicate = await checkDuplicateListing(listing.name);
+        
+        if (isDuplicate) {
+          console.log(`Found duplicate listing: ${listing.name}`);
+          setDuplicateListingName(listing.name);
+          setPendingListingData(listing);
+          setShowDuplicateDialog(true);
+          return { savedListings, stopProcessing: true };
         }
+
+        const savedData = await saveListing(listing);
+        if (savedData) {
+          console.log("Successfully saved listing:", savedData);
+          savedListings.push(savedData);
+        }
+      } catch (error) {
+        console.error(`Error processing listing ${listing.name}:`, error);
+        toast({
+          title: "Error",
+          description: `Failed to process listing "${listing.name}": ${error.message}`,
+          variant: "destructive",
+        });
       }
-    } catch (error) {
-      console.error("Error processing categories:", error);
-      toast({
-        title: "Warning",
-        description: "Failed to process some categories, but continuing with listings upload",
-        variant: "destructive",
-      });
     }
+
+    return { savedListings, stopProcessing: false };
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,59 +72,41 @@ export const CsvProcessor = ({ onUpload, onNewCategories }: CsvProcessorProps) =
       if (!rawData || rawData.length === 0) {
         toast({
           title: "Error",
-          description: "No valid data found in CSV file. Make sure it contains at least name and category columns.",
+          description: "No valid data found in CSV file",
           variant: "destructive",
         });
-        setIsLoading(false);
         return;
       }
 
-      // Process categories first
-      await processCategories(rawData);
-
-      // Process listings
-      const savedListings = [];
-      for (const listing of rawData) {
-        try {
-          console.log("Processing listing:", listing);
-          const isDuplicate = await checkDuplicateListing(listing.name);
-          
-          if (isDuplicate) {
-            console.log(`Found duplicate listing: ${listing.name}`);
-            setDuplicateListingName(listing.name);
-            setPendingListingData(listing);
-            setShowDuplicateDialog(true);
-            setIsLoading(false);
-            return;
-          }
-
-          const savedData = await saveListing(listing);
-          if (savedData) {
-            console.log("Successfully saved listing:", savedData);
-            savedListings.push(savedData);
-          }
-        } catch (error) {
-          console.error(`Error processing listing ${listing.name}:`, error);
-          toast({
-            title: "Error",
-            description: `Failed to process listing "${listing.name}": ${error.message}`,
-            variant: "destructive",
-          });
+      const BATCH_SIZE = 50; // Process 50 listings at a time
+      const allSavedListings = [];
+      
+      for (let i = 0; i < rawData.length; i += BATCH_SIZE) {
+        const { savedListings, stopProcessing } = await processBatch(rawData, i, BATCH_SIZE);
+        allSavedListings.push(...savedListings);
+        
+        if (stopProcessing) {
+          console.log("Stopping batch processing due to duplicate");
+          return;
         }
+
+        // Update progress
+        const progress = Math.min(100, (i + BATCH_SIZE) / rawData.length * 100);
+        console.log(`Processing progress: ${progress.toFixed(1)}%`);
       }
 
-      if (savedListings.length > 0) {
-        onUpload(savedListings);
+      if (allSavedListings.length > 0) {
+        onUpload(allSavedListings);
         toast({
           title: "Success",
-          description: `Successfully uploaded ${savedListings.length} listings`,
+          description: `Successfully uploaded ${allSavedListings.length} listings`,
         });
       }
     } catch (error) {
       console.error("Error processing CSV:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to process CSV file. Please check the format.",
+        description: error.message || "Failed to process CSV file",
         variant: "destructive",
       });
     } finally {
@@ -124,7 +114,7 @@ export const CsvProcessor = ({ onUpload, onNewCategories }: CsvProcessorProps) =
     }
   };
 
-  const handleDuplicateAction = async (action: 'create' | 'merge' | 'ignore') => {
+  const handleCsvAction = async (action: 'create' | 'merge' | 'ignore') => {
     if (!pendingListingData) return;
 
     try {
@@ -161,7 +151,7 @@ export const CsvProcessor = ({ onUpload, onNewCategories }: CsvProcessorProps) =
       <DuplicateListingDialog
         isOpen={showDuplicateDialog}
         onClose={() => setShowDuplicateDialog(false)}
-        onAction={handleDuplicateAction}
+        onAction={handleCsvAction}
         duplicateName={duplicateListingName}
       />
     </>

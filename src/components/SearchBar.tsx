@@ -24,7 +24,10 @@ export const SearchBar = ({ onSearch, onFilterChange }: SearchBarProps) => {
     if (e) {
       e.preventDefault();
     }
-    onSearch(searchTerm);
+    // Only trigger search and scroll if there's a search term
+    if (searchTerm.trim()) {
+      onSearch(searchTerm);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,6 +37,7 @@ export const SearchBar = ({ onSearch, onFilterChange }: SearchBarProps) => {
 
   const clearSearch = () => {
     setSearchTerm("");
+    // Just clear the search term without scrolling
     onSearch("");
   };
 
