@@ -1,4 +1,4 @@
-import { Star } from "lucide-react";
+import { Star, MapPin } from "lucide-react";
 import { Business } from "../types/business";
 
 interface BusinessCardInfoProps {
