@@ -78,26 +78,33 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (business.website) {
-      try {
-        await trackListingClick(business.id, 'website');
-        
-        // Ensure the website URL has a protocol and is properly formatted
-        let websiteUrl = business.website.trim();
-        if (!websiteUrl.match(/^https?:\/\//i)) {
-          websiteUrl = `https://${websiteUrl}`;
-        }
-        
-        console.log('Opening website URL:', websiteUrl);
-        window.open(websiteUrl, '_blank', 'noopener,noreferrer');
-      } catch (error) {
-        console.error('Error opening website:', error);
-        toast({
-          title: "Error",
-          description: "Could not open website",
-          variant: "destructive",
-        });
+    if (!business.website) {
+      console.log('No website URL provided');
+      return;
+    }
+
+    try {
+      await trackListingClick(business.id, 'website');
+      
+      // Clean and format the URL
+      let websiteUrl = business.website.trim();
+      
+      // Add https:// if no protocol is specified
+      if (!websiteUrl.match(/^https?:\/\//i)) {
+        websiteUrl = `https://${websiteUrl}`;
       }
+      
+      console.log('Attempting to open website URL:', websiteUrl);
+      
+      // Open in new tab with security attributes
+      window.open(websiteUrl, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      console.error('Error opening website:', error);
+      toast({
+        title: "Error",
+        description: "Could not open website",
+        variant: "destructive",
+      });
     }
   };
 
