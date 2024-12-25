@@ -39,7 +39,8 @@ export const BusinessCardActions = ({ business, onStopPropagation }: BusinessCar
   };
 
   const handleWebsite = async (e: React.MouseEvent) => {
-    onStopPropagation(e);
+    e.preventDefault();
+    e.stopPropagation();
     
     if (!business.website) {
       console.log('No website URL provided');
