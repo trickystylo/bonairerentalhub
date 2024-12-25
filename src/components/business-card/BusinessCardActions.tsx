@@ -53,15 +53,23 @@ export const BusinessCardActions = ({ business, onStopPropagation }: BusinessCar
       // Clean and format the URL
       let websiteUrl = business.website.trim();
       
-      // Add https:// if no protocol is specified
+      // Check if the URL starts with http:// or https://
       if (!websiteUrl.match(/^https?:\/\//i)) {
+        // If not, add https://
         websiteUrl = `https://${websiteUrl}`;
       }
       
       console.log('Opening website URL:', websiteUrl);
       
       // Open in new tab with security attributes
-      window.open(websiteUrl, '_blank', 'noopener,noreferrer');
+      const newWindow = window.open();
+      if (newWindow) {
+        newWindow.opener = null;
+        newWindow.location.href = websiteUrl;
+      } else {
+        // If popup was blocked, try direct navigation
+        window.open(websiteUrl, '_blank', 'noopener,noreferrer');
+      }
     } catch (error) {
       console.error('Error opening website:', error);
       toast({
