@@ -50,26 +50,26 @@ export const BusinessCardActions = ({ business, onStopPropagation }: BusinessCar
     try {
       await trackListingClick(business.id, 'website');
       
-      // Clean and format the URL
+      // Clean and validate the URL
       let websiteUrl = business.website.trim();
       
-      // Check if the URL starts with http:// or https://
-      if (!websiteUrl.match(/^https?:\/\//i)) {
-        // If not, add https://
-        websiteUrl = `https://${websiteUrl}`;
+      // Validate URL format
+      try {
+        new URL(websiteUrl);
+      } catch (error) {
+        console.error('Invalid URL format:', error);
+        toast({
+          title: "Error",
+          description: "Invalid website URL",
+          variant: "destructive",
+        });
+        return;
       }
       
       console.log('Opening website URL:', websiteUrl);
       
       // Open in new tab with security attributes
-      const newWindow = window.open();
-      if (newWindow) {
-        newWindow.opener = null;
-        newWindow.location.href = websiteUrl;
-      } else {
-        // If popup was blocked, try direct navigation
-        window.open(websiteUrl, '_blank', 'noopener,noreferrer');
-      }
+      window.open(websiteUrl, '_blank', 'noopener,noreferrer');
     } catch (error) {
       console.error('Error opening website:', error);
       toast({
