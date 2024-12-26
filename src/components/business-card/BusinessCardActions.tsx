@@ -39,6 +39,7 @@ export const BusinessCardActions = ({ business, onStopPropagation }: BusinessCar
   };
 
   const handleWebsite = async (e: React.MouseEvent) => {
+    console.log('handleWebsite called');
     e.preventDefault();
     e.stopPropagation();
     
@@ -48,6 +49,7 @@ export const BusinessCardActions = ({ business, onStopPropagation }: BusinessCar
     }
 
     try {
+      console.log('Starting website click handling for:', business.website);
       await trackListingClick(business.id, 'website');
       
       // Clean and validate the URL
