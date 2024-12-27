@@ -52,15 +52,13 @@ export const BusinessCardActions = ({ business, onStopPropagation }: BusinessCar
       await trackListingClick(business.id, 'website');
       
       // Clean and prepare the URL
-      let websiteUrl = business.website.trim().toLowerCase();
+      let websiteUrl = business.website.trim();
       console.log('Original website URL:', websiteUrl);
 
-      // Remove any protocol if present
-      websiteUrl = websiteUrl.replace(/^(https?:\/\/)?(www\.)?/, '');
-      console.log('URL without protocol:', websiteUrl);
-
-      // Add https:// protocol
-      websiteUrl = `https://${websiteUrl}`;
+      // If URL doesn't start with http:// or https://, add https://
+      if (!websiteUrl.match(/^https?:\/\//i)) {
+        websiteUrl = `https://${websiteUrl}`;
+      }
       console.log('Final URL:', websiteUrl);
 
       // Validate URL format
