@@ -27,6 +27,42 @@ export type Database = {
         }
         Relationships: []
       }
+      advertisement_requests: {
+        Row: {
+          business_name: string
+          contact_name: string
+          created_at: string | null
+          email: string
+          id: string
+          message: string | null
+          phone: string | null
+          preferred_position: string
+          status: string | null
+        }
+        Insert: {
+          business_name: string
+          contact_name: string
+          created_at?: string | null
+          email: string
+          id?: string
+          message?: string | null
+          phone?: string | null
+          preferred_position: string
+          status?: string | null
+        }
+        Update: {
+          business_name?: string
+          contact_name?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          message?: string | null
+          phone?: string | null
+          preferred_position?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
       advertisements: {
         Row: {
           created_at: string | null
@@ -106,6 +142,53 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "listing_clicks_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_requests: {
+        Row: {
+          business_name: string
+          contact_name: string
+          created_at: string | null
+          email: string
+          id: string
+          listing_id: string | null
+          message: string | null
+          phone: string | null
+          request_type: string
+          status: string | null
+        }
+        Insert: {
+          business_name: string
+          contact_name: string
+          created_at?: string | null
+          email: string
+          id?: string
+          listing_id?: string | null
+          message?: string | null
+          phone?: string | null
+          request_type: string
+          status?: string | null
+        }
+        Update: {
+          business_name?: string
+          contact_name?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          listing_id?: string | null
+          message?: string | null
+          phone?: string | null
+          request_type?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_requests_listing_id_fkey"
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "listings"
