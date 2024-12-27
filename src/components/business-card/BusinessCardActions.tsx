@@ -43,25 +43,49 @@ export const BusinessCardActions = ({ business, onStopPropagation }: BusinessCar
     e.stopPropagation();
     
     if (!business.website) {
-      console.log('No website URL provided');
+      console.error('[URL DEBUG] No website URL provided');
       return;
     }
 
     try {
+      console.log('[URL DEBUG] Original website URL:', business.website);
+      
+      // Track the click first
       await trackListingClick(business.id, 'website');
       
+      // Clean and prepare the URL
       let websiteUrl = business.website.trim();
-      
-      // If URL doesn't start with protocol, add https://
-      if (!websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
+      console.log('[URL DEBUG] Cleaned website URL:', websiteUrl);
+
+      // Extract domain if it's just a domain name
+      if (!websiteUrl.includes('://')) {
+        // Remove any leading/trailing slashes or spaces
+        websiteUrl = websiteUrl.replace(/^\/+|\/+$/g, '');
+        // Remove any "www." prefix as we'll add it back if needed
+        websiteUrl = websiteUrl.replace(/^www\./i, '');
+        // Add https:// prefix
         websiteUrl = `https://${websiteUrl}`;
       }
 
-      // Simple direct window.open
-      window.open(websiteUrl, '_blank', 'noopener,noreferrer');
+      console.log('[URL DEBUG] Final processed URL:', websiteUrl);
+
+      // Validate URL format
+      try {
+        new URL(websiteUrl);
+      } catch (error) {
+        console.error('[URL DEBUG] Invalid URL format:', error);
+        throw new Error('Invalid URL format');
+      }
+
+      // Open URL in new tab
+      const newWindow = window.open(websiteUrl, '_blank', 'noopener,noreferrer');
+      if (!newWindow) {
+        console.error('[URL DEBUG] Popup was blocked');
+        throw new Error('Popup blocked');
+      }
       
     } catch (error) {
-      console.error('Error opening website:', error);
+      console.error('[URL DEBUG] Error opening website:', error);
       toast({
         title: "Error",
         description: "Could not open website",
