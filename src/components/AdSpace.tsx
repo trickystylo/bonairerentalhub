@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ContactForm } from "./ContactForm";
+import { useLanguage } from "@/context/LanguageContext";
+import { useTranslation } from "@/translations";
 
 interface AdSpaceProps {
   className?: string;
@@ -18,6 +22,8 @@ interface Advertisement {
 export const AdSpace = ({ className, position }: AdSpaceProps) => {
   const [ad, setAd] = useState<Advertisement | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { language } = useLanguage();
+  const t = useTranslation(language);
 
   useEffect(() => {
     const fetchAd = async () => {
@@ -63,30 +69,40 @@ export const AdSpace = ({ className, position }: AdSpaceProps) => {
     return null;
   }
 
-  if (!ad?.is_active) {
-    return (
-      <div
-        className={cn(
-          "rounded-lg overflow-hidden transition-transform hover:scale-[1.02]",
-          `bg-gradient-to-br ${placeholderGradients[position]}`,
-          positionStyles[position],
-          className
-        )}
-      >
-        <div className="w-full h-full flex flex-col items-center justify-center text-white p-4 text-center space-y-2">
-          <div className="text-4xl">✨</div>
-          <p className="text-sm font-medium">Advertisement Space</p>
-          <p className="text-xs opacity-75">Contact us to advertise here</p>
-        </div>
-      </div>
-    );
-  }
-
   const handleClick = () => {
-    if (ad.link) {
+    if (ad?.link) {
       window.open(ad.link, '_blank', 'noopener,noreferrer');
     }
   };
+
+  if (!ad?.is_active) {
+    return (
+      <Dialog>
+        <DialogTrigger asChild>
+          <div
+            className={cn(
+              "rounded-lg overflow-hidden transition-transform hover:scale-[1.02] cursor-pointer",
+              `bg-gradient-to-br ${placeholderGradients[position]}`,
+              positionStyles[position],
+              className
+            )}
+          >
+            <div className="w-full h-full flex flex-col items-center justify-center text-white p-4 text-center space-y-2">
+              <div className="text-4xl">✨</div>
+              <p className="text-sm font-medium">{t('advertisementSpace')}</p>
+              <p className="text-xs opacity-75">{t('clickToAdvertise')}</p>
+            </div>
+          </div>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>{t('contactUs')}</DialogTitle>
+          </DialogHeader>
+          <ContactForm />
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <div
@@ -103,6 +119,10 @@ export const AdSpace = ({ className, position }: AdSpaceProps) => {
           src={ad.image_url}
           alt="Advertisement"
           className="w-full h-full object-cover"
+          onError={(e) => {
+            console.error("Error loading image:", ad.image_url);
+            e.currentTarget.src = "placeholder.svg";
+          }}
         />
       ) : (
         <div className="w-full h-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex flex-col items-center justify-center text-white p-4 text-center space-y-2">

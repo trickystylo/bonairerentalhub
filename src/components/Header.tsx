@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
+import { ContactButton } from "./ContactButton";
 
 export const Header = () => {
   const { language } = useLanguage();
@@ -68,6 +69,7 @@ export const Header = () => {
         </Link>
 
         <div className="flex items-center space-x-4">
+          <ContactButton />
           <LanguageSelector />
           <Button
             variant="ghost"
