@@ -39,49 +39,29 @@ export const BusinessCardActions = ({ business, onStopPropagation }: BusinessCar
   };
 
   const handleWebsite = async (e: React.MouseEvent) => {
-    console.log('[ERROR FIX] Website click handler triggered');
-    // Prevent both default behavior and event bubbling
     e.preventDefault();
     e.stopPropagation();
     
     if (!business.website) {
-      console.log('[ERROR FIX] No website URL provided');
+      console.log('No website URL provided');
       return;
     }
 
     try {
-      console.log('[ERROR FIX] Processing website click for URL:', business.website);
       await trackListingClick(business.id, 'website');
       
       let websiteUrl = business.website.trim();
-      console.log('[ERROR FIX] Cleaned website URL:', websiteUrl);
       
-      // Validate URL format
-      try {
-        new URL(websiteUrl);
-      } catch (error) {
-        console.error('[ERROR FIX] Invalid URL format:', error);
-        toast({
-          title: "Error",
-          description: "Invalid website URL",
-          variant: "destructive",
-        });
-        return;
+      // If URL doesn't start with protocol, add https://
+      if (!websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
+        websiteUrl = `https://${websiteUrl}`;
       }
+
+      // Simple direct window.open
+      window.open(websiteUrl, '_blank', 'noopener,noreferrer');
       
-      console.log('[ERROR FIX] Opening external URL in new tab:', websiteUrl);
-      
-      // Force opening in new tab with all necessary security attributes
-      const newWindow = window.open();
-      if (newWindow) {
-        newWindow.opener = null;
-        newWindow.location.href = websiteUrl;
-      } else {
-        // Fallback if popup is blocked
-        window.open(websiteUrl, '_blank', 'noopener,noreferrer');
-      }
     } catch (error) {
-      console.error('[ERROR FIX] Error opening website:', error);
+      console.error('Error opening website:', error);
       toast({
         title: "Error",
         description: "Could not open website",
