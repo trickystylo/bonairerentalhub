@@ -70,7 +70,9 @@ export const translations = {
     submit: "Indienen",
     cookieConsentText: "Wij gebruiken cookies om uw ervaring te verbeteren",
     decline: "Weigeren",
-    accept: "Accepteren"
+    accept: "Accepteren",
+    advertisementSpace: "Advertentieruimte",
+    clickToAdvertise: "Klik om hier te adverteren"
   },
   EN: {
     allCategories: "All categories",
@@ -139,7 +141,9 @@ export const translations = {
     submit: "Submit",
     cookieConsentText: "We use cookies to enhance your experience",
     decline: "Decline",
-    accept: "Accept"
+    accept: "Accept",
+    advertisementSpace: "Advertisement Space",
+    clickToAdvertise: "Click to advertise here"
   },
   PAP: {
     allCategories: "Tur kategoria",
@@ -208,7 +212,9 @@ export const translations = {
     submit: "Manda",
     cookieConsentText: "Nos ta usa cookies pa mehorá bo eksperensia",
     decline: "Rechasá",
-    accept: "Akseptá"
+    accept: "Akseptá",
+    advertisementSpace: "Espasio pa Anunsio",
+    clickToAdvertise: "Klek aki pa anunsiá"
   },
   ES: {
     allCategories: "Todas las categorías",
@@ -277,7 +283,9 @@ export const translations = {
     submit: "Enviar",
     cookieConsentText: "Utilizamos cookies para mejorar su experiencia",
     decline: "Rechazar",
-    accept: "Aceptar"
+    accept: "Aceptar",
+    advertisementSpace: "Espacio Publicitario",
+    clickToAdvertise: "Haga clic para anunciar aquí"
   }
 };
 
