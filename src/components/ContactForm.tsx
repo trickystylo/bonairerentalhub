@@ -22,8 +22,7 @@ export const ContactForm = () => {
     phone: '',
     message: '',
     requestType: 'new',
-    preferredPosition: 'top',
-    website: ''
+    preferredPosition: 'top'
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,8 +63,7 @@ export const ContactForm = () => {
         phone: '',
         message: '',
         requestType: 'new',
-        preferredPosition: 'top',
-        website: ''
+        preferredPosition: 'top'
       });
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -175,15 +173,6 @@ export const ContactForm = () => {
               type="tel"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            />
-          </div>
-          <div>
-            <Label htmlFor="website">{t('websiteUrl')}</Label>
-            <Input
-              id="website"
-              type="url"
-              value={formData.website}
-              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
             />
           </div>
           <div>

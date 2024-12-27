@@ -1,38 +1,82 @@
-import { Star } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Business } from "./types/business";
+import { BusinessCardImage } from "./business-card/BusinessCardImage";
+import { BusinessCardInfo } from "./business-card/BusinessCardInfo";
+import { BusinessCardActions } from "./business-card/BusinessCardActions";
+import { toggleFeaturedListing } from "@/services/listingService";
+import { toast } from "./ui/use-toast";
 
 interface BusinessCardProps {
-  business: {
-    id: string;
-    name: string;
-    category: string;
-    display_category: string;
-    rating: number;
-    reviews_count: number;
-    image_url: string;
-  };
+  business: Business;
 }
 
 export const BusinessCard = ({ business }: BusinessCardProps) => {
+  const [isStarred, setIsStarred] = useState(business.is_premium);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: adminData } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .single();
+        setIsAdmin(!!adminData);
+      }
+    };
+    checkAdminStatus();
+  }, []);
+
+  const handleCardClick = () => {
+    navigate(`/listing/${business.id}`, { state: business });
+  };
+
+  const handleToggleFeatured = async (e: React.MouseEvent) => {
+    if (!isAdmin) return;
+    e.stopPropagation();
+    try {
+      setIsStarred(!isStarred); // Immediate UI update
+      await toggleFeaturedListing(business.id, !isStarred);
+      toast({
+        title: isStarred ? "Removed from featured" : "Added to featured",
+        description: `${business.name} has been ${isStarred ? 'removed from' : 'added to'} featured listings.`,
+      });
+    } catch (error) {
+      setIsStarred(!isStarred); // Revert on error
+      console.error("Error toggling featured status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update featured status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleStopPropagation = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div className="group relative">
-      <img
-        src={business.image_url}
-        alt={business.name}
-        className="w-full h-48 object-cover rounded-lg"
+    <div 
+      className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1"
+      onClick={handleCardClick}
+    >
+      <BusinessCardImage 
+        business={business}
+        isAdmin={isAdmin}
+        isStarred={isStarred}
+        onToggleFeatured={handleToggleFeatured}
       />
-      <div className="p-4">
-        <h3 className="text-lg font-semibold">{business.name}</h3>
-        <p className="text-sm text-gray-500">{business.display_category}</p>
-        <div className="flex items-center space-x-2 text-sm text-gray-600">
-          {business.rating && business.reviews_count > 0 && (
-            <>
-              <Star className="w-4 h-4 text-yellow-400" />
-              <span>{business.rating}</span>
-              <span className="text-gray-400">({business.reviews_count})</span>
-            </>
-          )}
-        </div>
-      </div>
+      <BusinessCardInfo business={business} />
+      <BusinessCardActions 
+        business={business}
+        onStopPropagation={handleStopPropagation}
+      />
     </div>
   );
 };

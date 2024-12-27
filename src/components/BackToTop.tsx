@@ -32,10 +32,10 @@ export const BackToTop = () => {
   return (
     <Button
       onClick={scrollToTop}
-      className="fixed bottom-8 right-8 z-50 rounded-full p-4 shadow-lg bg-primary hover:bg-primary/90 transition-all duration-300"
+      className="fixed bottom-8 right-8 z-50 rounded-full p-3 shadow-lg bg-primary hover:bg-primary/90 transition-all duration-300"
       size="icon"
     >
-      <ArrowUp className="h-6 w-6" />
+      <ArrowUp className="h-5 w-5" />
     </Button>
   );
 };

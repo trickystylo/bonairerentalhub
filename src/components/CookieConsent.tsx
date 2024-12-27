@@ -10,30 +10,13 @@ export const CookieConsent = () => {
 
   useEffect(() => {
     const consent = localStorage.getItem('cookieConsent');
-    const rejectionTimestamp = localStorage.getItem('cookieConsentRejectionTime');
-    
     if (!consent) {
-      if (rejectionTimestamp) {
-        const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
-        const rejectionTime = parseInt(rejectionTimestamp);
-        const now = Date.now();
-        
-        if (now - rejectionTime > oneHour) {
-          setShowBanner(true);
-        }
-      } else {
-        setShowBanner(true);
-      }
+      setShowBanner(true);
     }
   }, []);
 
   const handleAccept = () => {
     localStorage.setItem('cookieConsent', 'accepted');
-    setShowBanner(false);
-  };
-
-  const handleDecline = () => {
-    localStorage.setItem('cookieConsentRejectionTime', Date.now().toString());
     setShowBanner(false);
   };
 
@@ -49,7 +32,7 @@ export const CookieConsent = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={handleDecline}
+            onClick={() => setShowBanner(false)}
           >
             {t('decline')}
           </Button>

@@ -12,8 +12,8 @@ export const ContactButton = () => {
     <Dialog>
       <DialogTrigger asChild>
         <Button 
-          className="bg-gradient-caribbean hover:opacity-90 transition-opacity text-xs md:text-sm px-2 md:px-4"
-          size="sm"
+          className="bg-gradient-caribbean hover:opacity-90 transition-opacity"
+          size="lg"
         >
           {t('contact')}
         </Button>

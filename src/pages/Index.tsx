@@ -7,6 +7,7 @@ import { BackNavigation } from "@/components/BackNavigation";
 import { AdSpace } from "@/components/AdSpace";
 import { FeaturedListings } from "@/components/FeaturedListings";
 import { BackToTop } from "@/components/BackToTop";
+import { ContactButton } from "@/components/ContactButton";
 import { CookieConsent } from "@/components/CookieConsent";
 import { useLanguage } from "../context/LanguageContext";
 import { useTranslation } from "../translations";
@@ -64,6 +65,9 @@ const Index = () => {
             <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
               {t('welcomeDescription')}
             </p>
+            <div className="flex justify-center">
+              <ContactButton />
+            </div>
           </div>
 
           <SearchBar onSearch={handleSearch} onFilterChange={handleFilterChange} />

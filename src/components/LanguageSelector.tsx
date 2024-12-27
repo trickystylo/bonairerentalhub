@@ -6,13 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-const FLAGS: Record<string, string> = {
-  NL: "🇳🇱",
-  EN: "🇬🇧",
-  PAP: "🇨🇼",
-  ES: "🇪🇸"
-};
+import { Languages } from "lucide-react";
 
 export const LanguageSelector = () => {
   const { language, setLanguage } = useLanguage();
@@ -20,22 +14,23 @@ export const LanguageSelector = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="flex items-center gap-2 w-12">
-          {FLAGS[language]}
+        <Button variant="ghost" size="sm" className="flex items-center gap-2">
+          <Languages className="h-4 w-4" />
+          {language}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="bg-white">
+      <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setLanguage("NL")}>
-          🇳🇱 Nederlands
+          Nederlands
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setLanguage("EN")}>
-          🇬🇧 English
+          English
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setLanguage("PAP")}>
-          🇨🇼 Papiamento
+          Papiamento
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setLanguage("ES")}>
-          🇪🇸 Español
+          Español
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
