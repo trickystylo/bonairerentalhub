@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Bike, Scooter } from "lucide-react";
+import { Bike, Motorcycle } from "lucide-react";
 
 interface Category {
   id: string;
@@ -17,7 +17,7 @@ interface CategoryGridProps {
 const getCategoryIcon = (categoryId: string) => {
   const iconMap: Record<string, JSX.Element> = {
     'fietsverhuur': <Bike className="w-8 h-8" />,
-    'scooterverhuur': <Scooter className="w-8 h-8" />,
+    'scooterverhuur': <Motorcycle className="w-8 h-8" />,
     'auto': <span className="text-3xl">🚗</span>,
     'boot': <span className="text-3xl">⛵</span>,
     'watersport': <span className="text-3xl">🏄‍♂️</span>,
