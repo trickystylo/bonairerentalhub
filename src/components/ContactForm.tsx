@@ -81,12 +81,12 @@ export const ContactForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-sm">
+    <form onSubmit={handleSubmit} className="space-y-6 bg-white p-4 sm:p-6 rounded-lg shadow-sm w-full max-w-lg mx-auto">
       <div className="space-y-4">
         <RadioGroup
           value={formType}
           onValueChange={(value) => setFormType(value as 'listing' | 'advertisement')}
-          className="flex gap-4"
+          className="flex flex-wrap gap-4"
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="listing" id="listing" />
@@ -102,7 +102,7 @@ export const ContactForm = () => {
           <RadioGroup
             value={formData.requestType}
             onValueChange={(value) => setFormData({ ...formData, requestType: value })}
-            className="flex gap-4"
+            className="flex flex-wrap gap-4"
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="new" id="new" />
@@ -123,7 +123,7 @@ export const ContactForm = () => {
           <RadioGroup
             value={formData.preferredPosition}
             onValueChange={(value) => setFormData({ ...formData, preferredPosition: value })}
-            className="flex gap-4"
+            className="flex flex-wrap gap-4"
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="top" id="top" />

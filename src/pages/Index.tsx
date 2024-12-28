@@ -7,7 +7,6 @@ import { BackNavigation } from "@/components/BackNavigation";
 import { AdSpace } from "@/components/AdSpace";
 import { FeaturedListings } from "@/components/FeaturedListings";
 import { BackToTop } from "@/components/BackToTop";
-import { ContactButton } from "@/components/ContactButton";
 import { CookieConsent } from "@/components/CookieConsent";
 import { useLanguage } from "../context/LanguageContext";
 import { useTranslation } from "../translations";
@@ -76,11 +75,6 @@ const Index = () => {
             />
           </div>
           
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold">{t('featuredListings')}</h2>
-            <FeaturedListings />
-          </div>
-          
           <div className="flex gap-8 mt-8">
             <div className="flex-1">
               <div id="search-results">
@@ -102,9 +96,6 @@ const Index = () => {
       </div>
       <BackToTop />
       <CookieConsent />
-      <div className="fixed bottom-8 left-8 z-50">
-        <ContactButton />
-      </div>
     </div>
   );
 };

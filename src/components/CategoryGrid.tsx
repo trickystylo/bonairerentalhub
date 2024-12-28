@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Bike, Scooter } from "lucide-react";
 
 interface Category {
   id: string;
@@ -12,6 +13,19 @@ interface CategoryGridProps {
   onCategorySelect: (category: string | null) => void;
   selectedCategory: string | null;
 }
+
+const getCategoryIcon = (categoryId: string) => {
+  const iconMap: Record<string, JSX.Element> = {
+    'fietsverhuur': <Bike className="w-8 h-8" />,
+    'scooterverhuur': <Scooter className="w-8 h-8" />,
+    'auto': <span className="text-3xl">🚗</span>,
+    'boot': <span className="text-3xl">⛵</span>,
+    'watersport': <span className="text-3xl">🏄‍♂️</span>,
+    'vakantiehuizen': <span className="text-3xl">🏠</span>,
+    'equipment': <span className="text-3xl">🎥</span>
+  };
+  return iconMap[categoryId] || <span className="text-3xl">🏠</span>;
+};
 
 export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGridProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -123,7 +137,9 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
             }`}
           >
             <div className="aspect-[4/3] relative p-4 flex flex-col justify-between">
-              <div className="text-3xl mb-2">{category.icon}</div>
+              <div className="mb-2">
+                {getCategoryIcon(category.id)}
+              </div>
               <div>
                 <h3 className="font-medium text-base text-gray-900 break-words line-clamp-2 min-h-[2.5rem]">
                   {category.name}
