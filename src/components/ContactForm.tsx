@@ -20,6 +20,7 @@ export const ContactForm = () => {
     contactName: '',
     email: '',
     phone: '',
+    website: '',
     message: '',
     requestType: 'new',
     preferredPosition: 'top'
@@ -36,6 +37,7 @@ export const ContactForm = () => {
           contact_name: formData.contactName,
           email: formData.email,
           phone: formData.phone,
+          website: formData.website,
           message: formData.message,
           request_type: formData.requestType
         }]);
@@ -45,6 +47,7 @@ export const ContactForm = () => {
           contact_name: formData.contactName,
           email: formData.email,
           phone: formData.phone,
+          website: formData.website,
           message: formData.message,
           preferred_position: formData.preferredPosition
         }]);
@@ -55,12 +58,12 @@ export const ContactForm = () => {
         description: t('requestSubmitted'),
       });
 
-      // Reset form
       setFormData({
         businessName: '',
         contactName: '',
         email: '',
         phone: '',
+        website: '',
         message: '',
         requestType: 'new',
         preferredPosition: 'top'
@@ -78,7 +81,7 @@ export const ContactForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-sm">
       <div className="space-y-4">
         <RadioGroup
           value={formType}
@@ -145,6 +148,7 @@ export const ContactForm = () => {
               value={formData.businessName}
               onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
               required
+              className="mt-1"
             />
           </div>
           <div>
@@ -154,6 +158,7 @@ export const ContactForm = () => {
               value={formData.contactName}
               onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
               required
+              className="mt-1"
             />
           </div>
           <div>
@@ -164,6 +169,7 @@ export const ContactForm = () => {
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
+              className="mt-1"
             />
           </div>
           <div>
@@ -173,6 +179,18 @@ export const ContactForm = () => {
               type="tel"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label htmlFor="website">Website URL</Label>
+            <Input
+              id="website"
+              type="url"
+              value={formData.website}
+              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+              placeholder="https://example.com"
+              className="mt-1"
             />
           </div>
           <div>
@@ -182,6 +200,7 @@ export const ContactForm = () => {
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               rows={4}
+              className="mt-1"
             />
           </div>
         </div>

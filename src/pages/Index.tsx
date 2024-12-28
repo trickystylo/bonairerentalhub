@@ -65,9 +65,6 @@ const Index = () => {
             <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
               {t('welcomeDescription')}
             </p>
-            <div className="flex justify-center">
-              <ContactButton />
-            </div>
           </div>
 
           <SearchBar onSearch={handleSearch} onFilterChange={handleFilterChange} />
@@ -79,7 +76,10 @@ const Index = () => {
             />
           </div>
           
-          <FeaturedListings />
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold">{t('featuredListings')}</h2>
+            <FeaturedListings />
+          </div>
           
           <div className="flex gap-8 mt-8">
             <div className="flex-1">
@@ -102,6 +102,9 @@ const Index = () => {
       </div>
       <BackToTop />
       <CookieConsent />
+      <div className="fixed bottom-8 left-8 z-50">
+        <ContactButton />
+      </div>
     </div>
   );
 };

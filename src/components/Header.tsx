@@ -7,7 +7,6 @@ import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { ContactButton } from "./ContactButton";
 
 export const Header = () => {
   const { language } = useLanguage();
@@ -60,41 +59,42 @@ export const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2">
-          <span className="text-xl font-bold bg-gradient-caribbean bg-clip-text text-transparent">
-            HureninBonaire.com
-          </span>
-        </Link>
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto px-4">
+        <div className="flex h-16 items-center justify-between">
+          <Link to="/" className="flex items-center space-x-2">
+            <span className="text-xl font-bold bg-gradient-caribbean bg-clip-text text-transparent">
+              HureninBonaire.com
+            </span>
+          </Link>
 
-        <div className="flex items-center space-x-4">
-          <ContactButton />
-          <LanguageSelector />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleAuthClick}
-            className="flex items-center gap-2"
-          >
-            {session ? (
-              isAdmin ? (
-                <>
-                  <span>Dashboard</span>
-                </>
+          <div className="flex items-center space-x-4">
+            <LanguageSelector />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleAuthClick}
+              className="flex items-center gap-2"
+            >
+              {session ? (
+                isAdmin ? (
+                  <>
+                    <span>Dashboard</span>
+                  </>
+                ) : (
+                  <>
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
+                  </>
+                )
               ) : (
                 <>
-                  <LogOut className="h-4 w-4" />
-                  <span>Logout</span>
+                  <LogIn className="h-4 w-4" />
+                  <span>Login</span>
                 </>
-              )
-            ) : (
-              <>
-                <LogIn className="h-4 w-4" />
-                <span>Login</span>
-              </>
-            )}
-          </Button>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </header>
