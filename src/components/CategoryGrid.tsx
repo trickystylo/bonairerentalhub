@@ -5,8 +5,13 @@ import { Bike } from "lucide-react";
 interface Category {
   id: string;
   name: string;
-  icon: string;
+  icon: JSX.Element | string;  // Updated to accept both string and JSX.Element
   listingCount?: number;
+}
+
+interface CategoryGridProps {
+  onCategorySelect: (category: string | null) => void;
+  selectedCategory: string | null;
 }
 
 const getCategoryIcon = (categoryId: string) => {
@@ -70,7 +75,7 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
         const allCategory = {
           id: 'all',
           name: 'Alle categorieën',
-          icon: '🏠',
+          icon: getCategoryIcon('all'),
           listingCount: listings?.length || 0
         };
 
@@ -122,7 +127,7 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
           >
             <div className="aspect-[4/3] relative p-4 flex flex-col justify-between">
               <div className="mb-2">
-                {getCategoryIcon(category.id)}
+                {category.icon}
               </div>
               <div>
                 <h3 className="font-medium text-base text-gray-900 break-words line-clamp-2 min-h-[2.5rem]">
