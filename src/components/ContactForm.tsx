@@ -81,7 +81,7 @@ export const ContactForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-white p-4 sm:p-6 rounded-lg shadow-sm w-full max-w-lg mx-auto">
+    <form onSubmit={handleSubmit} className="space-y-6 bg-white p-4 sm:p-6 rounded-lg shadow-sm w-full max-w-lg mx-auto max-h-[90vh] overflow-y-auto">
       <div className="space-y-4">
         <RadioGroup
           value={formType}

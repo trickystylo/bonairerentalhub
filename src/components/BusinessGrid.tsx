@@ -140,13 +140,7 @@ export const BusinessGrid = ({
         }
         
         const { data, error } = await query;
-        
-        if (error) {
-          console.error("Error fetching listings:", error);
-          return;
-        }
 
-        // Sort results based on match score if there's a search query
         let sortedData = data || [];
         if (searchQuery.trim()) {
           const searchTerms = splitSearchQuery(searchQuery);
@@ -155,6 +149,9 @@ export const BusinessGrid = ({
             const scoreB = calculateMatchScore(b, searchTerms);
             return scoreB - scoreA;
           });
+        } else {
+          // If no search query, randomize the order
+          sortedData = sortedData.sort(() => Math.random() - 0.5);
         }
 
         console.log("Search results count:", sortedData.length);

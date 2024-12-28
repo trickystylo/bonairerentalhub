@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { SearchBar, SearchFilters } from "@/components/SearchBar";
 import { BusinessGrid } from "@/components/BusinessGrid";
@@ -12,7 +12,9 @@ import { useLanguage } from "../context/LanguageContext";
 import { useTranslation } from "../translations";
 
 const Index = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(() => {
+    return sessionStorage.getItem('selectedCategory');
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({
     priceRange: [1, 3],
@@ -38,6 +40,11 @@ const Index = () => {
 
   const handleCategoryChange = (category: string | null) => {
     setSelectedCategory(category);
+    if (category) {
+      sessionStorage.setItem('selectedCategory', category);
+    } else {
+      sessionStorage.removeItem('selectedCategory');
+    }
   };
 
   return (

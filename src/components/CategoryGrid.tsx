@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Bike } from "lucide-react";
 
 interface Category {
   id: string;
   name: string;
-  icon: JSX.Element | string;  // Updated to accept both string and JSX.Element
+  icon: string;
   listingCount?: number;
 }
 
@@ -15,16 +14,17 @@ interface CategoryGridProps {
 }
 
 const getCategoryIcon = (categoryId: string) => {
-  const iconMap: Record<string, JSX.Element> = {
-    'fietsverhuur': <Bike className="w-8 h-8" />,
-    'scooterverhuur': <span className="text-3xl">🛵</span>,
-    'auto': <span className="text-3xl">🚗</span>,
-    'boot': <span className="text-3xl">⛵</span>,
-    'watersport': <span className="text-3xl">🏄‍♂️</span>,
-    'vakantiehuizen': <span className="text-3xl">🏠</span>,
-    'equipment': <span className="text-3xl">🎥</span>
+  const iconMap: Record<string, string> = {
+    'fietsverhuur': '🚲',
+    'scooterverhuur': '🛵',
+    'auto': '🚗',
+    'boot': '⛵',
+    'watersport': '🏄‍♂️',
+    'vakantiehuizen': '🏠',
+    'equipment': '🎥',
+    'all': '🏠'
   };
-  return iconMap[categoryId] || <span className="text-3xl">🏠</span>;
+  return iconMap[categoryId] || '🏠';
 };
 
 export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGridProps) => {
@@ -36,7 +36,6 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
       try {
         console.log("Starting to fetch categories and counts...");
         
-        // First get all listings to count by category
         const { data: listings, error: listingsError } = await supabase
           .from('listings')
           .select('category, display_category')
@@ -49,7 +48,6 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
 
         console.log("Raw listings data:", listings);
 
-        // Create unique categories from listings with counts
         const categoryMap = new Map<string, { count: number; name: string }>();
         
         listings?.forEach(listing => {
@@ -71,7 +69,6 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
 
         console.log("Category map:", categoryMap);
 
-        // Convert map to array and add "All categories"
         const allCategory = {
           id: 'all',
           name: 'Alle categorieën',
@@ -86,7 +83,6 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
           listingCount: data.count
         }));
 
-        // Sort categories by listing count
         const sortedCategories = categoriesArray
           .sort((a, b) => (b.listingCount || 0) - (a.listingCount || 0));
 
@@ -102,7 +98,14 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
   }, []);
 
   const handleCategoryClick = (categoryId: string) => {
-    onCategorySelect(categoryId === selectedCategory ? null : categoryId);
+    const newCategory = categoryId === selectedCategory ? null : categoryId;
+    onCategorySelect(newCategory);
+    // Store selected category in sessionStorage
+    if (newCategory) {
+      sessionStorage.setItem('selectedCategory', newCategory);
+    } else {
+      sessionStorage.removeItem('selectedCategory');
+    }
     // Scroll to search results
     const resultsElement = document.getElementById('search-results');
     if (resultsElement) {
@@ -126,7 +129,7 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
             }`}
           >
             <div className="aspect-[4/3] relative p-4 flex flex-col justify-between">
-              <div className="mb-2">
+              <div className="mb-2 text-3xl">
                 {category.icon}
               </div>
               <div>

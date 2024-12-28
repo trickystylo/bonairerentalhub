@@ -27,7 +27,7 @@ export const nl = {
   siteDescription: "Ontdek de beste verhuurservices op Bonaire - van auto's en boten tot vakantiehuizen. Vind betrouwbare verhuurders met uitstekende service en de beste prijzen. Perfect voor toeristen en lokale bewoners die op zoek zijn naar kwaliteitsverhuur op het prachtige Bonaire.",
   welcomeMessage: "Welkom bij HureninBonaire",
   welcomeTitle: "Vind alles wat je kan huren op Bonaire",
-  welcomeDescription: "Ontdek de beste verhuurservices op Bonaire - van auto's en boten tot vakantiehuizen. Begin vandaag uw eilandavontuur met onze betrouwbare lokale aanbieders.",
+  welcomeDescription: "Ontdek de beste verhuurservices op Bonaire - van auto's en boten tot vakantiehuizen. Begin vandaag jouw eilandavontuur met onze betrouwbare lokale aanbieders.",
   searchPlaceholder: "Zoek naar verhuurbedrijven op Bonaire...",
   searchResults: "Zoekresultaten",
   resetClicks: "Reset clicks",
