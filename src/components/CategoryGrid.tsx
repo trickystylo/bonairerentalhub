@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Bike, Motorcycle } from "lucide-react";
+import { Bike } from "lucide-react";
 
 interface Category {
   id: string;
@@ -9,15 +9,10 @@ interface Category {
   listingCount?: number;
 }
 
-interface CategoryGridProps {
-  onCategorySelect: (category: string | null) => void;
-  selectedCategory: string | null;
-}
-
 const getCategoryIcon = (categoryId: string) => {
   const iconMap: Record<string, JSX.Element> = {
     'fietsverhuur': <Bike className="w-8 h-8" />,
-    'scooterverhuur': <Motorcycle className="w-8 h-8" />,
+    'scooterverhuur': <span className="text-3xl">🛵</span>,
     'auto': <span className="text-3xl">🚗</span>,
     'boot': <span className="text-3xl">⛵</span>,
     'watersport': <span className="text-3xl">🏄‍♂️</span>,
@@ -100,17 +95,6 @@ export const CategoryGrid = ({ onCategorySelect, selectedCategory }: CategoryGri
 
     fetchCategoriesWithCount();
   }, []);
-
-  const getCategoryIcon = (categoryId: string): string => {
-    const iconMap: Record<string, string> = {
-      'auto': '🚗',
-      'boot': '⛵',
-      'watersport': '🏄‍♂️',
-      'vakantiehuizen': '🏠',
-      'equipment': '🎥'
-    };
-    return iconMap[categoryId] || '🏠';
-  };
 
   const handleCategoryClick = (categoryId: string) => {
     onCategorySelect(categoryId === selectedCategory ? null : categoryId);
